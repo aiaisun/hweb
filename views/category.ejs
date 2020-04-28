@@ -1,0 +1,74 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div>
+    <form method="POST" id="uploadForm" enctype="multipart/form-data">
+        <div>Name your album: &nbsp;
+        <input name="user" type="text">
+        </div>
+        <!-- <input name="photoUpload" type="file" id="inputPhotos" accept="image/gif, image/jpeg, image/png" multiple> -->
+        <input name="photoUpload" type="file" id="tlcfile" accept=".txt" />
+        <input id="photoUploadBTN" type="submit" value='upload'>
+    </form>
+</div>
+
+<!-- album name -->
+<h1 id="albumName"></h1>
+<!-- upload photo list -->
+<div id="photoList" width='200px'></div>
+<!-- categorized photo -->
+<div id="categorizedPhoto"></div>
+
+<div>
+    <form method="get" enctype="multipart/form-data">
+        <input name="#" type="hidden" >
+        <button id="categorizePhoto" type="button">Categorize</button>
+    </form>
+</div>
+
+<%- include('parts/html_script') %>
+<script>
+    //upload many photo
+    var htmltxt = '';//define html string
+    const photoPathList = [];//define upload photo path couldn't change
+    var userAlbum=""//imput album name global could change
+    // const vs var list vs string
+    $('#uploadForm').on('submit', function (e) {
+        e.preventDefault();//prevent default post
+        $.ajax({
+            url: '/category',
+            type: 'POST',
+            data: new FormData(this),//the request data that send to route res.json(req.files)
+            contentType: false,
+            cache: false,
+            processData: false,
+            dataType: 'json',
+        }).done(function (data) {
+            console.log(data);
+            userAlbum = data.userAlbum;// cannot const again or next step will disappear
+
+            //find every photo path
+            var photoNum = data.uploadFiles.length;
+            
+            for (var i = 0; i < photoNum; i++) {
+                // console.log(data.uploadFiles[i].originalname);
+                // console.log(data.uploadFiles[i].path);
+                photoPathList.push(data.uploadFiles[i].path);
+                //add all photo together in img tag
+                htmltxt += `<img width='200px' src='/tmp_uploads/${data.uploadFiles[i].originalname}'>`;
+            }
+            console.log(userAlbum);
+            console.log(`add ${data.uploadFiles.length} photos`);
+            console.log(photoPathList);
+            $('#albumName').text(userAlbum);
+            $('#photoList').show();
+            $('#photoList').html(htmltxt);
+            //every photo info from req.files
+            // data.forEach(function (item, index, array) {
+            //     console.log(item)
+            // });
+            // console.log(JSON.stringify(data));
+        });
+        // alert("uploading")
+    })
+</script>
+<%- include('parts/html_foot') %>

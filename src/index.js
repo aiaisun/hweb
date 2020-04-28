@@ -21,7 +21,7 @@ const upload = multer({storage: storage});//single image Key:myImage
 
 
 app.listen(3000, () => {
-    console.log('Server starts.')
+    console.log('Server starts')
 })
 
 app.get('/', (req, res) =>{
@@ -36,23 +36,67 @@ app.post('/tlc', upload.single('tlcfile'), (req, res) =>{
     console.log(req.file);//req.files 報錯
     const files = {
         "data" : req.file,
-        "path" : req.file.path,
+        "project" : req.body.project,
     }
     res.json(files);
-
 });
 
+app.get('/tlc/parsetlc', pythonParseTLC)
+app.get('/call/python', pythonProcess)
 
-// app.post('/tlc', upload.single('tlcfile'),(req, res)=>{
-//     // if (err) console.log(err);
-//     // res.send({result:'success'});
-//     console.log(req.file);
-//     res.render('home',{
-//         result: true,
-//         uploadPic : '/tmp_uploads/' + req.file.filename,
-//         uploadPicPath : req.file.path
-//     })
-// });
+function pythonProcess(req, res) {
+  let options = {
+    args:
+      [
+        req.query.name,
+        req.query.from
+      ]
+  }
+
+  PythonShell.run('./process.py', options, (err, data) => {
+    if (err) res.send(err)
+    const parsedString = JSON.parse(data)
+    console.log(`name: ${parsedString.Name}, from: ${parsedString.From}`)
+    res.json(parsedString)
+  })
+
+}
+
+//parse TLC!!!!!!!!!!!! 
+function pythonParseTLC(req, res) {
+    console.log("123")
+    console.log(req.query.TLCFilePath);
+
+    let options = {
+        args: [
+            req.query.TLCFilePath,
+            req.query.project        
+        ]
+        
+        //[1,2,3] //[1]
+    }
+    PythonShell.run('./pyfile/test.py', options, (err, data) => {
+        if (err) res.send(err)
+        const parsedString = JSON.parse(data)
+        console.log(data);
+        console.log(parsedString);
+        // console.log(`name: ${parsedString.Name}, from: ${parsedString.From}`)
+        res.json("OK")
+
+    })
+
+    // PythonShell.run('./photocategory.py', options, (err, result) => {
+    //     if (err) res.send(err)
+    //     const parsedString = JSON.parse(result)
+    //     // console.log(result);
+    //     // console.log(parsedString);
+    //     // console.log(`name: ${parsedString.Name}, from: ${parsedString.From}`)
+    //     console.log(parsedString)
+    //     res.json(parsedString)
+
+    // })
+
+}
 
 
 // 自定404 page

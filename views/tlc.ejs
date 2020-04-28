@@ -2,17 +2,34 @@
 <%- include('parts/navbar') %>
 
 <div>
-    <form method="POST" enctype="multipart/form-data">
-
+    <form method="POST" id="tlcForm"enctype="multipart/form-data">
+        <div>Project Name: &nbsp;
+            <input name="project" type="text">
+        </div>
         <input name="tlcfile" type="file" id="tlcfile" accept=".txt" />
         <input type="submit" id="tlcUploadBTN" value="Upload">
-
+    </form>
+</div>
+<!-- project name -->
+<h1 id="projectName"></h1>
+<!-- file name -->
+<div id="uploadedTLCFileName"></div>
+<div>
+    <form method="get" id="tlcParse" enctype="multipart/form-data">
+        <input name="#" type="hidden" >
+        <button id="categorizePhoto" type="button">Parse</button>
     </form>
 </div>
 
+
 <%- include('parts/html_script') %>
 <script>
-    $('#tlcUploadBTN').on('submit', function (e) {
+    // ajax的query tag要用整個form的id，只用button整個報錯
+    $('#tlcParse').hide();
+    var project = "";
+    var uploadedTLCFileName = "";
+
+    $('#tlcForm').on('submit', function (e) {
         e.preventDefault();//prevent default post
         $.ajax({
             url: '/tlc',
@@ -23,9 +40,56 @@
             processData: false,
             dataType: 'json',
         }).done(function (data) {
-            alert("yes")
-            console.log(data.path);
+
+            console.log(data);
+            project = data.project;
+            uploadedTLCFilePath = data.data.path;
+            uploadedTLCFileName = data.data.originalname;
+
+            $('#tlcForm').hide();
+            $('#projectName').text(project);
+            $('#uploadedTLCFileName').text(uploadedTLCFileName);
+            $('#tlcParse').show();
         });
-    }) 
+    });
+
+    
+    $('#categorizePhoto').click(function () {
+
+        console.log(project);
+        console.log(uploadedTLCFilePath);
+
+        alert("parsing...")
+        // var userAlbum = $('#albumName').text()
+        $.get('/tlc/parsetlc', {"project" : project, "TLCFilePath" : uploadedTLCFilePath}, function (data) {
+            console.log("OK")
+            
+            // // $('#categorizedPhoto').show();
+            // // console.log(photoPathList)
+            // var categorizedNum = data.detectorNum;
+            // var spots = data.place
+            
+            // // console.log(spots);
+
+            // for (var i in spots){
+            //     // var categorized = ""
+            //     // categorized += 
+            //     console.log(spots[i]["id"]);
+            //     console.log(spots[i]["path"]);
+            //     $('#categorizedPhoto').append(`<div id="${spots[i]['id']}"> ${spots[i]["id"]}</div>`);
+            //     $(`#${spots[i]["id"]}`).append(`<div id="${spots[i]["id"]}Path"></div>`)
+            //     for (var j in spots[i]["path"]){
+
+            //         $(`#${spots[i]["id"]}Path`).append(`<img src="${spots[i]["path"][j].substr(6)}" width="300px">`)
+
+            //     }
+            // }
+            // $('categorizedPhoto')
+            
+        })
+        
+    })
+
+
 </script>
 <%- include('parts/html_foot') %>
