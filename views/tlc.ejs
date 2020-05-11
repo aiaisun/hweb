@@ -11,14 +11,17 @@
     </form>
 </div>
 <!-- project name -->
-<h1 id="projectName"></h1>
+<h3 id="projectName"></h3>
 <!-- file name -->
 <div id="uploadedTLCFileName"></div>
 <div>
     <form method="get" id="tlcParse" enctype="multipart/form-data">
         <input name="#" type="hidden" >
-        <button id="categorizePhoto" type="button">Parse</button>
+        <button id="parseTLC"" type="button">Parse</button>
     </form>
+</div>
+<div>
+    <h6 id="uploadcomplete"></h6>
 </div>
 
 
@@ -53,8 +56,8 @@
         });
     });
 
-    
-    $('#categorizePhoto').click(function () {
+
+    $('#parseTLC').click(function () {
 
         console.log(project);
         console.log(uploadedTLCFilePath);
@@ -62,7 +65,8 @@
         alert("parsing...")
         // var userAlbum = $('#albumName').text()
         $.get('/tlc/parsetlc', {"project" : project, "TLCFilePath" : uploadedTLCFilePath}, function (data) {
-            console.log("OK")
+            console.log("OK");
+            $('#uploadcomplete').text("Process Complete.")
             
             // // $('#categorizedPhoto').show();
             // // console.log(photoPathList)

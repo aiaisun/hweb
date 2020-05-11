@@ -1,3 +1,5 @@
+
+
 const express = require('express')
 const multer = require('multer')
 const fs = require('fs')
@@ -69,13 +71,12 @@ function pythonParseTLC(req, res) {
 
     let options = {
         args: [
-            req.query.TLCFilePath,
-            req.query.project        
+            req.query.project,
+            req.query.TLCFilePath
         ]
         
-        //[1,2,3] //[1]
     }
-    PythonShell.run('./pyfile/test.py', options, (err, data) => {
+    PythonShell.run('./parsebrd_v4_20200427.py', options, (err, data) => {
         if (err) res.send(err)
         const parsedString = JSON.parse(data)
         console.log(data);
