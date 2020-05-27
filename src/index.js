@@ -43,7 +43,7 @@ app.post('/tlc', upload.single('tlcfile'), (req, res) =>{
     res.json(files);
 });
 
-app.get('/tlc/parsetlc', pythonParseTLC)
+
 app.get('/call/python', pythonProcess)
 
 function pythonProcess(req, res) {
@@ -65,24 +65,29 @@ function pythonProcess(req, res) {
 }
 
 //parse TLC!!!!!!!!!!!! 
+app.get('/tlc/parsetlc', pythonParseTLC)
 function pythonParseTLC(req, res) {
-    console.log("123")
-    console.log(req.query.TLCFilePath);
+    console.log("Running python file.");
+    // console.log(req.query.TLCFilePath);
+    // console.log(req.query.project);
+    path = ".\\" + req.query.TLCFilePath;
 
     let options = {
         args: [
-            req.query.project,
-            req.query.TLCFilePath
+            req.query.project,//接到前端網頁的project 跟檔案路徑
+            path       
         ]
         
     }
-    PythonShell.run('./parsebrd_v4_20200427.py', options, (err, data) => {
+    // 因為python file 路徑填錯,所以一直報錯
+    PythonShell.run('./pyfile/parseIO_v7.py', options, (err, data) => {
         if (err) res.send(err)
         const parsedString = JSON.parse(data)
         console.log(data);
         console.log(parsedString);
+        console.log("Parsed Successfully");
         // console.log(`name: ${parsedString.Name}, from: ${parsedString.From}`)
-        res.json("OK")
+        res.json(parsedString)
 
     })
 

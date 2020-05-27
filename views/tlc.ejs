@@ -58,14 +58,16 @@
 
 
     $('#parseTLC').click(function () {
-
-        console.log(project);
-        console.log(uploadedTLCFilePath);
+        //按了parse會顯示project和path 資訊在網頁的console log
+        console.log("Project: ", project);
+        console.log("file path: ", uploadedTLCFilePath);
+        console.log("Sending file path to backend.")
 
         alert("parsing...")
         // var userAlbum = $('#albumName').text()
         $.get('/tlc/parsetlc', {"project" : project, "TLCFilePath" : uploadedTLCFilePath}, function (data) {
             console.log("OK");
+            console.log(data)
             $('#uploadcomplete').text("Process Complete.")
             
             // // $('#categorizedPhoto').show();
