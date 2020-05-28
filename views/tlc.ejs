@@ -17,11 +17,12 @@
 <div>
     <form method="get" id="tlcParse" enctype="multipart/form-data">
         <input name="#" type="hidden" >
-        <button id="parseTLC"" type="button">Parse</button>
+        <button id="parseTLC" type="button">Parse</button>
     </form>
 </div>
 <div>
     <h6 id="uploadcomplete"></h6>
+    <a id="downloadPath" href="#" download>下載</a>
 </div>
 
 
@@ -29,6 +30,7 @@
 <script>
     // ajax的query tag要用整個form的id，只用button整個報錯
     $('#tlcParse').hide();
+    $('#downloadPath').hide();
     var project = "";
     var uploadedTLCFileName = "";
 
@@ -44,7 +46,7 @@
             dataType: 'json',
         }).done(function (data) {
 
-            console.log(data);
+            // console.log(data);
             project = data.project;
             uploadedTLCFilePath = data.data.path;
             uploadedTLCFileName = data.data.originalname;
@@ -59,16 +61,20 @@
 
     $('#parseTLC').click(function () {
         //按了parse會顯示project和path 資訊在網頁的console log
-        console.log("Project: ", project);
-        console.log("file path: ", uploadedTLCFilePath);
-        console.log("Sending file path to backend.")
+        // console.log("Project: ", project);
+        // console.log("file path: ", uploadedTLCFilePath);
+        // console.log("Sending file path to backend.");
 
+        $('#parseTLC').hide();
         alert("parsing...")
-        // var userAlbum = $('#albumName').text()
+        
         $.get('/tlc/parsetlc', {"project" : project, "TLCFilePath" : uploadedTLCFilePath}, function (data) {
-            console.log("OK");
-            console.log(data)
+            // console.log("DONE");
+            // console.log(data);
+            var downloadPath = data.downloadPath;
+            $( "#downloadPath" ).attr("href", downloadPath);
             $('#uploadcomplete').text("Process Complete.")
+            $('#downloadPath').show();
             
             // // $('#categorizedPhoto').show();
             // // console.log(photoPathList)
@@ -90,10 +96,8 @@
 
             //     }
             // }
-            // $('categorizedPhoto')
-            
-        })
-        
+            // $('categorizedPhoto')          
+        })       
     })
 
 

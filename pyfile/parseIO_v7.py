@@ -2,6 +2,7 @@ import sys
 import json
 import re
 import pandas as pd
+import os
 
 ####Functions####
 
@@ -57,7 +58,7 @@ inputData = {
     "Project" : sys.argv[1],
     "FilePath" : sys.argv[2]
 }
-
+project = inputData["Project"]
 filepath = inputData["FilePath"]
 # filepath = "./pyfile/0511.txt" 檔案路徑要從index.js 出發，不可從python檔角度出發
 # filepath2 = ".\\public\\tmpTLC\\0511.txt"
@@ -275,6 +276,19 @@ dfFinal = pd.DataFrame(final).dropna(axis=0)
 
 
 # step5: 儲存檔案
+
+# 建立資料夾
+if project:
+    folder = f"./public/tmpTLC/{project}"
+
+if not os.path.isdir(folder):#如果沒有資料夾就建資料夾
+    try:
+        os.mkdir(folder)
+    except OSError:
+        folder = "./public/tmpTLC/else"
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+
 #原案
 # filename = re.findall(r"^\w*", filepath)[0]
 
@@ -284,8 +298,8 @@ filename = re.findall("\w+", filepath)[-1]
 
 #方案3 TO DO .txt還沒去掉
 # filename = filepath.split("\\")[-1]
-
-write = pd.ExcelWriter(f'{filepath}.xlsx')
+elsxPath = f'{folder}/{filename}.xlsx'
+write = pd.ExcelWriter(elsxPath)
 
 save_excel(write, dfFinal, "final")
 save_excel(write, dfsummary, "summary")
@@ -296,7 +310,11 @@ write.save()
 # print(f"step5: Save data to {filename}.xlsx. -DONE")
 
 
-result = "success - " + filepath
-json = json.dumps(result)
+outputData = {
+    # "elsxPath" : elsxPath,
+    "downloadPath" : elsxPath.replace("./public/", "")
+}
+
+json = json.dumps(outputData)
 print(str(json))
 sys.stdout.flush()
