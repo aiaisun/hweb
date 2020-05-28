@@ -141,6 +141,7 @@ for i in rawData:
 dfsummary, dfSQS, dfSQSR = pd.DataFrame(summary), pd.DataFrame(SQS), pd.DataFrame(SQS)
 # print("step3: Transfer file format. -DONE")
 
+
 #step4: 分析txt
 #修改df
 # print("step4: Parsing txt file...")
@@ -278,7 +279,7 @@ dfFinal = pd.DataFrame(final).dropna(axis=0)
 # filename = re.findall(r"^\w*", filepath)[0]
 
 #方案2
-filepath = ".\\public\\tmpTLC\\0511.txt".replace(".txt","")
+filepath = filepath.replace(".txt","")
 filename = re.findall("\w+", filepath)[-1]
 
 #方案3 TO DO .txt還沒去掉
