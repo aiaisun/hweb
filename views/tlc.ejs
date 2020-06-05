@@ -1,28 +1,46 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
 
-<div>
-    <form method="POST" id="tlcForm"enctype="multipart/form-data">
-        <div>Project Name: &nbsp;
+<div id="projectName">
+    
+    <form method="POST" class="form-group" id="tlcForm" enctype="multipart/form-data">
+        <label for="exampleFormControlFile1">TLC Tool</label>
+        <div>
+            Project Name: &nbsp;
             <input name="project" type="text">
         </div>
-        <input name="tlcfile" type="file" id="tlcfile" accept=".txt" />
-        <input type="submit" id="tlcUploadBTN" value="Upload">
+        <div>
+            TXT File: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input name="tlcfile" type="file" id="tlcfile" accept=".txt" />
+        
+        <!-- <div> -->
+            <input type="submit" id="tlcUploadBTN" class="btn btn-secondary" value="Upload">
+        <!-- </div> --></div>
     </form>
 </div>
+
+
+
+
 <!-- project name -->
-<h3 id="projectName"></h3>
+<!-- <h3 id="projectName"></h3> -->
 <!-- file name -->
-<div id="uploadedTLCFileName"></div>
+<!-- <div id="uploadedTLCFileName"></div> -->
 <div>
     <form method="get" id="tlcParse" enctype="multipart/form-data">
-        <input name="#" type="hidden" >
-        <button id="parseTLC" type="button">Parse</button>
+        <label id="projectName" for="exampleFormControlFile1"></label>
+        <label id="uploadedTLCFileName" for="exampleFormControlFile1"></label>
+        <input name="#" type="hidden">
+            <button type="button" class="btn btn-secondary" id="parseTLCIO">Paese IO</button>
+            <button type="button" class="btn btn-secondary" id="parseTLCVram">Parse VRAM</button>
+        </span>
+        
+
     </form>
 </div>
 <div>
     <h6 id="uploadcomplete"></h6>
-    <a id="downloadPath" href="#" download>下載</a>
+    <a id="downloadPath" href="#" download>Dd</a>
 </div>
 
 
@@ -52,35 +70,36 @@
             uploadedTLCFileName = data.data.originalname;
 
             $('#tlcForm').hide();
-            $('#projectName').text(project);
-            $('#uploadedTLCFileName').text(uploadedTLCFileName);
+            $('#projectName').html("Project Name: &nbsp;&nbsp;  " + project);
+            $('#uploadedTLCFileName').text("TXT File Name:      " + uploadedTLCFileName);
             $('#tlcParse').show();
         });
     });
 
 
-    $('#parseTLC').click(function () {
+    $('#parseTLCIO').click(function () {
         //按了parse會顯示project和path 資訊在網頁的console log
         // console.log("Project: ", project);
         // console.log("file path: ", uploadedTLCFilePath);
         // console.log("Sending file path to backend.");
 
-        $('#parseTLC').hide();
+        $('#parseTLCIO').hide();
+        $('#parseTLCVram').hide();
         alert("parsing...")
-        
-        $.get('/tlc/parsetlc', {"project" : project, "TLCFilePath" : uploadedTLCFilePath}, function (data) {
+
+        $.get('/tlc/parsetlc', { "project": project, "TLCFilePath": uploadedTLCFilePath }, function (data) {
             // console.log("DONE");
             // console.log(data);
             var downloadPath = data.downloadPath;
-            $( "#downloadPath" ).attr("href", downloadPath);
+            $("#downloadPath").attr("href", downloadPath);
             $('#uploadcomplete').text("Process Complete.")
             $('#downloadPath').show();
-            
+
             // // $('#categorizedPhoto').show();
             // // console.log(photoPathList)
             // var categorizedNum = data.detectorNum;
             // var spots = data.place
-            
+
             // // console.log(spots);
 
             // for (var i in spots){
@@ -97,9 +116,28 @@
             //     }
             // }
             // $('categorizedPhoto')          
-        })       
+        })
     })
 
+    $('#parseTLCVram').click(function () {
+        //按了parse會顯示project和path 資訊在網頁的console log
+        // console.log("Project: ", project);
+        // console.log("file path: ", uploadedTLCFilePath);
+        // console.log("Sending file path to backend.");
+
+        $('#parseTLCIO').hide();
+        $('#parseTLCVram').hide();
+        alert("parsing...")
+
+        $.get('/tlc/parsevram', { "project": project, "TLCFilePath": uploadedTLCFilePath }, function (data) {
+            // console.log("DONE");
+            // console.log(data);
+            var downloadPath = data.downloadPath;
+            $("#downloadPath").attr("href", downloadPath);
+            $('#uploadcomplete').text("Process Complete.")
+            $('#downloadPath').show();        
+        })
+    })
 
 </script>
 <%- include('parts/html_foot') %>

@@ -1,0 +1,44 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div id="registerForm">
+    <form id="registerForm" method="POST">
+        <div class="form-group">
+            <label id="registerForm" for="exampleInputEmail1">中文姓名</label>
+            <small id="emailHelp" class="form-text text-muted">Ex. 孫詠愛</small>
+            <input type="text" class="col form-control" id="userCName" name="userCName" aria-describedby="emailHelp" required>
+            
+            <label id="registerForm" for="exampleInputEmail1">英文姓名</label>
+            <small id="emailHelp" class="form-text text-muted">Ex. Ali Sun</small>
+            <input type="text" class="form-control" id="userEName" name="userEName" aria-describedby="emailHelp" required>
+            
+            <label id="registerForm" for="exampleInputEmail1">Email</label>
+            <small id="emailHelp" class="form-text text-muted">Please use company's email</small>
+            <div class="form-row align-items-center">
+                
+                <div class="col-auto">
+                    <label class="sr-only" for="inlineFormInput">Name</label>
+                    <input type="text" class="form-control mb-2" id="inlineFormInput" name="useremail" placeholder="ali.sun" style="width: 102px;" required>
+                </div>
+                <div class="col-auto">
+                    <label class="sr-only" for="inlineFormInputGroup">Username</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">@</div>
+                        </div>
+                        <input type="text" class="form-control" id="inlineFormInputGroup"
+                            placeholder="lcfuturecenter.com" value="lcfuturecenter.com" readonly="value" style="width: 157px;">
+                    </div>
+                </div>
+            </div>
+            
+            <label id="registerForm" for="userPassword">Password</label>
+            <small id="emailHelp" class="form-text text-muted">6-12 characters and numbers </small>
+            <input type="password" class="form-control" id="exampleInputPassword1" name="userpassword"required>
+        </div>
+
+        <button type="submit" class="btn btn-secondary">送出</button>
+    </form>
+</div>
+
+<%- include('parts/html_script') %>
+<%- include('parts/html_foot') %>

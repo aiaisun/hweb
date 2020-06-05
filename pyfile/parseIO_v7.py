@@ -309,7 +309,6 @@ write.save()
 
 # print(f"step5: Save data to {filename}.xlsx. -DONE")
 
-
 outputData = {
     # "elsxPath" : elsxPath,
     "downloadPath" : elsxPath.replace("./public/", "")
