@@ -1,10 +1,12 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
 
+<a id="downloadPath1" href="database/TLC_IO_v1.0.xlsm" download>TLC SQS 表格</a>
 <div id="projectName">
+    <!-- <h3 for="exampleFormControlFile1">上傳txt file</h3> -->
     
     <form method="POST" class="form-group" id="tlcForm" enctype="multipart/form-data">
-        <label for="exampleFormControlFile1">TLC Tool</label>
+        
         <div>
             Project Name: &nbsp;
             <input name="project" type="text">
@@ -18,9 +20,6 @@
         <!-- </div> --></div>
     </form>
 </div>
-
-
-
 
 <!-- project name -->
 <!-- <h3 id="projectName"></h3> -->
@@ -39,8 +38,8 @@
     </form>
 </div>
 <div>
-    <h6 id="uploadcomplete"></h6>
-    <a id="downloadPath" href="#" download>Dd</a>
+    <!-- <h6 id="uploadcomplete"></h6> -->
+    <a id="downloadPath" href="#" download>Download SQS Data</a>
 </div>
 
 
@@ -49,6 +48,7 @@
     // ajax的query tag要用整個form的id，只用button整個報錯
     $('#tlcParse').hide();
     $('#downloadPath').hide();
+    $('#downloadPath1').hide();
     var project = "";
     var uploadedTLCFileName = "";
 
@@ -92,9 +92,9 @@
             // console.log(data);
             var downloadPath = data.downloadPath;
             $("#downloadPath").attr("href", downloadPath);
-            $('#uploadcomplete').text("Process Complete.")
+            // $('#uploadcomplete').text("Process Complete.")
             $('#downloadPath').show();
-
+            $('#downloadPath1').show();
             // // $('#categorizedPhoto').show();
             // // console.log(photoPathList)
             // var categorizedNum = data.detectorNum;
@@ -134,8 +134,9 @@
             // console.log(data);
             var downloadPath = data.downloadPath;
             $("#downloadPath").attr("href", downloadPath);
-            $('#uploadcomplete').text("Process Complete.")
-            $('#downloadPath').show();        
+            // $('#uploadcomplete').text("Process Complete.")
+            $('#downloadPath').show();       
+            $('#downloadPath1').show(); 
         })
     })
 

@@ -1,6 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
+const utf8 = require('utf8');
+const bodyParser = require('body-parser');
 const mongoClient = require('mongodb').MongoClient;
 const mongo = 'mongodb://localhost:27017/hweb'
 // const url = "mongodb://localhost:27017";
@@ -28,9 +30,11 @@ let mongodb = null
 
 
 const app = express();
-let { PythonShell } = require('python-shell')
+let { PythonShell } = require('python-shell');
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 // set the storage engine
 const storage = multer.diskStorage({
@@ -43,13 +47,12 @@ const storage = multer.diskStorage({
 //init upload
 const upload = multer({storage: storage});//single image Key:myImage
 
-
 // member system//
 // Create a connect to MongoDB  Q 為什app要設在db 連接裡面
 mongoClient.connect(mongo, {useUnifiedTopology: true}, function (err, db) {
     if (err) return console.log(err)
-  
-    mongodb = db
+    mongodb = db.db("hweb");
+    // mongodb = db
   
     // Start Service
     app.listen(3000, function () {
@@ -72,18 +75,37 @@ app.get('/user/login', (req, res) =>{
 app.get('/user/register', (req, res) =>{
     res.render('register');
 });
+app.get('/user/registerSuccess', (req, res) =>{
+    res.render('registerSuccess');
+});
 
-app.post('/user/register', function (req, res) {
-    // const collection = mongodb.collection('users')
-  
-    // collection.insert({username: req.body.username, password: req.body.password}, function (err, result) {
-    //   if (err) return res.json(err)
-      res.json({
-          message: "Success",
-          data : req.query.useremail
-        })
-    // })
+var registerSuccess = function(req, res, next) {
+    const data={
+        userEmail: req.body.userEmail + "@lcfuturecenter.com",
+    }
+    console.log(`${data.userEmail} 註冊成功`);
+    next();
+  }
+
+app.post('/user/register', registerSuccess, (req, res) =>{
+    const collection = mongodb.collection('users')
+    const data = {
+        "success": "success",
+        "data" : req.body
+    }
+
+  collection.insertOne({
+      userCName: req.body.userCName,
+      userEName: req.body.userEName,
+      userEmail: req.body.userEmail + "@lcfuturecenter.com",
+      userPW: req.body.userpassword
+    }, function (err, result) {
+    if (err) return res.json(err)
+    res.redirect('registerSuccess');
   })
+  })
+
+
 
 app.get('/tlc', (req, res) =>{
     res.render('tlc');
@@ -98,7 +120,7 @@ app.post('/tlc', upload.single('tlcfile'), (req, res) =>{
     res.json(files);
 });
 
-
+//test pythonshell
 app.get('/call/python', pythonProcess)
 
 function pythonProcess(req, res) {
