@@ -1,14 +1,18 @@
+
 const express = require('express');
+const app = express();
 const multer = require('multer');
 const fs = require('fs');
 const utf8 = require('utf8');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const tz = require('moment-timezone');
+const moment = require ('moment');
 const mongoClient = require('mongodb').MongoClient;
 const mongo = 'mongodb://localhost:27017/hweb'
 // const url = "mongodb://localhost:27017";
 // Set a global variable for MongoDB
 let mongodb = null
-
 // // 連線mongodb
 // client.connect(url, {useUnifiedTopology: true}, function(err, db){
 //     if (err) throw err;
@@ -29,12 +33,19 @@ let mongodb = null
 // });
 
 
-const app = express();
 let { PythonShell } = require('python-shell');
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(session({
+    saveUninitialized: false,
+    resave: false,
+    secret: '加密用的字串',
+    cookie: {
+        maxAge: 3600000, //一小時
+    }
+}))
 
 // set the storage engine
 const storage = multer.diskStorage({
@@ -68,45 +79,91 @@ app.get('/', (req, res) =>{
     res.render('home')
 });
 
+app.get('/trysession', (req, res)=>{
+    req.session.views = req.session.views || 0;
+    req.session.views++;
+    res.contentType('text/plain');
+    res.write('拜訪次數:' + req.session.views + "\n");
+    res.end( JSON.stringify(req.session));
+
+})
+
+
+
 //login page
 app.get('/user/login', (req, res) =>{
     res.render('login');
 });
+
+app.post('/user/login', (req, res) =>{
+    res.render('login');
+});
+//////////////////// 註冊流程 ////////////////////
 app.get('/user/register', (req, res) =>{
     res.render('register');
 });
 app.get('/user/registerSuccess', (req, res) =>{
     res.render('registerSuccess');
 });
+//用next 試試
+// var registerSuccess = function(req, res, next) {
+//     const data={
+//         userEmail: req.body.userEmail + "@lcfuturecenter.com",
+//     }
+//     console.log(`${data.userEmail} 註冊成功`);
+//     next();
+//   }
+app.get('/try-finddb',(req,res)=>{
+    const collection = mongodb.collection('users');
+    const myemail = 'ali.sun@lcfuturecenter.com';
+    let emailData = {'userEmail': myemail};
+    collection.findOne({'userEmail': myemail}, (err, document) =>{
+        console.log(document);
+        // const data = document.name
+        res.json(document);
+    })
+    
+})
 
-var registerSuccess = function(req, res, next) {
-    const data={
-        userEmail: req.body.userEmail + "@lcfuturecenter.com",
-    }
-    console.log(`${data.userEmail} 註冊成功`);
-    next();
-  }
+app.post('/user/register', upload.single('tlcfile'), (req, res) =>{
+    // console.log('user in session')
+    // console.log(req.session);
+    const collection = mongodb.collection('users');
+    const timeFormat = "YYYY-MM-DD HH:mm:ss";
+    const mo1 = moment(new Date());
 
-app.post('/user/register', registerSuccess, (req, res) =>{
-    const collection = mongodb.collection('users')
-    const data = {
-        "success": "success",
-        "data" : req.body
-    }
-
-  collection.insertOne({
-      userCName: req.body.userCName,
-      userEName: req.body.userEName,
-      userEmail: req.body.userEmail + "@lcfuturecenter.com",
-      userPW: req.body.userpassword
-    }, function (err, result) {
-    if (err) return res.json(err)
-    res.redirect('registerSuccess');
+    //檢查有沒有這個帳號 有的話再insert     
+    let account = {'userAccount': req.body.userAccount};
+   
+    collection.findOne( account, (err, document) =>{
+        
+        if (document){
+            console.log(`${document.userAccount} 在 ${document.create_date}已註冊過帳號`);
+            res.json({alert: "帳號已存在"})//json字串過去一定要json格式再.出來
+        } else{
+            let insertDate = {
+                'userCName'  : req.body.userCName,
+                'userEName'  : req.body.userEName,
+                'userAccount': req.body.userAccount,
+                'userEmail'  : req.body.userAccount + "@lcfuturecenter.com",
+                'userPW'     : req.body.userpassword,
+                'create_date': mo1.format(timeFormat),
+            }
+            collection.insertOne(insertDate, function (err, document) {
+              if (err) return res.json(err);
+          
+              console.log(`${account.userAccount} 註冊成功`);
+            //   res.redirect('registerSuccess');
+              res.json({alert: "帳號註冊成功"})
+            })
+        }
+    })
   })
-  })
+
+//////////////////// 註冊流程 ////////////////////
 
 
-
+//////////////////// TLC 部分 ////////////////////
 app.get('/tlc', (req, res) =>{
     res.render('tlc');
 });
@@ -115,7 +172,7 @@ app.post('/tlc', upload.single('tlcfile'), (req, res) =>{
     console.log(req.file);//req.files 報錯
     const files = {
         "data" : req.file,
-        "project" : req.body.project,
+        "project" : req.body.project
     }
     res.json(files);
 });
@@ -204,6 +261,32 @@ function pythonParseVram(req, res) {
 
     })
 };
+
+//////////////////// TLC ////////////////////
+
+
+app.get('/user/test', (req, res) =>{
+    res.render('test2');
+});
+
+
+
+app.post('/user/test', (req, res) =>{
+    const testQQ = {
+        "data": req.body
+    }
+    res.json(testQQ);
+});
+
+// app.post('/user/test', upload.single('tlcfile'), (req, res) =>{
+//     const testQQ = {
+//         "data": req.body
+//     }
+//     res.json(testQQ);
+// });
+
+
+
 
 
 // 自定404 page
