@@ -6,28 +6,27 @@
     <form id="registerForm" method="POST" enctype="application/x-www-form-urlencoded" onsubmit="return checkInfo(this)">
         <div class="form-group">
 
-            <!-- <br />
+            <br />
             <input type="text" class="col form-control" id="userCName" name="userCName" placeholder="中文姓名" required>
             <br />
             <input type="text" class="col form-control" id="userEName" name="userEName" placeholder="英文姓名" required>
-
-            <br /> -->
+            <br />
             <div class="form-row align-items-center">
 
                 <div class="col-auto">
-                    
-                    <input type="text" class="form-control mb-2" id="userAccount" name="userAccount" placeholder="ali.sun"
-                        style="width: 102px;" required>
+
+                    <input type="text" class="form-control mb-2" id="userAccount" name="userAccount"
+                        placeholder="ali.sun" style="width: 102px;" required>
                 </div>
                 <div class="col-auto">
-                    
+
                     <div class="input-group mb-2">
                         <div class="input-group-prepend">
                             <div class="input-group-text">@</div>
                         </div>
                         <input type="text" class="form-control" id="inlineFormInputGroup"
                             placeholder="lcfuturecenter.com" value="lcfuturecenter.com" readonly="value"
-                            style="width: 157px;" disabled>
+                            style="width: 168px;" disabled>
                     </div>
                 </div>
             </div>
@@ -86,7 +85,7 @@
         }
     }
 
-    function checkInfo(){
+    function checkInfo() {
         var userEmail = $("#userAccount").val();
         const emailPattern = /\./;
         var result = userEmail.match(emailPattern);
@@ -94,12 +93,12 @@
             alert("Email錯誤");
             return false;
         }
-        else{
+        else {
             return true;
         }
     }
 
-    $('#registerForm').on('submit', function(e){
+    $('#registerForm').on('submit', function (e) {
         e.preventDefault();
 
         $.ajax({
@@ -110,8 +109,14 @@
             cache: false,
             processData: false,//一定要加
             dataType: 'json'
-        }).done(function(data){
-            alert(data.alert);//帳號存在的話，後段會丟json字串過來
+        }).done(function (data) {
+            if (data.alert == "帳號已存在") {
+                alert(data.alert);//帳號存在的話，後段會丟json字串過來
+            }
+
+            else{
+                window.location = 'http://localhost:3000/user/registerSuccess';
+            }
         })
     })
 </script>

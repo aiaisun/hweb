@@ -74,12 +74,18 @@ mongoClient.connect(mongo, {useUnifiedTopology: true}, function (err, db) {
 // app.listen(3000, () => {
 //     console.log('Server starts')
 // })
-
+// const data = {}
 app.get('/', (req, res) =>{
+    // data.isLogined = !! req.session.loginUser;
+    // data.loginUser = req.session.loginUser;
+    // data.userEName = req.session.userEName;
+    // console.log(data)
+    // console.log(req.session)
+    // res.render('home', data);
     res.render('home')
 });
 
-app.get('/trysession', (req, res)=>{
+app.get('/user/trysession', (req, res)=>{
     req.session.views = req.session.views || 0;
     req.session.views++;
     res.contentType('text/plain');
@@ -91,13 +97,54 @@ app.get('/trysession', (req, res)=>{
 
 
 //login page
-app.get('/user/login', (req, res) =>{
-    res.render('login');
-});
 
-app.post('/user/login', (req, res) =>{
-    res.render('login');
-});
+//try new login
+app.get('/user/login', (req, res)=>{
+    const data = {};
+    const timeFormat = "YYYY-MM-DD HH:mm:ss";
+    const mo1 = moment(new Date());
+    if (req.session.flashMsg) {
+        data.flashMsg = req.session.flashMsg;
+        delete req.session.flashMsg;
+    }
+
+    data.isLogined = !! req.session.loginUser;
+    data.loginUser = req.session.loginUser;
+    data.userEName = req.session.userEName;
+    // console.log(data)
+    if (data.isLogined){//true
+        console.log(`${data.loginUser} 於 ${mo1.format(timeFormat)} 登入`)
+    }
+    res.render('login', data);
+})
+
+
+app.post('/user/login', (req, res)=>{
+    const collection = mongodb.collection('users');
+    //檢查有沒有這個帳號 
+    let account = {
+        'userAccount': req.body.userAccount,
+        'userPW' :req.body.password
+    };
+    collection.findOne(account, (err, document) =>{
+        if (document){ //true
+            console.log(document.userCName);
+            req.session.loginUser = req.body.userAccount; 
+            req.session.userEName = document.userEName
+        } else { // false
+            req.session.flashMsg = "帳號密碼錯誤";
+        }
+        res.redirect('/user/login');
+    })
+    // res.redirect('/user/login'); 如果放這個 redirect之後session會被更新
+})
+
+//登出//
+app.get('/user/logout', (req, res)=>{
+    delete req.session.loginUser;
+    res.redirect('/user/login')
+})
+
 //////////////////// 註冊流程 ////////////////////
 app.get('/user/register', (req, res) =>{
     res.render('register');
@@ -105,6 +152,7 @@ app.get('/user/register', (req, res) =>{
 app.get('/user/registerSuccess', (req, res) =>{
     res.render('registerSuccess');
 });
+
 //用next 試試
 // var registerSuccess = function(req, res, next) {
 //     const data={
@@ -138,7 +186,7 @@ app.post('/user/register', upload.single('tlcfile'), (req, res) =>{
     collection.findOne( account, (err, document) =>{
         
         if (document){
-            console.log(`${document.userAccount} 在 ${document.create_date}已註冊過帳號`);
+            console.log(`${document.userAccount} 嘗試重複註冊，但在 ${document.create_date}已註冊過帳號`);
             res.json({alert: "帳號已存在"})//json字串過去一定要json格式再.出來
         } else{
             let insertDate = {
@@ -165,8 +213,9 @@ app.post('/user/register', upload.single('tlcfile'), (req, res) =>{
 
 //////////////////// TLC 部分 ////////////////////
 app.get('/tlc', (req, res) =>{
-    res.render('tlc');
-});
+    // res.render('tlc', data);
+    res.render('tlc')
+})
 
 app.post('/tlc', upload.single('tlcfile'), (req, res) =>{
     console.log(req.file);//req.files 報錯
@@ -284,7 +333,6 @@ app.post('/user/test', (req, res) =>{
 //     }
 //     res.json(testQQ);
 // });
-
 
 
 
