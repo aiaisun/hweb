@@ -1,21 +1,12 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
-<% if (locals.flashMsg) { %>
-    <div class="alert alert-primary" role="alert">
-        <%= flashMsg %>
-    </div>
-    <% } %>
 
 
-<% if (locals.isLogined) { %>
-<div class="alert alert-primary" role="alert">
-    <%= loginUser %> 您好 <a href="/user/logout">登出</a>
-</div>
-<% } else { %>
-<div id="loginForm">
+
+<div id="forgetPWFormdiv">
 
 
-    <form method="POST">
+    <form method="POST" id="forgetPWForm">
         <div class="form-group">
 
             <label for="exampleInputEmail1">Email</label>
@@ -42,27 +33,30 @@
 
         </div>
 
-
-        <div class="form-group">
-            <label>密碼</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
-
-
-        <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-            <label class="form-check-label" for="exampleCheck1">記住我</label>
-        </div>
         <div class="loginbtn">
-            <button id="loginbtn" type="submit" class="btn btn-secondary">登入</button>
+            <button id="loginbtn" type="submit" class="btn btn-secondary">寄送密碼</button>
         </div>
     </form>
 
-    <div class="smallword">
-        <a href="/user/register" style="color:#202224;">若尚未註冊，請點擊此註冊</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <a href="/user/forgetpw" style="color:#202224;" >忘記密碼</a>
-    </div>
 
 </div>
-<% } %>
 <%- include('parts/html_script') %>
+<script>
+$('#forgetPWForm').on('submit', function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: '/user/forgetpw',
+        type: 'POST',
+        data: new FormData(this),
+        contentType: false,//一定要加
+        cache: false,
+        processData: false,//一定要加
+        dataType: 'json'
+    }).done(function (data) {
+        alert(data.msg);
+        window.location = 'http://localhost:3000/user/login';
+    })
+})
+</script>
 <%- include('parts/html_foot') %>
