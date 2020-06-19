@@ -27,8 +27,15 @@
                 let item = data[i] %>
                 <tr>
                     <th scope="row">
-                        <img id="listIcon" src="../lib/pic/pen.png" style="width:23px">
-                        <img id="listIcon" src="../lib/pic/list4.png" style="width:23px">
+                        <%= i+1  %>
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
+
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#history<%= i+1 %>">紀錄</button>
+
+                        <img class="listIcon" src="../lib/pic/pen.png" style="width:23px">
+                        <img class="listIcon" src="../lib/pic/list4.png" style="width:23px">
                     </th>
                     <td><%= item.item %></td>
                     <td><%= item.brand %></td>
@@ -37,14 +44,35 @@
                     <td><%= item.quantity %></td>
                 </tr>
 
+                <div id="history<%= i+1 %>" class="modal fade" data-backdrop="static" data-keyboard="false"
+                    tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">領用紀錄</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <%= i+1 %>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                                <button type="button" class="btn btn-primary">Understood</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <% }%>
             </tbody>
         </table>
 
     </div>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Launch modal</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">test</button>
 </div>
-<div id="myModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+<div id="myModal2" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
@@ -64,12 +92,12 @@
                             <th style="text-align:center;width:50px;" scope="col">型號</th>
                             <th style="text-align:center;width:200px;" scope="col">描述</th>
                             <th style="text-align:center;width:50px;" scope="col">數量</th>
-        
+
                         </tr>
                     </thead>
                     <tbody>
-        
-        
+
+
                         <% for( let i = 0; i < locals.data.length; i++){  
                         let item = data[i] %>
                         <tr>
@@ -81,7 +109,7 @@
                             <td><%= item.description %></td>
                             <td><%= item.quantity %></td>
                         </tr>
-        
+
                         <% }%>
                     </tbody>
                 </table>
@@ -93,37 +121,34 @@
         </div>
     </div>
 </div>
-<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+<div id="addModal"" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">訂閱電子報</h5>
+                <h5 class="modal-title" id="hideAddModalLabel"></h5>
+                <h5 class="modal-title" id="addModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form method="post">
+                <form id="addRecodeForm" method="post" onclick="return test(this)">
                     <div class="form-group">
-                        <label for="recipient-name" class="col-form-label">Email</label>
-                        <input type="email" class="form-control" id="recipient-name" name="email">
-                    </div>
-                    <div class="form-group">
-                        <span for="message-text" class="col-form-label" style="display: block;">偏好地點</span>
-                        <input type="checkbox" id="place" name="place" value="huashan" name="place">
-                        <label for="huashan">華山園區&nbsp;&nbsp;</label>
-                        <input type="checkbox" id="place" name="place" value="songshan" name="place">
-                        <label for="songshan">松山文創&nbsp;&nbsp;</label>
-                        <input type="checkbox" id="place" name="place" value="science" name="place">
-                        <label for="science">士林科教館&nbsp;&nbsp;</label>
-                        <input type="checkbox" id="place" name="place" value="yuashan" name="place">
-                        <label for="yuashan">花博園區&nbsp;&nbsp;</label>
+                        <label for="recipient-name" class="col-form-label">姓名</label>
+                        <input type="text" class="form-control col-md-4" id="recipient-name" name="email">
+                        <label for="recipient-name" class="col-form-label">數量</label>
+                        <input type="text"" class=" form-control col-md-2" id="recipient-quantity"
+                            name="recipient-quantity">
+                        <input type="text"" class=" form-control col-md-2" value="" id="addModalItemID"
+                            name="addModalItemID">
                     </div>
 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                <button type="submit" class="btn btn-primary">訂閱</button>
+                <button id="addModelbtn" type="button" class="btn btn-primary" >新增</button>
             </div>
             </form>
         </div>
@@ -131,7 +156,49 @@
 </div>
 <%- include('parts/html_script') %>
 <script>
-    // $('#myModal').modal(options)
-    // $('#myModal').modal('show')
+
+    //新增耗材領用紀錄
+    $('#hideAddModalLabel').hide()
+    $('button.itemModal').click(function () {
+        let itemID = $(this).attr("itemid");
+        let itemName = $(this).attr("itemname");
+        $('#hideAddModalLabel').text(itemID);
+        $('#addModalLabel').text(itemName);
+        $('#addModalItemID').attr("value", itemID)
+
+    })
+    // addModelbtn
+    // $('addModelbtn').click()
+    $('#addModelbtn').click( function (e) {
+        alert("auccess")
+        e.preventDefault();
+
+        $.ajax({
+            url: '/consumables/addrecord',
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: 'json'
+        }).done(function (data) {
+            console.log(data)
+            
+        })
+        
+    })
+    function test() {
+
+        // if (result == null) {
+        //     alert("Email錯誤");
+            return false;
+        // }
+        // else {
+            console.log('success')
+            // return true;
+            
+        // }
+    }
+
 </script>
 <%- include('parts/html_foot') %>

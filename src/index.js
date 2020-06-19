@@ -417,6 +417,14 @@ app.post('/consumables/add', (req, res) => {
     res.redirect('/consumables');
 });
 
+//新增耗材領用紀錄
+app.post('/consumables/addrecord', upload.single('tlcfile'), (req, res) =>{
+    console.log("success");
+    let data = {
+        "data":req.body
+    }
+    res.json(data)
+})
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');
