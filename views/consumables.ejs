@@ -1,0 +1,137 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables">
+    <div class="consumablesIcon">
+        <a href="/consumables/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
+    </div>
+    <div class="consumablesIcon">
+        <a href="#"><img src="../lib/pic/remove1.png" style="width:30px"></a>
+    </div>
+    <div class="consumablesTable">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col" style="width:10px;"></th>
+                    <th style="text-align:center;width:100px;" scope="col">項目</th>
+                    <th style="text-align:center;width:50px;" scope="col">廠牌</th>
+                    <th style="text-align:center;width:50px;" scope="col">型號</th>
+                    <th style="text-align:center;width:200px;" scope="col">描述</th>
+                    <th style="text-align:center;width:50px;" scope="col">數量</th>
+
+                </tr>
+            </thead>
+            <tbody>
+
+
+                <% for( let i = 0; i < locals.data.length; i++){  
+                let item = data[i] %>
+                <tr>
+                    <th scope="row">
+                        <img id="listIcon" src="../lib/pic/pen.png" style="width:23px">
+                        <img id="listIcon" src="../lib/pic/list4.png" style="width:23px">
+                    </th>
+                    <td><%= item.item %></td>
+                    <td><%= item.brand %></td>
+                    <td><%= item.model %></td>
+                    <td><%= item.description %></td>
+                    <td><%= item.quantity %></td>
+                </tr>
+
+                <% }%>
+            </tbody>
+        </table>
+
+    </div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Launch modal</button>
+</div>
+<div id="myModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">領用紀錄</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width:10px;"></th>
+                            <th style="text-align:center;width:100px;" scope="col">項目</th>
+                            <th style="text-align:center;width:50px;" scope="col">廠牌</th>
+                            <th style="text-align:center;width:50px;" scope="col">型號</th>
+                            <th style="text-align:center;width:200px;" scope="col">描述</th>
+                            <th style="text-align:center;width:50px;" scope="col">數量</th>
+        
+                        </tr>
+                    </thead>
+                    <tbody>
+        
+        
+                        <% for( let i = 0; i < locals.data.length; i++){  
+                        let item = data[i] %>
+                        <tr>
+                            <th scope="row">
+                            </th>
+                            <td><%= item.item %></td>
+                            <td><%= item.brand %></td>
+                            <td><%= item.model %></td>
+                            <td><%= item.description %></td>
+                            <td><%= item.quantity %></td>
+                        </tr>
+        
+                        <% }%>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">訂閱電子報</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Email</label>
+                        <input type="email" class="form-control" id="recipient-name" name="email">
+                    </div>
+                    <div class="form-group">
+                        <span for="message-text" class="col-form-label" style="display: block;">偏好地點</span>
+                        <input type="checkbox" id="place" name="place" value="huashan" name="place">
+                        <label for="huashan">華山園區&nbsp;&nbsp;</label>
+                        <input type="checkbox" id="place" name="place" value="songshan" name="place">
+                        <label for="songshan">松山文創&nbsp;&nbsp;</label>
+                        <input type="checkbox" id="place" name="place" value="science" name="place">
+                        <label for="science">士林科教館&nbsp;&nbsp;</label>
+                        <input type="checkbox" id="place" name="place" value="yuashan" name="place">
+                        <label for="yuashan">花博園區&nbsp;&nbsp;</label>
+                    </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">訂閱</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<%- include('parts/html_script') %>
+<script>
+    // $('#myModal').modal(options)
+    // $('#myModal').modal('show')
+</script>
+<%- include('parts/html_foot') %>

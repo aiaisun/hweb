@@ -199,12 +199,13 @@ app.post('/user/register', upload.single('tlcfile'), (req, res) => {
             res.json({ alert: "帳號已存在" })//json字串過去一定要json格式再.出來
         } else {
             let insertDate = {
-                'userCName': req.body.userCName,
-                'userEName': req.body.userEName,
-                'userAccount': req.body.userAccount,
-                'userEmail': req.body.userAccount + "@lcfuturecenter.com",
-                'userPW': req.body.userpassword,
-                'create_date': mo1.format(timeFormat),
+                'userCName'      : req.body.userCName,
+                'userEName'      : req.body.userEName,
+                'userDepartment' : req.body.userDepartment,
+                'userAccount'    : req.body.userAccount,
+                'userEmail'      : req.body.userAccount + "@lcfuturecenter.com",
+                'userPW'         : req.body.userpassword,
+                'create_date'    : mo1.format(timeFormat),
             }
             collection.insertOne(insertDate, function (err, document) {
                 if (err) return res.json(err);
@@ -377,8 +378,44 @@ app.post('/user/test', (req, res) => {
 //     res.json(testQQ);
 // });
 
+///////consumables
+app.get('/consumables', (req, res) => {
+    const consumablesCollection = mongodb.collection('consumables');
+    // let output = {
+    //     data : [1, 2, 3, 4, 5]
+    // };
+    consumablesCollection.find().toArray(function (err, document) {
+    
+        if (err) return console.log(err)
+
+        let output = {
+            data : document
+        };
+        res.render('consumables', output);
+      })
+    
+});
 
 
+app.get('/consumables/add', (req, res) => {
+    res.render('consumablesAdd');
+});
+app.post('/consumables/add', (req, res) => {
+    const consumablesCollection = mongodb.collection('consumables');
+    let newConsumable = [{
+        'item'          : req.body.item,
+        'brand'         : req.body.brand,
+        'model'         : req.body.model,
+        'description'   : req.body.description,
+        'quantity'      : req.body.quantity ,
+    }]
+    consumablesCollection.insertMany(newConsumable, function( err, document){
+        if (err) return res.json(err);
+        console.log("新增成功");
+    })
+
+    res.redirect('/consumables');
+});
 
 // 自定404 page
 app.use((req, res) => {
