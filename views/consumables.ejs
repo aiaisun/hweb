@@ -122,25 +122,27 @@
     </div>
 </div>
 
-<div id="addModal"" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+<div id="addModal" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="hideAddModalLabel"></h5>
                 <h5 class="modal-title" id="addModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <div class="alert alert-secondary" role="alert">
+                輸入資料不可為空
+              </div>
             <div class="modal-body">
-                <form id="addRecodeForm" method="post" onclick="return test(this)">
+                <form id="addRecodeForm" method="post">
                     <div class="form-group">
                         <label for="recipient-name" class="col-form-label">姓名</label>
-                        <input type="text" class="form-control col-md-4" id="recipient-name" name="email">
+                        <input type="text" class="form-control col-md-4" id="recipient" name="recipient">
                         <label for="recipient-name" class="col-form-label">數量</label>
-                        <input type="text"" class=" form-control col-md-2" id="recipient-quantity"
-                            name="recipient-quantity">
+                        <input type="text"" class=" form-control col-md-2" id="recipientQuantity"
+                            name="recipientQuantity">
                         <input type="text"" class=" form-control col-md-2" value="" id="addModalItemID"
                             name="addModalItemID">
                     </div>
@@ -148,57 +150,60 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                <button id="addModelbtn" type="button" class="btn btn-primary" >新增</button>
+                <input id="addModelbtn" type="submit" class="btn btn-primary" value="新增">
             </div>
             </form>
         </div>
     </div>
 </div>
+
+
+
 <%- include('parts/html_script') %>
 <script>
 
+    $('.alert').alert('close')
+
     //新增耗材領用紀錄
-    $('#hideAddModalLabel').hide()
+    $('#addModalItemID').hide();
     $('button.itemModal').click(function () {
         let itemID = $(this).attr("itemid");
         let itemName = $(this).attr("itemname");
-        $('#hideAddModalLabel').text(itemID);
         $('#addModalLabel').text(itemName);
         $('#addModalItemID').attr("value", itemID)
-
     })
-    // addModelbtn
-    // $('addModelbtn').click()
-    $('#addModelbtn').click( function (e) {
-        alert("auccess")
+
+    //按下新增建之後 檢查表單是否為空 空的話報警告 不為空即送出資料
+    $('#addRecodeForm').on('submit', function (e) {
         e.preventDefault();
 
-        $.ajax({
-            url: '/consumables/addrecord',
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: 'json'
-        }).done(function (data) {
-            console.log(data)
-            
-        })
-        
-    })
-    function test() {
+        let recipient = $("#recipient").val();
+        let quantity = $('#recipientQuantity').val();
 
-        // if (result == null) {
-        //     alert("Email錯誤");
-            return false;
-        // }
-        // else {
-            console.log('success')
-            // return true;
+        if (recipient == '' | quantity == '') {
+            alert("輸入資料不可為空")
             
-        // }
-    }
+            // TODO              ///////////////
+            // $('.alert').alert('close') 怎樣才可以有alert
+
+        } else {
+            $.ajax({
+                url: '/consumables',
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: 'json'
+            }).done(function (data) {
+                console.log(data)
+                //成功新增之後，modal隱藏且清空領用人與數量的input欄
+                $('#addModal').modal('hide');
+                $("#recipient-name").val("");
+                $('#recipient-quantity').val("");
+            })
+        }
+    })
 
 </script>
 <%- include('parts/html_foot') %>

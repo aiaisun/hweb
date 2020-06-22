@@ -9,6 +9,7 @@ const session = require('express-session');
 const tz = require('moment-timezone');
 const moment = require('moment');
 const mongoClient = require('mongodb').MongoClient;
+const mongoObjectID = require('mongodb').ObjectId;
 const mongo = 'mongodb://localhost:27017/hweb'
 // const url = "mongodb://localhost:27017";
 // Set a global variable for MongoDB
@@ -199,13 +200,13 @@ app.post('/user/register', upload.single('tlcfile'), (req, res) => {
             res.json({ alert: "帳號已存在" })//json字串過去一定要json格式再.出來
         } else {
             let insertDate = {
-                'userCName'      : req.body.userCName,
-                'userEName'      : req.body.userEName,
-                'userDepartment' : req.body.userDepartment,
-                'userAccount'    : req.body.userAccount,
-                'userEmail'      : req.body.userAccount + "@lcfuturecenter.com",
-                'userPW'         : req.body.userpassword,
-                'create_date'    : mo1.format(timeFormat),
+                'userCName': req.body.userCName,
+                'userEName': req.body.userEName,
+                'userDepartment': req.body.userDepartment,
+                'userAccount': req.body.userAccount,
+                'userEmail': req.body.userAccount + "@lcfuturecenter.com",
+                'userPW': req.body.userpassword,
+                'create_date': mo1.format(timeFormat),
             }
             collection.insertOne(insertDate, function (err, document) {
                 if (err) return res.json(err);
@@ -247,13 +248,13 @@ app.post('/user/forgetpw', upload.single('tlcfile'), (req, res) => {
                     // console.log(info.response);
                 }
             })
-            
+
             res.json({ msg: "密碼已寄送" })
         } else { // false
             console.log(`${account.userAccount} 帳號不存在`);
             res.json({ msg: "帳號不存在" })
         }
-    })    
+    })
 })
 
 //////////////////// TLC 部分 ////////////////////
@@ -364,37 +365,59 @@ app.get('/user/test', (req, res) => {
 
 
 
-app.post('/user/test', (req, res) => {
+app.post('/user/test', upload.single('tlcfile'), (req, res) => {
     const testQQ = {
         "data": req.body
-    }
-    res.json(testQQ);
+    };
+    console.log("success1")
+
 });
 
-// app.post('/user/test', upload.single('tlcfile'), (req, res) =>{
-//     const testQQ = {
-//         "data": req.body
-//     }
-//     res.json(testQQ);
-// });
 
-///////consumables
+
+///////consumables 耗材
 app.get('/consumables', (req, res) => {
     const consumablesCollection = mongodb.collection('consumables');
     // let output = {
     //     data : [1, 2, 3, 4, 5]
     // };
     consumablesCollection.find().toArray(function (err, document) {
-    
+
         if (err) return console.log(err)
 
         let output = {
-            data : document
+            data: document,
         };
         res.render('consumables', output);
-      })
-    
+    })
+
 });
+app.post('/consumables', upload.single('tlcfile'), (req, res) => {
+    const timeFormat = "YYYY-MM-DD";
+    const mo1 = moment(new Date());
+    const consumablesCollection = mongodb.collection('consumables');
+    let itemID = {
+        '_id': mongoObjectID(req.body.addModalItemID),
+    }
+    let record = {
+        'recipient': req.body.recipient,
+        'quantity': req.body.recipientQuantity,
+        'receiveDate': mo1.format(timeFormat),
+    };
+    
+    consumablesCollection.findOne( itemID, (err, document) => {
+
+        console.log(document)
+        
+    })
+    consumablesCollection.findOneAndUpdate(itemID, { $push: {'record': record}}, (err, document)=>{
+        if (err) return res.json(err);
+        // console.log(document)
+    }
+    )
+    res.json(req.body);
+    // console.log(record);
+})
 
 
 app.get('/consumables/add', (req, res) => {
@@ -403,13 +426,13 @@ app.get('/consumables/add', (req, res) => {
 app.post('/consumables/add', (req, res) => {
     const consumablesCollection = mongodb.collection('consumables');
     let newConsumable = [{
-        'item'          : req.body.item,
-        'brand'         : req.body.brand,
-        'model'         : req.body.model,
-        'description'   : req.body.description,
-        'quantity'      : req.body.quantity ,
+        'item': req.body.item,
+        'brand': req.body.brand,
+        'model': req.body.model,
+        'description': req.body.description,
+        'quantity': req.body.quantity,
     }]
-    consumablesCollection.insertMany(newConsumable, function( err, document){
+    consumablesCollection.insertMany(newConsumable, function (err, document) {
         if (err) return res.json(err);
         console.log("新增成功");
     })
@@ -418,10 +441,10 @@ app.post('/consumables/add', (req, res) => {
 });
 
 //新增耗材領用紀錄
-app.post('/consumables/addrecord', upload.single('tlcfile'), (req, res) =>{
+app.post('/consumables/addrecord', upload.single('tlcfile'), (req, res) => {
     console.log("success");
     let data = {
-        "data":req.body
+        "data": req.body
     }
     res.json(data)
 })
