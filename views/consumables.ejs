@@ -4,9 +4,13 @@
     <div class="consumablesIcon">
         <a href="/consumables/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
     </div>
-    <div class="consumablesIcon">
+    <!-- <div class="consumablesIcon"> 
         <a href="#"><img src="../lib/pic/remove1.png" style="width:30px"></a>
+     </div> -->
+    <div class="consumablesIcon">
+        <a href="/consumables"><img src="../lib/pic/refresh.png" style="width:30px"></a>
     </div>
+
     <div class="consumablesTable">
         <table class="table table-bordered">
             <thead>
@@ -16,112 +20,36 @@
                     <th style="text-align:center;width:50px;" scope="col">廠牌</th>
                     <th style="text-align:center;width:50px;" scope="col">型號</th>
                     <th style="text-align:center;width:200px;" scope="col">描述</th>
-                    <th style="text-align:center;width:50px;" scope="col">數量</th>
-
+                    <th style="text-align:center;width:100px;" scope="col">數量</th>
                 </tr>
             </thead>
             <tbody>
-
-
                 <% for( let i = 0; i < locals.data.length; i++){  
                 let item = data[i] %>
                 <tr>
                     <th scope="row">
-                        <%= i+1  %>
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
 
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#history<%= i+1 %>">紀錄</button>
+                            data-target="#itemRecord<%= i %>">紀錄</button>
 
-                        <img class="listIcon" src="../lib/pic/pen.png" style="width:23px">
-                        <img class="listIcon" src="../lib/pic/list4.png" style="width:23px">
+                        <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
+                        <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
                     </th>
                     <td><%= item.item %></td>
                     <td><%= item.brand %></td>
                     <td><%= item.model %></td>
                     <td><%= item.description %></td>
-                    <td><%= item.quantity %></td>
+                    <td id="tdRemainQ<%= item._id%>"><%= item.quantity - item.gavequantity %></td>
                 </tr>
-
-                <div id="history<%= i+1 %>" class="modal fade" data-backdrop="static" data-keyboard="false"
-                    tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="staticBackdropLabel">領用紀錄</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <%= i+1 %>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
-                                <button type="button" class="btn btn-primary">Understood</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <% }%>
             </tbody>
         </table>
-
-    </div>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">test</button>
-</div>
-<div id="myModal2" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">領用紀錄</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th scope="col" style="width:10px;"></th>
-                            <th style="text-align:center;width:100px;" scope="col">項目</th>
-                            <th style="text-align:center;width:50px;" scope="col">廠牌</th>
-                            <th style="text-align:center;width:50px;" scope="col">型號</th>
-                            <th style="text-align:center;width:200px;" scope="col">描述</th>
-                            <th style="text-align:center;width:50px;" scope="col">數量</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-
-
-                        <% for( let i = 0; i < locals.data.length; i++){  
-                        let item = data[i] %>
-                        <tr>
-                            <th scope="row">
-                            </th>
-                            <td><%= item.item %></td>
-                            <td><%= item.brand %></td>
-                            <td><%= item.model %></td>
-                            <td><%= item.description %></td>
-                            <td><%= item.quantity %></td>
-                        </tr>
-
-                        <% }%>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Understood</button>
-            </div>
-        </div>
     </div>
 </div>
 
+<!-- 新增紀錄的modal -->
 <div id="addModal" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -134,7 +62,7 @@
             </div>
             <div class="alert alert-secondary" role="alert">
                 輸入資料不可為空
-              </div>
+            </div>
             <div class="modal-body">
                 <form id="addRecodeForm" method="post">
                     <div class="form-group">
@@ -157,21 +85,87 @@
     </div>
 </div>
 
+<!-- 查詢紀錄的modal -->
+<% for( let i = 0; i < locals.data.length; i++){  
+    let item = data[i] %>
+<div id="itemRecord<%= i %>" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">領用紀錄 - <%= item.item%></h5>
+                <!-- refresh 方法二 -->
+                <!-- <div class="refreshRecordinModal" class="consumablesIcon" style="margin:2.5px" itemid="<%= item._id %>"
+                    itemNum="<%= item.record.length %>">
+                    <a href="#" onclick="return false"><img src="../lib/pic/refresh.png" style="width:25px"></a>
+                </div>
+                <div class="refreshRecordinModalSub" class="consumablesIcon" style="margin:2.5px"
+                    itemid="<%= item._id %>" itemNum="<%= item.record.length %>">
+                    <a href="#" onclick="return false"><img src="../lib/pic/refresh.png" style="width:25px"></a>
+                </div> -->
+            </div>
+            <div class="modal-body">
+                <div>
+                    <span class="modal-title recordQinModal">總計領用量 ： </span>
+                    <span id="spanGaveQinModal<%= item._id%>" class="modal-title recordQinModal">
+                        <%= item.gavequantity %></span>
+                </div>
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">日期</th>
+                            <th scope="col">姓名</th>
+                            <th scope="col">數量</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordTableList<%= item._id %>">
 
+
+                        <% for( let j = item.record.length -1 ; j > -1 ; j--){  
+                              %>
+                        <tr>
+                            <td><%= item.record[j].receiveDate %></td>
+                            <td><%= item.record[j].recipient %></td>
+                            <td><%= item.record[j].quantity %></td>
+                        </tr>
+                        <% }%>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<% }%>
 
 <%- include('parts/html_script') %>
 <script>
+
+    // console.log(locals.data)
 
     $('.alert').alert('close')
 
     //新增耗材領用紀錄
     $('#addModalItemID').hide();
+    $('#recordModalItemID').hide();
+    //禁止重複刷新 //refresh 方法二
+    // $('.refreshRecordinModalSub').hide();
+
     $('button.itemModal').click(function () {
         let itemID = $(this).attr("itemid");
         let itemName = $(this).attr("itemname");
         $('#addModalLabel').text(itemName);
         $('#addModalItemID').attr("value", itemID)
     })
+
+   
 
     //按下新增建之後 檢查表單是否為空 空的話報警告 不為空即送出資料
     $('#addRecodeForm').on('submit', function (e) {
@@ -182,28 +176,85 @@
 
         if (recipient == '' | quantity == '') {
             alert("輸入資料不可為空")
-            
+
             // TODO              ///////////////
             // $('.alert').alert('close') 怎樣才可以有alert
 
         } else {
             $.ajax({
-                url: '/consumables',
+                url: '/consumables/addrecord',
                 type: 'POST',
                 data: new FormData(this),
                 contentType: false,//一定要加
                 cache: false,
                 processData: false,//一定要加
-                dataType: 'json'
+                dataType: "json"
             }).done(function (data) {
-                console.log(data)
+
+                //動態修改剩餘數量 以及領用數量
+                // data = {recipient: "JJ", recipientQuantity: "1", addModalItemID: "5ee9eb0db5667d50d863b2cc"}
+                let itemID = data.addModalItemID;
+                let recipientQuantity = parseInt(data.recipientQuantity);
+                let remainQuantity = parseInt($(`#tdRemainQ${itemID}`).text()) - recipientQuantity;
+                let gavequantity = parseInt($(`#spanGaveQinModal${itemID}`).text()) + recipientQuantity;
+                $(`#tdRemainQ${itemID}`).text(remainQuantity);//調整頁面上的剩餘數量
+                $(`#spanGaveQinModal${itemID}`).text(gavequantity);//調整紀錄裡面的領用數量
+
+                //塞record資料
+                let receiveDate = new Date();
+                receiveDate = formatDate(receiveDate);
+                restRecord = `<tr><td>${receiveDate}</td><td>${data.recipient}</td><td>${data.recipientQuantity}</td></tr>`
+                $(`#recordTableList${itemID}`).prepend(restRecord)
+
                 //成功新增之後，modal隱藏且清空領用人與數量的input欄
                 $('#addModal').modal('hide');
-                $("#recipient-name").val("");
-                $('#recipient-quantity').val("");
+                $("#recipient").val("");
+                $('#recipientQuantity').val("");
+
+                //讓人可以刷新 refresh 方法二
+                // $('.refreshRecordinModal').show();
+                // $('.refreshRecordinModalSub').hide();
             })
         }
     })
 
+    //refresh 方法二
+    // $('.refreshRecordinModal').click(function () {
+
+    //     let recordID = $(this).attr("itemid");
+    //     let originalDataNum = $(this).attr("itemNum");
+    //     //沒有表單的話可以用這種 自動轉為formdata，如果用$.ajax會變payload 要改contenttype"application/x-www-form-urlencoded"
+    //     $.post("/consumables/refreshrecord", { recordID: recordID })
+    //         .done(function (data) {
+    //             $('.refreshRecordinModal').hide();  //不能重複刷新
+    //             $('.refreshRecordinModalSub').show();
+
+    //             let currentDataNum = data.length;
+    //             let rest = currentDataNum - originalDataNum;
+    //             let restRecord = ""//變數宣告要移到外面 不然回圈內的無法傳出來
+
+    //             for (let i = originalDataNum; i < currentDataNum; i++) {
+    //                 // console.log(data[i]);
+
+    //                 restRecord = `<tr><td>${data[i].receiveDate}</td><td>${data[i].recipient}</td><td>${data[i].quantity}</td></tr>`
+    //                 $(`#recordTableList${recordID}`).prepend(restRecord)
+    //             }
+    //         })
+
+        // 要討論 
+        // let recordID = {'recordID' : $(this).attr("itemid")};
+        // $.ajax({
+        //         url: '/consumables/refreshrecord',
+        //         type: 'POST',
+        //         data: recordID,
+        //         contentType: "application/x-www-form-urlencoded",
+        //         cache: false,
+        //         processData: false,
+        //         dataType: 'json'
+        //     }).done(function (data) {
+        //         console.log(data)
+
+        //     })
+    // })
 </script>
 <%- include('parts/html_foot') %>

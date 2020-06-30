@@ -307,6 +307,7 @@ function pythonParseTLC(req, res) {
             path
         ]
     }
+
     // 因為python file 路徑填錯,所以一直報錯
     PythonShell.run('./pyfile/parseIO_v7.py', options, (err, data) => {
         if (err) res.send(err)
@@ -378,59 +379,50 @@ app.post('/user/test', upload.single('tlcfile'), (req, res) => {
 ///////consumables 耗材
 app.get('/consumables', (req, res) => {
     const consumablesCollection = mongodb.collection('consumables');
-    // let output = {
-    //     data : [1, 2, 3, 4, 5]
-    // };
     consumablesCollection.find().toArray(function (err, document) {
-
         if (err) return console.log(err)
 
         let output = {
-            data: document,
-        };
+            data    : document,
+        };       
         res.render('consumables', output);
+        // console.log(document)
     })
 
 });
+//新稱領用紀錄
 app.post('/consumables', upload.single('tlcfile'), (req, res) => {
-    const timeFormat = "YYYY-MM-DD";
-    const mo1 = moment(new Date());
-    const consumablesCollection = mongodb.collection('consumables');
-    let itemID = {
-        '_id': mongoObjectID(req.body.addModalItemID),
-    }
-    let record = {
-        'recipient': req.body.recipient,
-        'quantity': req.body.recipientQuantity,
-        'receiveDate': mo1.format(timeFormat),
-    };
-    
-    consumablesCollection.findOne( itemID, (err, document) => {
+    ///////////
 
-        console.log(document)
-        
-    })
-    consumablesCollection.findOneAndUpdate(itemID, { $push: {'record': record}}, (err, document)=>{
-        if (err) return res.json(err);
-        // console.log(document)
-    }
-    )
-    res.json(req.body);
-    // console.log(record);
 })
 
+//實現刷新紀錄 refresh 方法二
+// app.post('/consumables/refreshrecord', upload.single('tlcfile'), (req, res) => {
+//     let itemID = {
+//         '_id': mongoObjectID(req.body.recordID),
+//     }
+//     const consumablesCollection = mongodb.collection('consumables');
+//     consumablesCollection.findOne(itemID, (err, document) => {
 
+//         console.log("backend got1")
+//         res.json(document.record);
+//     })
+// });
+
+//新增耗材項目的網頁
 app.get('/consumables/add', (req, res) => {
     res.render('consumablesAdd');
 });
+
 app.post('/consumables/add', (req, res) => {
     const consumablesCollection = mongodb.collection('consumables');
     let newConsumable = [{
-        'item': req.body.item,
-        'brand': req.body.brand,
-        'model': req.body.model,
-        'description': req.body.description,
-        'quantity': req.body.quantity,
+        'item'        : req.body.item,
+        'brand'       : req.body.brand,
+        'model'       : req.body.model,
+        'description' : req.body.description,
+        'quantity'    : parseInt(req.body.quantity),
+        'gavequantity': 0,
     }]
     consumablesCollection.insertMany(newConsumable, function (err, document) {
         if (err) return res.json(err);
@@ -442,11 +434,26 @@ app.post('/consumables/add', (req, res) => {
 
 //新增耗材領用紀錄
 app.post('/consumables/addrecord', upload.single('tlcfile'), (req, res) => {
-    console.log("success");
-    let data = {
-        "data": req.body
+    const timeFormat = "YYYY-MM-DD";
+    const mo1 = moment(new Date());
+    const consumablesCollection = mongodb.collection('consumables');
+    let itemID = {
+        '_id': mongoObjectID(req.body.addModalItemID),
     }
-    res.json(data)
+    let record = {
+        'recipient': req.body.recipient,
+        'quantity': parseInt(req.body.recipientQuantity),
+        'receiveDate': mo1.format(timeFormat),
+    };
+
+    consumablesCollection.findOneAndUpdate(itemID, { $inc: { 'gavequantity': parseInt(record.quantity) } }, (err, document) => {
+
+    })
+    consumablesCollection.findOneAndUpdate(itemID, { $push: { 'record': record } }, (err, document) => {
+        if (err) return res.json(err);       
+        console.log(`新增領用紀錄成功- ${record.receiveDate}, ${record.recipient}領用${document.value.brand}${document.value.item}，數量 ${record.quantity}`);
+    })
+    res.json(req.body);
 })
 // 自定404 page
 app.use((req, res) => {
