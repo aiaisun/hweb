@@ -423,6 +423,7 @@ app.post('/consumables/add', (req, res) => {
         'description' : req.body.description,
         'quantity'    : parseInt(req.body.quantity),
         'gavequantity': 0,
+        'record'      : []
     }]
     consumablesCollection.insertMany(newConsumable, function (err, document) {
         if (err) return res.json(err);
@@ -449,12 +450,50 @@ app.post('/consumables/addrecord', upload.single('tlcfile'), (req, res) => {
     consumablesCollection.findOneAndUpdate(itemID, { $inc: { 'gavequantity': parseInt(record.quantity) } }, (err, document) => {
 
     })
+    consumablesCollection.findOneAndUpdate(itemID, { $inc: { 'quantity': - parseInt(record.quantity) } }, (err, document) => {
+
+    })
     consumablesCollection.findOneAndUpdate(itemID, { $push: { 'record': record } }, (err, document) => {
         if (err) return res.json(err);       
         console.log(`新增領用紀錄成功- ${record.receiveDate}, ${record.recipient}領用${document.value.brand}${document.value.item}，數量 ${record.quantity}`);
     })
     res.json(req.body);
 })
+
+//修改耗材項目資訊或新增數量
+app.post('/consumables/reviseitem', upload.single('tlcfile'), (req, res) => {
+    const consumablesCollection = mongodb.collection('consumables');
+    let itemID = {
+        '_id': mongoObjectID(req.body.itemId),
+    }
+    let reviseConsumable = {
+        'item'        : req.body.item,
+        'brand'       : req.body.brand,
+        'model'       : req.body.model,
+        'description' : req.body.description,
+        'quantity'    : parseInt(req.body.quantity)
+    }
+    consumablesCollection.findOneAndUpdate(itemID, { $set: reviseConsumable}, (err, document) => {
+        if (err) return res.json(err);
+    })
+    res.json(req.body)
+})
+
+
+///////tools 工具
+app.get('/tool', (req, res) => {
+    const consumablesCollection = mongodb.collection('tool');
+    consumablesCollection.find().toArray(function (err, document) {
+        if (err) return console.log(err)
+
+        let output = {
+            data    : document,
+        };       
+        res.render('tool', output);
+        // console.log(document)
+    })
+
+});
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');
