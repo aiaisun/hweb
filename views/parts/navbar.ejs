@@ -10,24 +10,17 @@
         <li class="nav-item active dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <% if (locals.isLogined) { %>
-              <%= userEName %>
+              Hi, <%= userEName %>
               <% } else { %>
             Visitor
             <% } %>
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <!-- <% if (locals.isLogined) { %> -->
-            <a class="dropdown-item" href="/user/logout">Logout test</a>
-            <!-- <% } else { %> -->
-              <a class="dropdown-item" href="/user/login">Login test </a>
-            <!-- <% } %> -->
-
-
-
-            
-
+            <% if (locals.isLogined) { %>
+            <a class="dropdown-item" href="/user/logout">Logout</a>
+            <% } else { %>
               <a class="dropdown-item" href="/user/login">Login</a>
-              <a class="dropdown-item" href="/user/logout">Logout</a>
+            <% } %>
               <a class="dropdown-item" href="/user/trysession">session</a>
 
           </div>

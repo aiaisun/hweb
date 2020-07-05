@@ -1,6 +1,7 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
 <div class="consumables">
+    <% if (locals.role == 'admin') { %>
     <div class="consumablesIcon">
         <a href="/consumables/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
     </div>
@@ -10,7 +11,7 @@
     <div class="consumablesIcon">
         <a href="/consumables"><img src="../lib/pic/refresh.png" style="width:30px"></a>
     </div>
-
+    <% } %>
     <div class="consumablesTable">
         <table class="table table-bordered">
             <thead>
@@ -29,13 +30,14 @@
                 <tr>
                     <th scope="row">
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
-
-                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#itemRecord<%= i %>">紀錄</button>
+
+                        <% if (locals.role == 'admin') { %>
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#itemRevise<%= i %>">修改</button>
-
+                        <% }%>
                         <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
                         <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
                     </th>
@@ -177,8 +179,8 @@
                         <input type="text" class="form-control col-md-4" name="description"
                             value="<%= item.description %>">
                         <label for="recipient-name" class="col-form-label">數量</label>
-                        <input id="reviseModalQ<%= item._id %>" type="text" class=" form-control col-md-2" name="quantity"
-                            value="<%= item.quantity %>">
+                        <input id="reviseModalQ<%= item._id %>" type="text" class=" form-control col-md-2"
+                            name="quantity" value="<%= item.quantity %>">
                         <input type="text" class=" form-control col-md-2 reviseFormItemId" name="itemId"
                             value="<%= item._id %>">
 
@@ -270,7 +272,7 @@
                 let gavequantity = parseInt($(`#spanGaveQinModal${itemID}`).text()) + recipientQuantity;
                 $(`#tdRemainQ${itemID}`).text(remainQuantity);//調整頁面上的剩餘數量
                 $(`#spanGaveQinModal${itemID}`).text(gavequantity);//調整紀錄裡面的領用數量
-                $(`#reviseModalQ${itemID}`).attr('value',remainQuantity);
+                $(`#reviseModalQ${itemID}`).attr('value', remainQuantity);
 
 
                 //塞record資料

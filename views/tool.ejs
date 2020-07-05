@@ -1,4 +1,197 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
+<div class="consumables">
+    <% if (locals.role == 'admin') { %>
+    <div class="consumablesIcon">
+        <a href="/tool/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
+    </div>
+    <div class="consumablesIcon">
+        <a href="/tool"><img src="../lib/pic/refresh.png" style="width:30px"></a>
+    </div>
+    <% }%>
+    <div class="consumablesTable">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col" style="width:10px;"></th>
+                    <th style="text-align:center;width:100px;" scope="col">項目</th>
+                    <th style="text-align:center;width:50px;" scope="col">廠牌</th>
+                    <th style="text-align:center;width:50px;" scope="col">型號</th>
+                    <th style="text-align:center;width:200px;" scope="col">描述</th>
+                    <th style="text-align:center;width:100px;" scope="col">可借數量</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for( let i = 0; i < locals.data.length; i++){  
+            let item = data[i] %>
+                <tr>
+                    <th scope="row">
+
+
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#itemBorrowRecord<%= i %>">紀錄</button>
+                        <% if (locals.role == 'admin') { %>
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#borrowModa<%= item._id %>" itemid="<%= item._id %>"
+                            itemname="<%= item.item %>">借用</button>
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#itemRevise<%= i %>">修改</button>
+                        <% }%>
+                        <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
+                        <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
+                    </th>
+                    <td><%= item.item %></td>
+                    <td><%= item.brand %></td>
+                    <td><%= item.model %></td>
+                    <td><%= item.description %></td>
+                    <% let num = 0 %>
+                    <% for( let j = 0 ; j < item.assetlist.length ; j++){                          
+                        if (item.assetlist[j].keeper == "") { 
+                        num +=  1
+                         }%>
+                    <% }%>
+                    <td id="tdRemainQ<%= item._id%>"><%= num %></td>
+                </tr>
+                <% }%>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 新增資產借用 -->
+<% for( let i = 0; i < locals.data.length; i++){  
+    let item = data[i] %>
+<div id="borrowModa<%= item._id %>" class=" modal fade itemBorrow" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowModalLabel"><%= item.item %></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form id="addBorrowForm" class=" itemBorrowForm" method="post">
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <label for="recipient-name" class="col-form-label">姓名</label>
+                            <input type="text" class="form-control col-md-4" id="borrower" name="borrower" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="recipient-name" class="col-form-label">資產編號</label>
+                            <select class="custom-select my-1 mr-sm-4" id="assetNumber" name="assetnumber" required>
+                                <option value='目前可借用' style="display:none"></option>
+                                <% for( let j = 0 ; j < item.assetlist.length ; j++){  
+                                if (item.assetlist[j].keeper == "") {%>
+
+                                <option id="<%= item.assetlist[j].assetnumber %>"
+                                    value="<%= item.assetlist[j].assetnumber %>">
+                                    <%= item.assetlist[j].assetnumber %></option>
+                                <% } }%>
+                            </select>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text"" class=" form-control col-md-4 borrowModalItemID" value="<%= item._id %>"
+                                name="borrowModalItemID">
+                        </div>
+                    </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <input id="addModelbtn" type="submit" class="btn btn-primary" value="登記">
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<% }%>
+
+
+<!-- 查詢紀錄的modal -->
+<% for( let i = 0; i < locals.data.length; i++){  
+    let item = data[i] %>
+<div id="itemBorrowRecord<%= i %>" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">借用紀錄 - <%= item.item %></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <table class="table table-borderless table-hover"">
+                    <thead>
+                        <tr>
+                            <th scope=" col">資產編號</th>
+                    <th scope="col">狀態</th>
+                    <th scope="col">借用人</th>
+                    <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="recordTableList<%= item._id %>">
+
+
+                        <% for( let j = 0 ; j < item.assetlist.length ; j++){  
+                              %>
+                        <tr>
+                            <td><%= item.assetlist[j].assetnumber %></td>
+                            <td><%= (item.assetlist[j].keeper == "") ? "在庫" : "出借中" %></td>
+                            <td><%= item.assetlist[j].keeper %></td>
+                        </tr>
+                        <% }%>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<% }%>
+<%- include('parts/html_script') %>
+<script>
+
+    //登記借用工具資產
+    $('.borrowModalItemID').hide()
+    $('.itemBorrowForm').on('submit', function (e) {
+        e.preventDefault();
+        let assetNumber = $('#assetNumber').val();
+        if (assetNumber == '目前可借用') {
+            alert("請選擇資產編號")
+
+        } else {
+            $.ajax({
+                url: '/tool/addrecord',
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                let itemID = data.borrowModalItemID
+                let remainQ = parseInt($(`#tdRemainQ${itemID}`).text()) - 1
+                $(`#tdRemainQ${itemID}`).text(remainQ)
+                $('.itemBorrow').modal('hide');
+                $('#borrower').val("");
+                $('#assetNumber').val("");
+                $(`#${data.assetnumber}`).remove();
+
+
+            })
+        }
+    })
+</script>
 
 <%- include('parts/html_foot') %>

@@ -1,0 +1,50 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+
+<div class="consumables">
+    <div>
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group col-md-2">
+                    <label for="item">項目</label>
+                    <input type="text" class="form-control" id="item" name="item" required>
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="brand">廠牌</label>
+                    <input type="text" class="form-control" id="brand" name="brand" >
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="model">型號</label>
+                    <input type="text" class="form-control" id="model" name="model" >
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="description">描述</label>
+                    <input type="text" class="form-control" id="description" name="description">
+                </div>
+
+            </div>
+            <div>
+                <button id="addToolAssetNum" type="button" class="btn btn-outline-secondary btn-sm">新增資產編號</button>
+            </div>
+            <div id="addToolAssetList" class="form-group1 col-md-3">
+                <label id="addAssetListTitle" for="assetNum">資產編號</label>
+
+
+            </div>
+    </div>
+
+    <button id="addtoolbtn" type="submit" class="btn btn-secondary">新增</button>
+    </form>
+</div>
+</div>
+<%- include('parts/html_script') %>
+
+<script>
+    $('#addAssetListTitle').hide();
+    $('#addToolAssetNum').click(() => {
+        $('#addAssetListTitle').show();
+        $('#addToolAssetList').append('<input type="text" class="form-control addAssetNumCol"  name="assetNum">')
+
+    })
+</script>
+<%- include('parts/html_foot') %>

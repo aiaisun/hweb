@@ -84,18 +84,24 @@ mongoClient.connect(mongo, { useUnifiedTopology: true }, function (err, db) {
     })
 })
 
-// app.listen(3000, () => {
-//     console.log('Server starts')
-// })
-// const data = {}
+//確認登入者的middleware
+const checkUser = function (req, res, next) {
+    req.userData = {
+        isLogined: !!req.session.loginUser,
+        loginUser: req.session.loginUser,
+        userEName: req.session.userEName,
+    };
+    if (req.session.loginUser == "alii.sun") {
+        req.userData.role = 'admin';
+    };
+    next();
+}
+app.use(checkUser);
+
+// app.use()
 app.get('/', (req, res) => {
-    // data.isLogined = !! req.session.loginUser;
-    // data.loginUser = req.session.loginUser;
-    // data.userEName = req.session.userEName;
-    // console.log(data)
-    // console.log(req.session)
-    // res.render('home', data);
-    res.render('home')
+    const data = req.userData;
+    res.render('home', data);
 });
 
 app.get('/user/trysession', (req, res) => {
@@ -110,18 +116,13 @@ app.get('/user/trysession', (req, res) => {
 
 //////////////////// 登入 ////////////////////
 app.get('/user/login', (req, res) => {
-    const data = {};
+    const data = req.userData;
     const timeFormat = "YYYY-MM-DD HH:mm:ss";
     const mo1 = moment(new Date());
     if (req.session.flashMsg) {
         data.flashMsg = req.session.flashMsg;
         delete req.session.flashMsg;
     }
-
-    data.isLogined = !!req.session.loginUser;
-    data.loginUser = req.session.loginUser;
-    data.userEName = req.session.userEName;
-    // console.log(data)
     if (data.isLogined) {//true
         console.log(`${data.loginUser} 於 ${mo1.format(timeFormat)} 登入`)
     }
@@ -138,7 +139,6 @@ app.post('/user/login', (req, res) => {
     };
     collection.findOne(account, (err, document) => {
         if (document) { //true
-            console.log(document.userCName);
             req.session.loginUser = req.body.userAccount;
             req.session.userEName = document.userEName
         } else { // false
@@ -157,20 +157,13 @@ app.get('/user/logout', (req, res) => {
 
 //////////////////// 註冊流程 ////////////////////
 app.get('/user/register', (req, res) => {
-    res.render('register');
+    const data = req.userData;
+    res.render('register', data);
 });
 app.get('/user/registerSuccess', (req, res) => {
     res.render('registerSuccess');
 });
 
-//用next 試試
-// var registerSuccess = function(req, res, next) {
-//     const data={
-//         userEmail: req.body.userEmail + "@lcfuturecenter.com",
-//     }
-//     console.log(`${data.userEmail} 註冊成功`);
-//     next();
-//   }
 app.get('/try-finddb', (req, res) => {
     const collection = mongodb.collection('users');
     const myemail = 'ali.sun@lcfuturecenter.com';
@@ -259,8 +252,9 @@ app.post('/user/forgetpw', upload.single('tlcfile'), (req, res) => {
 
 //////////////////// TLC 部分 ////////////////////
 app.get('/tlc', (req, res) => {
-    // res.render('tlc', data);
-    res.render('tlc')
+    const data = req.userData;
+    res.render('tlc', data);
+    // res.render('tlc')
 })
 
 app.post('/tlc', upload.single('tlcfile'), (req, res) => {
@@ -359,42 +353,18 @@ function pythonParseVram(req, res) {
 };
 
 
-
-app.get('/user/test', (req, res) => {
-    res.render('test2');
-});
-
-
-
-app.post('/user/test', upload.single('tlcfile'), (req, res) => {
-    const testQQ = {
-        "data": req.body
-    };
-    console.log("success1")
-
-});
-
-
-
 ///////consumables 耗材
 app.get('/consumables', (req, res) => {
+    const data = req.userData;
     const consumablesCollection = mongodb.collection('consumables');
     consumablesCollection.find().toArray(function (err, document) {
         if (err) return console.log(err)
 
-        let output = {
-            data    : document,
-        };       
-        res.render('consumables', output);
-        // console.log(document)
+        data.data = document
+        res.render('consumables', data);
     })
-
 });
-//新稱領用紀錄
-app.post('/consumables', upload.single('tlcfile'), (req, res) => {
-    ///////////
 
-})
 
 //實現刷新紀錄 refresh 方法二
 // app.post('/consumables/refreshrecord', upload.single('tlcfile'), (req, res) => {
@@ -411,19 +381,20 @@ app.post('/consumables', upload.single('tlcfile'), (req, res) => {
 
 //新增耗材項目的網頁
 app.get('/consumables/add', (req, res) => {
-    res.render('consumablesAdd');
+    const data = req.userData;
+    res.render('consumablesAdd', data);
 });
 
 app.post('/consumables/add', (req, res) => {
     const consumablesCollection = mongodb.collection('consumables');
     let newConsumable = [{
-        'item'        : req.body.item,
-        'brand'       : req.body.brand,
-        'model'       : req.body.model,
-        'description' : req.body.description,
-        'quantity'    : parseInt(req.body.quantity),
+        'item': req.body.item,
+        'brand': req.body.brand,
+        'model': req.body.model,
+        'description': req.body.description,
+        'quantity': parseInt(req.body.quantity),
         'gavequantity': 0,
-        'record'      : []
+        'record': []
     }]
     consumablesCollection.insertMany(newConsumable, function (err, document) {
         if (err) return res.json(err);
@@ -454,7 +425,7 @@ app.post('/consumables/addrecord', upload.single('tlcfile'), (req, res) => {
 
     })
     consumablesCollection.findOneAndUpdate(itemID, { $push: { 'record': record } }, (err, document) => {
-        if (err) return res.json(err);       
+        if (err) return res.json(err);
         console.log(`新增領用紀錄成功- ${record.receiveDate}, ${record.recipient}領用${document.value.brand}${document.value.item}，數量 ${record.quantity}`);
     })
     res.json(req.body);
@@ -467,13 +438,13 @@ app.post('/consumables/reviseitem', upload.single('tlcfile'), (req, res) => {
         '_id': mongoObjectID(req.body.itemId),
     }
     let reviseConsumable = {
-        'item'        : req.body.item,
-        'brand'       : req.body.brand,
-        'model'       : req.body.model,
-        'description' : req.body.description,
-        'quantity'    : parseInt(req.body.quantity)
+        'item': req.body.item,
+        'brand': req.body.brand,
+        'model': req.body.model,
+        'description': req.body.description,
+        'quantity': parseInt(req.body.quantity)
     }
-    consumablesCollection.findOneAndUpdate(itemID, { $set: reviseConsumable}, (err, document) => {
+    consumablesCollection.findOneAndUpdate(itemID, { $set: reviseConsumable }, (err, document) => {
         if (err) return res.json(err);
     })
     res.json(req.body)
@@ -482,18 +453,68 @@ app.post('/consumables/reviseitem', upload.single('tlcfile'), (req, res) => {
 
 ///////tools 工具
 app.get('/tool', (req, res) => {
+    const data = req.userData;
     const consumablesCollection = mongodb.collection('tool');
     consumablesCollection.find().toArray(function (err, document) {
         if (err) return console.log(err)
 
-        let output = {
-            data    : document,
-        };       
-        res.render('tool', output);
+            data.data = document,
+        res.render('tool', data);
         // console.log(document)
     })
 
 });
+
+//新增工具項目的網頁
+app.get('/tool/add', (req, res) => {
+    const data = req.userData;
+    res.render('toolAdd', data);
+});
+
+
+app.post('/tool/add', (req, res) => {
+    const consumablesCollection = mongodb.collection('tool');
+    let assetNumberList = []
+    for (let i = 0; i < req.body.assetNum.length; i++) {
+        assetNumberList.push({ "id": i, "assetnumber": req.body.assetNum[i], "keeper": "" })
+    }
+    let newTool = {
+        'item': req.body.item,
+        'brand': req.body.brand,
+        'model': req.body.model,
+        'description': req.body.description,
+        "assetlist": assetNumberList
+
+    };
+    consumablesCollection.insertOne(newTool, function (err, document) {
+        if (err) return res.json(err);
+        console.log(newTool)
+    })
+    console.log(`新增${newTool.item}成功`)
+    res.redirect('/tool');
+});
+
+//新增工具借用紀錄
+app.post('/tool/addrecord', upload.single('tlcfile'), (req, res) => {
+    const timeFormat = "YYYY-MM-DD";
+    const mo1 = moment(new Date());
+
+    const consumablesCollection = mongodb.collection('tool');
+    let itemID = {
+        '_id': mongoObjectID(req.body.borrowModalItemID),
+    };
+
+    consumablesCollection.findOneAndUpdate(itemID,
+        { $set: { "assetlist.$[elem].keeper": req.body.borrower, "assetlist.$[elem].borrowdate": mo1.format(timeFormat) } },
+        { arrayFilters: [{ "elem.assetnumber": req.body.assetnumber }] },
+        (err, document) => {
+            if (err) return console.log(err)
+            console.log(`登記成功 - ${req.body.borrower} 借用 ${req.body.assetnumber}`)
+        });
+
+    res.json(req.body)
+});
+
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');

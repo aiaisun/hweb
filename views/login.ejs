@@ -8,9 +8,14 @@
 
 
 <% if (locals.isLogined) { %>
-<div class="alert alert-primary" role="alert">
-    <%= loginUser %> 您好 <a href="/user/logout">登出</a>
-</div>
+<div>
+    <div class="registerSuccess">
+        <img src="../lib/pic/tick.png" alt="Girl in a jacket" width="60" height="60">   
+    </div>
+    <div class="registerSuccesstext">
+        <a href="/" style="color:#202224;">登入成功，返回首頁</a>
+    </div>
+    </div>
 <% } else { %>
 <div id="loginForm">
 
