@@ -1,7 +1,7 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
 <div class="consumables">
-    <% if (locals.role == 'admin') { %>
+    <% if (locals.role != 'admin') { %>
     <div class="consumablesIcon">
         <a href="/consumables/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
     </div>
@@ -32,7 +32,7 @@
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#itemRecord<%= i %>">紀錄</button>
 
-                        <% if (locals.role == 'admin') { %>
+                        <% if (locals.role != 'admin') { %>
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"

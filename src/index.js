@@ -458,8 +458,8 @@ app.get('/tool', (req, res) => {
     consumablesCollection.find().toArray(function (err, document) {
         if (err) return console.log(err)
 
-            data.data = document,
-        res.render('tool', data);
+        data.data = document,
+            res.render('tool', data);
         // console.log(document)
     })
 
@@ -471,12 +471,11 @@ app.get('/tool/add', (req, res) => {
     res.render('toolAdd', data);
 });
 
-
 app.post('/tool/add', (req, res) => {
     const consumablesCollection = mongodb.collection('tool');
     let assetNumberList = []
     for (let i = 0; i < req.body.assetNum.length; i++) {
-        assetNumberList.push({ "id": i, "assetnumber": req.body.assetNum[i], "keeper": "" })
+        assetNumberList.push({ "id": i, "assetnumber": req.body.assetNum[i], "keeper": "", "borrowrecord": [] })
     }
     let newTool = {
         'item': req.body.item,
@@ -488,7 +487,7 @@ app.post('/tool/add', (req, res) => {
     };
     consumablesCollection.insertOne(newTool, function (err, document) {
         if (err) return res.json(err);
-        console.log(newTool)
+        // console.log(newTool)
     })
     console.log(`新增${newTool.item}成功`)
     res.redirect('/tool');
@@ -504,17 +503,164 @@ app.post('/tool/addrecord', upload.single('tlcfile'), (req, res) => {
         '_id': mongoObjectID(req.body.borrowModalItemID),
     };
 
+    let borrowRecord = {
+        'borrowDate': mo1.format(timeFormat),
+        'borrower': req.body.borrower,
+    }
+
     consumablesCollection.findOneAndUpdate(itemID,
-        { $set: { "assetlist.$[elem].keeper": req.body.borrower, "assetlist.$[elem].borrowdate": mo1.format(timeFormat) } },
+        { $set: { "assetlist.$[elem].keeper": req.body.borrower } },
         { arrayFilters: [{ "elem.assetnumber": req.body.assetnumber }] },
         (err, document) => {
-            if (err) return console.log(err)
-            console.log(`登記成功 - ${req.body.borrower} 借用 ${req.body.assetnumber}`)
+            if (err) return console.log(err);
         });
-
+    consumablesCollection.findOneAndUpdate(itemID,
+        { $push: { 'assetlist.$[elem].borrowrecord': borrowRecord } },
+        { arrayFilters: [{ "elem.assetnumber": req.body.assetnumber }] },
+        (err, document) => {
+            if (err) return res.json(err);
+            console.log(`新增借用紀錄成功- ${borrowRecord.borrowDate}, ${req.body.borrower} 借用 ${req.body.assetnumber}`);
+        });
     res.json(req.body)
 });
 
+//顯示細節出借紀錄
+app.get('/toolrecord/:toolID/:assetID', (req, res) => {
+    const data = req.userData;
+    let itemID = {
+        '_id': mongoObjectID(req.params.toolID)
+    };
+
+    const consumablesCollection = mongodb.collection('tool');
+
+    consumablesCollection.findOne(itemID, (err, document) => {
+        if (err) return console.log(err);
+
+        assetName = document.assetlist[req.params.assetID].assetnumber
+        borrowrecord = document.assetlist[req.params.assetID].borrowrecord;
+
+        data.data = borrowrecord;
+        data.assetName = assetName;
+        res.render('toolrecord', data);
+    });
+});
+
+//修改tool資料
+app.get('/toolrevise/:toolID', (req, res) => {
+    const data = req.userData;
+    const consumablesCollection = mongodb.collection('tool');
+    let itemID = {
+        '_id': mongoObjectID(req.params.toolID)
+    };
+    consumablesCollection.findOne(itemID, (err, document) => {
+        if (err) return console.log(err);
+
+        data.item = document.item;
+        data.brand = document.brand;
+        data.model = document.model;
+        data.description = document.description;
+        data.assetList = document.assetlist;
+        res.render('toolRevise', data)
+    });
+});
+
+app.post('/toolrevise/:toolID', (req, res) => {
+    const consumablesCollection = mongodb.collection('tool');
+    let itemID = {
+        '_id': mongoObjectID(req.params.toolID),
+    }
+
+    let data = {
+        'item': req.body.item,
+        'brand': req.body.brand,
+        'model': req.body.model,
+        'description': req.body.description,
+    }
+    
+    consumablesCollection.findOneAndUpdate(itemID, { $set: data }, (err, document) => {
+        if (err) return res.json(err);
+
+    });
+//增加工具下新的資產編號
+    for (let i in req.body.newAssetNum) {
+        if (req.body.assetID.includes(i)) {
+            let newAssetNum = req.body.newAssetNum[i];
+            if (req.body.oldAssetNum.includes(newAssetNum) == false) {
+                consumablesCollection.findOneAndUpdate(itemID,
+                    { $set: { 'assetlist.$[elem].assetnumber': newAssetNum } },
+                    { arrayFilters: [{ "elem.assetnumber": req.body.oldAssetNum[i] }] },
+                    (err, document) => {
+                        if (err) return res.json(err);
+                    });
+            };
+        } else {
+            let assetlist = {
+                'id': parseInt(i),
+                'assetnumber': req.body.newAssetNum[i],
+                "keeper": "",
+                "borrowrecord": []
+            };
+            consumablesCollection.findOneAndUpdate(itemID,
+                { $push: { 'assetlist': assetlist } },
+                (err, document) => {
+                    if (err) return res.json(err);
+                });
+        };
+    };
+    res.redirect('/tool');
+})
+
+//歸還工具
+app.post('/tool/return', upload.single('tlcfile'), (req, res) => {
+    const consumablesCollection = mongodb.collection('tool');
+    const timeFormat = "YYYY-MM-DD";
+    const mo1 = moment(new Date());
+
+    let itemID = {
+        '_id': mongoObjectID(req.body.toolID)
+    };
+    let returnDate = {
+        'returnDate': mo1.format(timeFormat)
+    }
+    consumablesCollection.findOne({ "assetlist": { "$elemMatch": { "assetnumber": req.body.assetNum } } },
+        { "projection": { "assetlist.$": 1 } },
+        (err, document) => {
+            if (err) return res.json(err);
+            let data = {
+                "toolID": req.body.toolID,
+                "assetNum": req.body.assetNum,
+                "returnee": req.body.returnee,
+                "order": document.assetlist[0].id,
+            }
+            res.json(data)
+        })
+
+    consumablesCollection.findOneAndUpdate(itemID,
+        { $set: { 'assetlist.$[elem].keeper': "" } },
+        { arrayFilters: [{ "elem.assetnumber": req.body.assetNum }] },
+        (err, document) => {
+            if (err) return res.json(err);
+        });
+
+    consumablesCollection.findOneAndUpdate(itemID,
+        { $set: { 'assetlist.$[elem0].borrowrecord.$[elem1].returnDate': returnDate.returnDate } },
+        {
+            arrayFilters: [{
+                "elem0.assetnumber": req.body.assetNum
+            },
+            {
+                "elem1.borrower": req.body.returnee,
+                "elem1.returnDate": {
+                    $exists: false
+                }
+            }]
+        },
+        (err, document) => {
+            if (err) return res.json(err);
+            console.log(`新增歸還紀錄成功- ${returnDate.returnDate}, ${req.body.returnee} 歸還 ${req.body.assetNum}`);
+        });
+
+})
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');

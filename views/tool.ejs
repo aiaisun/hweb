@@ -1,7 +1,7 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
 <div class="consumables">
-    <% if (locals.role == 'admin') { %>
+    <% if (locals.role != 'admin') { %>
     <div class="consumablesIcon">
         <a href="/tool/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
     </div>
@@ -26,16 +26,24 @@
             let item = data[i] %>
                 <tr>
                     <th scope="row">
+                        <% if (locals.role != 'admin') { %>
 
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#borrowModal<%= item._id %>" itemid="<%= item._id %>"
+                            itemname="<%= item.item %>">借用</button>
 
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#adminItemBorrowRecord<%= i %>">歸還</button>
+
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#itemRevise<%= i %>"
+                            onclick='javascript:location.href="/toolrevise/<%= item._id %>"'>修改</button>
+
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#itemBorrowRecord<%= i %>">紀錄test</button>
+                        <% } else {%>
                         <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#itemBorrowRecord<%= i %>">紀錄</button>
-                        <% if (locals.role == 'admin') { %>
-                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#borrowModa<%= item._id %>" itemid="<%= item._id %>"
-                            itemname="<%= item.item %>">借用</button>
-                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#itemRevise<%= i %>">修改</button>
                         <% }%>
                         <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
                         <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
@@ -61,7 +69,7 @@
 <!-- 新增資產借用 -->
 <% for( let i = 0; i < locals.data.length; i++){  
     let item = data[i] %>
-<div id="borrowModa<%= item._id %>" class=" modal fade itemBorrow" tabindex="-1" role="dialog"
+<div id="borrowModal<%= item._id %>" class=" modal fade itemBorrow" tabindex="-1" role="dialog"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -73,21 +81,23 @@
             </div>
 
             <div class="modal-body">
-                <form id="addBorrowForm" class=" itemBorrowForm" method="post">
+                <form class=" itemBorrowForm" method="post">
                     <div class="form-group">
                         <div class="col-md-10">
                             <label for="recipient-name" class="col-form-label">姓名</label>
-                            <input type="text" class="form-control col-md-4" id="borrower" name="borrower" required>
+                            <input type="text" class="form-control col-md-4 borrower" name="borrower" required>
                         </div>
                         <div class="col-md-6">
                             <label for="recipient-name" class="col-form-label">資產編號</label>
-                            <select class="custom-select my-1 mr-sm-4" id="assetNumber" name="assetnumber" required>
-                                <option value='目前可借用' style="display:none"></option>
+                            <select class="custom-select my-1 mr-sm-4 assetNumber"
+                                id="borrowModalAssetNumber<%= item._id %>" name="assetnumber" required>
+                                <option value='' style="display:none"></option>
                                 <% for( let j = 0 ; j < item.assetlist.length ; j++){  
                                 if (item.assetlist[j].keeper == "") {%>
 
-                                <option id="<%= item.assetlist[j].assetnumber %>"
-                                    value="<%= item.assetlist[j].assetnumber %>">
+                                <option class="borrowOption<%= item._id%>" id="<%= item.assetlist[j].assetnumber %>"
+                                    value="<%= item.assetlist[j].assetnumber %>"
+                                    toolorder="<%= item.assetlist[j].id %>">
                                     <%= item.assetlist[j].assetnumber %></option>
                                 <% } }%>
                             </select>
@@ -101,7 +111,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                <input id="addModelbtn" type="submit" class="btn btn-primary" value="登記">
+                <input type="submit" class="btn btn-primary" value="登記">
             </div>
             </form>
         </div>
@@ -131,18 +141,88 @@
                             <th scope=" col">資產編號</th>
                     <th scope="col">狀態</th>
                     <th scope="col">借用人</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <% for( let j = 0 ; j < item.assetlist.length ; j++){  
+                              %>
+                        <tr>
+                            <td>
+                                <%= item.assetlist[j].assetnumber %>
+                            </td>
+                            <td>
+                                <%= (item.assetlist[j].keeper == "") ? "在庫" : "出借中" %>
+                            </td>
+                            <td>
+                                <%= item.assetlist[j].keeper %>
+                            </td>
+                        </tr>
+                        <% }%>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<% }%>
+
+<!-- 管理員查詢修改紀錄的modal -->
+<% for( let i = 0; i < locals.data.length; i++){  
+    let item = data[i] %>
+<div id="adminItemBorrowRecord<%= i %>" class=" modal fade itemReturn" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">借用紀錄 - <%= item.item %></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <table class="table table-borderless table-hover"">
+                    <thead>
+                        <tr>
+                            <th scope=" col">資產編號</th>
+                    <th scope="col">狀態</th>
+                    <th scope="col">借用人</th>
                     <th></th>
                     </tr>
                     </thead>
                     <tbody id="recordTableList<%= item._id %>">
-
-
                         <% for( let j = 0 ; j < item.assetlist.length ; j++){  
                               %>
                         <tr>
-                            <td><%= item.assetlist[j].assetnumber %></td>
-                            <td><%= (item.assetlist[j].keeper == "") ? "在庫" : "出借中" %></td>
-                            <td><%= item.assetlist[j].keeper %></td>
+                            <form class="itemReturnForm" method="post">
+                                <td><a href="/toolrecord/<%= item._id%>/<%= j %>"
+                                        style="text-decoration: none;"><%= item.assetlist[j].assetnumber %></a>
+                                    <input class="itemReturnForm" name="toolID" value="<%= item._id %>">
+                                    <input class="itemReturnForm" name="assetNum"
+                                        value="<%= item.assetlist[j].assetnumber %>">
+                                </td>
+                                <td id="tdAssetStatus<%= item.assetlist[j].assetnumber%>">
+                                    <%= (item.assetlist[j].keeper == "") ? "在庫" : "出借中" %>
+                                </td>
+                                <td id="tdAssetKeeper<%= item.assetlist[j].assetnumber%>">
+                                    <%= item.assetlist[j].keeper %>
+                                    <input class='itemReturnForm' name="returnee"
+                                        value="<%= item.assetlist[j].keeper %>">
+                                </td>
+
+                                <td id="tdAssetReturnBTN<%= item.assetlist[j].assetnumber%>">
+                                    <% if (item.assetlist[j].keeper != "") {%>
+                                    <input type="submit" class="btn btn-outline-secondary btn-sm" value="歸還">
+                                    <% } %>
+                                </td>
+                            </form>
                         </tr>
                         <% }%>
 
@@ -157,8 +237,8 @@
         </div>
     </div>
 </div>
-
 <% }%>
+
 <%- include('parts/html_script') %>
 <script>
 
@@ -166,32 +246,89 @@
     $('.borrowModalItemID').hide()
     $('.itemBorrowForm').on('submit', function (e) {
         e.preventDefault();
-        let assetNumber = $('#assetNumber').val();
-        if (assetNumber == '目前可借用') {
-            alert("請選擇資產編號")
 
-        } else {
-            $.ajax({
-                url: '/tool/addrecord',
-                type: 'POST',
-                data: new FormData(this),
-                contentType: false,//一定要加
-                cache: false,
-                processData: false,//一定要加
-                dataType: "json"
-            }).done(function (data) {
-                let itemID = data.borrowModalItemID
-                let remainQ = parseInt($(`#tdRemainQ${itemID}`).text()) - 1
-                $(`#tdRemainQ${itemID}`).text(remainQ)
-                $('.itemBorrow').modal('hide');
-                $('#borrower').val("");
-                $('#assetNumber').val("");
-                $(`#${data.assetnumber}`).remove();
+        $.ajax({
+            url: '/tool/addrecord',
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            let itemID = data.borrowModalItemID;
+            let remainQ = parseInt($(`#tdRemainQ${itemID}`).text()) - 1;
+            let assetNumber = data.assetnumber;
 
+            $(`#tdRemainQ${itemID}`).text(remainQ);
+            $('.itemBorrow').modal('hide');
+            $('.borrower').val("");
+            $('.assetNumber').val("");
+            $(`#${data.assetnumber}`).remove();
+            //即時更新歸還modal的紀錄 (一般人的不及時更新，因為管理員看不到)
+            // $(`#tdAssetStatus${assetNumber}`).text('出借中');
+            $(`#tdAssetStatus${assetNumber}`).text('出借中');
+            // $(`#tdAssetKeeper${assetNumber}`).text();
+            $(`#tdAssetKeeper${assetNumber}`).html(`${data.borrower}<input class='itemReturnForm' name="returnee" value="${data.borrower}">`);
+            $('input.itemReturnForm').hide();
+            $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" value="歸還">')
 
-            })
-        }
+        })
     })
+
+    //歸還工具
+    $('input.itemReturnForm').hide();
+    $('.itemReturnForm').on('submit', function (e) {
+        e.preventDefault();
+        // alert("OK")
+
+        $.ajax({
+            url: '/tool/return',
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            $('.itemReturn').modal('hide');
+            let toolID = data.toolID;
+            let remainQ = parseInt($(`#tdRemainQ${toolID}`).text()) + 1;
+            let assetNumber = data.assetNum;
+
+            $(`#tdRemainQ${toolID}`).text(remainQ);
+
+            //清空借用人及更改狀態 去掉歸還btn
+            $(`#tdAssetStatus${assetNumber}`).text("在庫");
+            $(`#tdAssetKeeper${assetNumber}`).text("");
+            $(`#tdAssetReturnBTN${assetNumber}`).html("");
+
+            //歸還動態修改可借清單
+            let toolOrder = data.order;
+            let lastoption = parseInt($(`select#borrowModalAssetNumber${toolID} option:last`).attr('toolOrder'));
+
+            if (toolOrder < lastoption) {
+
+                for (let i = toolOrder; i <= lastoption; i++) {
+                    let nextOptionOrder = parseInt($(`select#borrowModalAssetNumber${toolID} option[toolorder='${i + 1}']`).attr('toolOrder'))
+                    if (isNaN(nextOptionOrder) != true) {
+                        $(`select#borrowModalAssetNumber${toolID} option[toolorder='${i + 1}']`).before(`<option value="${assetNumber}" toolorder="${data.order}"> ${assetNumber} </option>`);
+                        break
+                    }
+                }
+            } else {
+                for (let i = toolOrder; i >= 0; i--) {
+                    let preOptionOrder = parseInt($(`select#borrowModalAssetNumber${toolID} option[toolorder='${i - 1}']`).attr('toolOrder'))
+                    if (isNaN(preOptionOrder) != true) {
+                        $(`select#borrowModalAssetNumber${toolID} option[toolorder='${i - 1}']`).after(`<option value="${assetNumber}" toolorder="${data.order}"> ${assetNumber} </option>`);
+                        break
+                    }
+                }
+            }
+        })
+
+    })
+
 </script>
 
 <%- include('parts/html_foot') %>

@@ -1,0 +1,93 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+
+<div class="consumables">
+    <div class="consumablesIcon">
+        <a href="/tool"><img src="../lib/pic/back.png" style="width:30px"></a>
+    </div>
+    <form id="reviseToolForm" method="POST" onsubmit="return checkAssetNum(this)">
+        
+        <div class="consumablesTable">
+
+
+            <div class="form-row">
+                <div class="form-group col-md-2">
+                    <label for="item">項目</label>
+                    <input type="text" class="form-control" id="item" name="item" required value='<%= item %>'>
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="brand">廠牌</label>
+                    <input type="text" class="form-control" id="brand" name="brand" value='<%= brand %>'>
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="model">型號</label>
+                    <input type="text" class="form-control" id="model" name="model" value='<%= model %>'>
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="description">描述</label>
+                    <input type="text" class="form-control" id="description" name="description"
+                        value='<%= description %>'>
+                </div>
+            </div>
+
+            <div id="addToolAssetList">
+                <div class="form-group">
+                    <label for="item">資產編號</label>
+                    <button id="addToolAssetNum" type="button" class="btn btn-outline-secondary btn-sm">新增資產編號</button>
+                </div>
+                <% for( let i = 0; i < locals.assetList.length; i++){  
+                let asset = assetList[i] %>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+
+                        <input type="text" class="form-control oldAssetNum" name="oldAssetNum" required
+                            value='<%= asset.assetnumber %>'>
+                        <input type="text" class="form-control oldAssetNum" name="assetID" required
+                            value='<%= asset.id %>'>
+                        <input type="text" class="form-control" name="newAssetNum" required
+                            value='<%= asset.assetnumber %>'>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    
+    <div class="consumablesIcon">
+        <button id="addtoolbtn" type="submit" class="btn btn-secondary">修改</button>
+    </div>
+</form>
+</div>
+<%- include('parts/html_script') %>
+
+<script>
+    $('.oldAssetNum').hide()
+    $('#addToolAssetNum').click(() => {
+        let addAssetCol = '<div class="form-row">\
+                           <div class="form-group col-md-2">\
+                           <input type="text" class="form-control oldAssetNum" name="oldAssetNum" value="">\
+                           <input type="text" class="form-control oldAssetNum" name="assetID" value="">\
+                           <input type="text" class="form-control" name="newAssetNum" required value="">\
+                           </div>\
+                           </div>';
+
+        $('#addToolAssetList').append(addAssetCol);
+        $('.oldAssetNum').hide();
+    })
+
+
+
+    function checkAssetNum() {
+        let newAssetNumList = $('#reviseToolForm input[name=newAssetNum]').serializeArray();
+        let list1 = []
+        for (let i in newAssetNumList) {
+            if (list1.indexOf(newAssetNumList[i].value) == -1) {
+                list1.push(newAssetNumList[i].value);
+            } else {
+                alert(`資產編號重複  ${newAssetNumList[i].value}`);
+                return false;
+                break;
+            };
+        };   
+    }
+</script>
+<%- include('parts/html_foot') %>

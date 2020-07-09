@@ -1,0 +1,34 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+
+<div class="consumables">
+    <div class="consumablesIcon">
+        <a href="/tool"><img src="../../lib/pic/back.png" style="width:30px"></a>
+    </div>
+    <div class="consumablesTable">
+        <h1> <%= locals.assetName%></h1>
+    </div>
+    <div class="consumablesTable">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="text-align:center;width:100px;" scope="col">借用日期</th>
+                    <th style="text-align:center;width:50px;" scope="col">借用人</th>
+                    <th style="text-align:center;width:50px;" scope="col">歸還日期</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for( let i = 0; i < locals.data.length; i++){  
+        let item = data[i] %>
+                <tr>
+                    <td><%= item.borrowDate %></td>
+                    <td><%= item.borrower %></td>
+                    <td><%= item.returnDate %></td>
+                </tr>
+                <% }%>
+            </tbody>
+        </table>
+    </div>
+</div>
+<%- include('parts/html_script') %>
+<%- include('parts/html_foot') %>
