@@ -275,7 +275,9 @@
             $(`#tdAssetKeeper${assetNumber}`).html(`${data.borrower}<input class='itemReturnForm' name="returnee" value="${data.borrower}">`);
             $('input.itemReturnForm').hide();
             $(`#inStock${assetNumber}`).show();
-            // $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" id="1" value="歸還">')
+
+            //這裡 這個不能按
+            // $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" id="test" value="歸還">')
             
 
         })
@@ -333,6 +335,9 @@
 
     })
 
+$('#id').on('click', function(){
+    console.log('test')
+})
 </script>
 
 <%- include('parts/html_foot') %>
