@@ -218,9 +218,10 @@
                                 </td>
 
                                 <td id="tdAssetReturnBTN<%= item.assetlist[j].assetnumber%>">
-                                    <% if (item.assetlist[j].keeper != "") {%>
-                                    <input type="submit" class="btn btn-outline-secondary btn-sm" value="歸還">
-                                    <% } %>
+                                    
+                                    <input type="submit" class="btn btn-outline-secondary btn-sm 
+                                    <%= item.assetlist[j].keeper != '' ? 'outOfStock' : 'inStock'%>" id="inStock<%= item.assetlist[j].assetnumber %>"value="歸還">
+                                    
                                 </td>
                             </form>
                         </tr>
@@ -237,6 +238,7 @@
         </div>
     </div>
 </div>
+
 <% }%>
 
 <%- include('parts/html_script') %>
@@ -244,6 +246,7 @@
 
     //登記借用工具資產
     $('.borrowModalItemID').hide()
+    $('.inStock').hide()
     $('.itemBorrowForm').on('submit', function (e) {
         e.preventDefault();
 
@@ -271,7 +274,9 @@
             // $(`#tdAssetKeeper${assetNumber}`).text();
             $(`#tdAssetKeeper${assetNumber}`).html(`${data.borrower}<input class='itemReturnForm' name="returnee" value="${data.borrower}">`);
             $('input.itemReturnForm').hide();
-            $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" value="歸還">')
+            $(`#inStock${assetNumber}`).show();
+            // $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" id="1" value="歸還">')
+            
 
         })
     })
@@ -280,7 +285,6 @@
     $('input.itemReturnForm').hide();
     $('.itemReturnForm').on('submit', function (e) {
         e.preventDefault();
-        // alert("OK")
 
         $.ajax({
             url: '/tool/return',

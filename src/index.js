@@ -11,28 +11,8 @@ const moment = require('moment');
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectId;
 const mongo = 'mongodb://localhost:27017/hweb'
-// const url = "mongodb://localhost:27017";
-// Set a global variable for MongoDB
+
 let mongodb = null
-// // 連線mongodb
-// client.connect(url, {useUnifiedTopology: true}, function(err, db){
-//     if (err) throw err;
-//     console.log("mongodb is connected.")
-//     db.close()
-
-// })
-// var url1 = "mongodb://localhost:27017/hweb";
-// client.connect(url1, {useUnifiedTopology: true}, function(err, db) {
-//   if (err) throw err;
-//   var dbo = db.db("hweb");
-//   var myobj = { name: "Company Inc", address: "Highway 37" };
-//   dbo.collection("customers").insertOne(myobj, function(err, res) {
-//     if (err) throw err;
-//     console.log("Collection created!");
-//     db.close();
-//   });
-// });
-
 
 let { PythonShell } = require('python-shell');
 app.set('view engine', 'ejs');
@@ -661,6 +641,10 @@ app.post('/tool/return', upload.single('tlcfile'), (req, res) => {
         });
 
 })
+
+//debug
+
+
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');
