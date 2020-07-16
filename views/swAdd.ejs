@@ -1,0 +1,150 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables">
+    <div>
+        <form method="POST">
+            <div class="form-row addOrderFirstRow">
+                <div class="form-group col-md-4">
+                    <label for="orderNumber">採購單號</label>
+                    <input type="text" class="form-control" id="orderNumber" name="orderNumber">
+                </div>
+                
+                <div class="form-group col-md-4">
+                    <label for="purchaseDate">採購日期</label>
+                    <input onchange="updateExpire()" type="date" class="form-control" id="purchaseDate" name="purchaseDate">
+                </div>
+            </div>
+
+            <div id="addToolAssetList" class="form-group col-md-9" style="margin-top: 30px;">
+
+                <div class="form-row">
+                    <div class="form-group col-md-1 addItemTitle">
+                        <label>編號</label>
+                    </div>
+                    <div class="form-group col-md-4 addItemTitle">
+                        <label>項目</label>
+                    </div>
+                    <!-- <div class="form-group col-md-2">
+                        <label>Part No.</label>
+                    </div> -->
+
+                    <div class="form-group col-md-2 addItemTitle">
+                        <label>Host ID</label>
+                    </div>
+                    <div class="form-group col-md-3 addItemTitle">
+                        <label>到期日</label>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <button id="addToolAssetNum" type="button" style="width:30 px"
+                            class="btn btn-outline-secondary btn-sm addToolAssetNum">＋</button>
+                        <button id="removeToolAssetNum" type="button" style="width:30 px"
+                            class="btn btn-outline-secondary btn-sm addToolAssetNum">－</button>
+                    </div>
+
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-1 addItemOrder">
+                        <label>1</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <!-- 想加入及時update PN -->
+                        <!-- <select onchange="updatePN()" class="custom-select item" name="item" required> -->
+                            <select  class="custom-select item" name="item" required>
+                            <option value="" style="display:none"></option>
+                            <% for( let i = 0; i < locals.data.length; i++){  
+                                let item = data[i] %>
+                            <option value="<%= item.item %>"><%= item.item %></option>
+                            <% }%>
+                        </select>
+                    </div>
+                    <!-- <div class="form-group col-md-2">
+                        <input type="text" class="form-control partNumber" name="partNumber" disabled>
+                    </div> -->
+                    <div class="form-group col-md-2">
+                        <input type="text" class="form-control" name="hostID">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <input type="date" class="form-control" name="expireDate">
+                    </div>
+                </div>
+                
+            </div>
+
+
+    </div>
+    <input id="quantity" type="number" class="form-control" name="quantity" value="1">
+    <button id="addtoolbtn" type="submit" class="btn btn-secondary">新增</button>
+    </form>
+</div>
+<%- include('parts/html_script') %>
+
+
+<script>
+
+    //取得兩個ipnut的值
+    /////////// TO DO ///////////
+    //想加入及時update PN
+    // const item = $(".item");
+    // const PN = $(".partNumber");
+
+    // function updatePN() {
+    //     // 清空第二個選單
+    //     while (PN.val()) PN.val("");
+
+    //     if (item.val() == 'OrCAD® Capture CIS') {
+    //         PN.val("P01110");
+    //     }
+    //     if (item.val() == 'Allegro PCB Designer') {
+    //         PN.val("PA3100");
+    //     }
+    // }
+
+    $('#addAssetListTitle').hide();
+    $('#quantity').hide();
+    const swList = ['OrCAD® Capture CIS', 'Allegro PCB Designer'];
+    let assetQ = 0;
+    $('#addToolAssetNum').click(() => {
+
+        assetQ++;
+        $('#quantity').val(assetQ + 1);
+        let text = `<div id="col${assetQ}" class="form-row">\
+            <div class="form-group col-md-1 addItemOrder">\
+                        <label>${assetQ + 1}</label>\
+                    </div>\
+                    <div class="form-group col-md-4">\
+                        <select  class="custom-select item" name="item" required>\
+                            <option value="" style="display:none"></option>\                            
+                            <option value="OrCAD® Capture CIS">OrCAD® Capture CIS</option>\
+                            <option value="Allegro PCB Designer">Allegro PCB Designer</option>\                            
+                        </select>\
+                    </div>\                    
+                    <div class="form-group col-md-2">\
+                        <input type="text" class="form-control" name="hostID">\
+                    </div>\
+                    <div class="form-group col-md-3">\
+                        <input type="date" class="form-control" name="expireDate">\
+                    </div>\
+                </div>`
+        $('#addToolAssetList').append(text);
+    });
+
+    function updateExpire() {
+
+    }
+
+    $('#removeToolAssetNum').click(() => {
+        if (assetQ > 0) {
+            $(`#col${assetQ}`).remove();
+            assetQ--;
+            $('#quantity').val(assetQ +1);
+        }
+    })
+
+
+
+
+
+
+</script>
+<%- include('parts/html_foot') %>

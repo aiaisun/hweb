@@ -40,7 +40,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });//single image Key:myImage
 
 //email system
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer');
+const { resolve } = require('path');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -556,12 +557,12 @@ app.post('/toolrevise/:toolID', (req, res) => {
         'model': req.body.model,
         'description': req.body.description,
     }
-    
+
     consumablesCollection.findOneAndUpdate(itemID, { $set: data }, (err, document) => {
         if (err) return res.json(err);
 
     });
-//增加工具下新的資產編號
+    //增加工具下新的資產編號
     for (let i in req.body.newAssetNum) {
         if (req.body.assetID.includes(i)) {
             let newAssetNum = req.body.newAssetNum[i];
@@ -642,8 +643,100 @@ app.post('/tool/return', upload.single('tlcfile'), (req, res) => {
 
 })
 
-//debug
+///////////////////////
+///軟體
+///////tools 工具
+app.get('/software', (req, res) => {
+    const data = req.userData;
+    const swCollection = mongodb.collection('software');
+    swCollection.find().toArray(function (err, document) {
+        if (err) return console.log(err)
 
+        data.data = document,
+            res.render('sw', data);
+        // console.log(document)
+    })
+
+});
+
+//新增採購軟體的網頁
+app.get('/software/add', (req, res) => {
+    const data = req.userData;
+    const swCollection = mongodb.collection('software');
+    swCollection.find({}, { 'projection': { "item": 1, "partNumber": 1 } }).toArray(function (err, document) {
+        if (err) return console.log(err)
+
+        data.data = document,
+            res.render('swAdd', data);
+        // console.log(document)
+    })
+
+});
+
+
+app.post('/software/add',  async(req, res) => {
+    const swCollection = mongodb.collection('software');
+
+    async function insertData(item, newSW) {
+        const setQuantity = await swCollection.findOne(item, { 'projection': { "_id": 0, "list.hostID": 1 } })
+        const length = setQuantity.list.length;
+
+        newSW.ID = length + 1;
+        await swCollection.findOneAndUpdate(item, { $push: { list: newSW } });
+
+    }
+
+    if (req.body.quantity > 1) {
+
+        for (let i = 0; i < req.body.item.length; i++) {
+            const item = { 'item': req.body.item[i] };
+
+            const newSW = {
+                "hostID": req.body.hostID[i],
+                "purchaseDate": req.body.purchaseDate,
+                "expireDate": req.body.expireDate[i],
+                "order": req.body.orderNumber,
+            }
+            await insertData(item, newSW)
+
+        }
+    } else {
+        const item = { 'item': req.body.item };
+        const newSW = {
+            "hostID": req.body.hostID,
+            "purchaseDate": req.body.purchaseDate,
+            "expireDate": req.body.expireDate,
+            "order": req.body.orderNumber,
+        }
+        await insertData(item, newSW)
+    }
+
+
+    res.redirect('/software');
+});
+
+
+//新增SW軟體
+app.get('/software/additem', (req, res) => {
+    const data = req.userData;
+    res.render('swAddItem', data);
+});
+app.post('/software/additem', (req, res) => {
+    const data = req.userData;
+    const swCollection = mongodb.collection('software');
+    let newSW = {
+        'item': req.body.item,
+        'partNumber': req.body.partNumber,
+        'quantity': 0,
+        'list': []
+    };
+    swCollection.insertOne(newSW, function (err, document) {
+        if (err) return res.json(err);
+        // console.log(newSW)
+    })
+    console.log(`新增${newSW.item}成功`)
+    res.redirect('/software');
+});
 
 // 自定404 page
 app.use((req, res) => {

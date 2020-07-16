@@ -11,11 +11,11 @@
                 </div>
                 <div class="form-group col-md-1">
                     <label for="brand">廠牌</label>
-                    <input type="text" class="form-control" id="brand" name="brand" >
+                    <input type="text" class="form-control" id="brand" name="brand">
                 </div>
                 <div class="form-group col-md-1">
                     <label for="model">型號</label>
-                    <input type="text" class="form-control" id="model" name="model" >
+                    <input type="text" class="form-control" id="model" name="model">
                 </div>
                 <div class="form-group col-md-5">
                     <label for="description">描述</label>
@@ -24,10 +24,15 @@
 
             </div>
             <div>
-                <button id="addToolAssetNum" type="button" class="btn btn-outline-secondary btn-sm">新增資產編號</button>
+                <button id="addToolAssetNum" type="button"
+                    class="btn btn-outline-secondary btn-sm addToolAssetNum">新增資產編號</button>
+                <button id="removeToolAssetNum" type="button"
+                    class="btn btn-outline-secondary btn-sm addToolAssetNum">移除資產編號</button>
             </div>
             <div id="addToolAssetList" class="form-group1 col-md-3">
                 <label id="addAssetListTitle" for="assetNum">資產編號</label>
+
+
 
 
             </div>
@@ -36,15 +41,53 @@
     <button id="addtoolbtn" type="submit" class="btn btn-secondary">新增</button>
     </form>
 </div>
+
 </div>
+
 <%- include('parts/html_script') %>
 
 <script>
     $('#addAssetListTitle').hide();
+    // const assetQ = new Number(0);
+    let assetQ = 0;
     $('#addToolAssetNum').click(() => {
+        // console.log(typeof assetQ)
+        // assetQ = parseInt(assetQ)
+        assetQ++;
+        // console.log(assetQ);
+        // console.log(assetQ);
         $('#addAssetListTitle').show();
-        $('#addToolAssetList').append('<input type="text" class="form-control addAssetNumCol"  name="assetNum">')
+        $('#addToolAssetList').append(`<div id="col${assetQ}"class="form-row">\
+                                       <div class="consumablesIcon">\
+                                       <input type="text" class="form-control addAssetNumCol" name="assetNum">\
+                                       </div>\
+                                       </div>`);
 
+    });
+
+    $('#removeToolAssetNum').click(() => {
+        if (assetQ > 0) {
+            $(`#col${assetQ}`).remove();
+            assetQ--;
+        }
+        // console.log(assetQ);
     })
+
+
+    // $('#removeToolAssetNum').on('click', minusAssetQSum(assetQ));
+    // $('#addToolAssetNum').on('click', addAssetQSum(assetQ));
+    // function minusAssetQSum(num) {
+    //     if (num > 1) {
+    //         num--;
+    //     }
+    //     console.log('minus')
+    // }
+    // function addAssetQSum(num) {
+    //     num++;
+    //     console.log('add');
+    // }
+
+
+
 </script>
 <%- include('parts/html_foot') %>

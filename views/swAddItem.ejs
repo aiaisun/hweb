@@ -1,0 +1,28 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables">
+    <div>
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="item">項目</label>
+                    <input type="text" class="form-control" id="item" name="item" required>
+
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="brand">Part No.</label>
+                    <input type="text" class="form-control" id="partNumber" name="partNumber">
+                </div>
+            </div>
+            
+            
+    </div>
+
+    <button id="addtoolbtn" type="submit" class="btn btn-secondary">新增</button>
+    </form>
+</div>
+</div>
+
+<%- include('parts/html_script') %>
+
+<%- include('parts/html_foot') %>

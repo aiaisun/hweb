@@ -29,13 +29,13 @@
                 let item = data[i] %>
                 <tr>
                     <th scope="row">
-                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
                             data-target="#itemRecord<%= i %>">紀錄</button>
 
                         <% if (locals.role != 'admin') { %>
-                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
                             data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
-                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
                             data-target="#itemRevise<%= i %>">修改</button>
                         <% }%>
                         <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->

@@ -1,0 +1,49 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables">
+    <% if (locals.role != 'admin') { %>
+    <div class="consumablesIcon">
+        <a href="/software/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
+    </div>
+    <div class="consumablesIcon">
+        <a href="/software"><img src="../lib/pic/refresh.png" style="width:30px"></a>
+    </div>
+    <% } %>
+    <div class="consumablesTable">
+        <table class="table table-hover table-bordered ">
+            <thead>
+                <tr>
+                    <th scope="col" style="width:10px;"></th>
+                    <th style="text-align:center;width:100px;" scope="col">項目</th>
+                    <th style="text-align:center;width:50px;" scope="col">Part Number</th>
+                    <th style="text-align:center;width:50px;" scope="col">數量</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for( let i = 0; i < locals.data.length; i++){  
+                    let item = data[i] %>
+                <tr>
+                    <th scope="row">
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                            data-target="#">紀錄</button>
+
+                        <% if (locals.role != 'admin') { %>
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                            data-target="#itemRevise<%= i %>">修改</button>
+                        <% }%>
+                        <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
+                        <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
+                    </th>
+                    <td><%= item.item %></td>
+                    <td><%= item.partNumber %></td>
+                    <td><%= item.list.length %></td>
+                </tr>
+                <% }%>
+            </tbody>
+        </table>
+    </div>
+</div>
+<%- include('parts/html_script') %>
+<%- include('parts/html_foot') %>

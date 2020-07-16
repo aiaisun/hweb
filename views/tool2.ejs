@@ -28,18 +28,18 @@
                     <th scope="row">
                         <% if (locals.role != 'admin') { %>
 
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#borrowModal<%= item._id %>" itemid="<%= item._id %>"
                             itemname="<%= item.item %>">借用</button>
 
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#adminItemBorrowRecord<%= i %>">歸還</button>
 
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#itemRevise<%= i %>"
                             onclick='javascript:location.href="/toolrevise/<%= item._id %>"'>修改</button>
                         <% } else {%>
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                        <button class="itemModal" type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#itemBorrowRecord<%= i %>">紀錄</button>
                         <% }%>
                         <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
@@ -61,6 +61,7 @@
             </tbody>
         </table>
     </div>
+    <input type="submit" class="btn btn-outline-secondary btn-sm test" value="test原本的">
 </div>
 
 <!-- 新增資產借用 -->
@@ -215,10 +216,9 @@
                                 </td>
 
                                 <td id="tdAssetReturnBTN<%= item.assetlist[j].assetnumber%>">
-                                    
-                                    <input type="submit" class="btn btn-outline-secondary btn-sm 
-                                    <%= item.assetlist[j].keeper != '' ? 'outOfStock' : 'inStock'%>" id="inStock<%= item.assetlist[j].assetnumber %>"value="歸還">
-                                    
+                                    <% if (item.assetlist[j].keeper != "") {%>
+                                    <input type="submit" class="btn btn-outline-secondary btn-sm" value="歸還">
+                                    <% } %>
                                 </td>
                             </form>
                         </tr>
@@ -237,7 +237,6 @@
 </div>
 
 <% }%>
-
 <%- include('parts/html_script') %>
 <script>
 
@@ -271,18 +270,71 @@
             // $(`#tdAssetKeeper${assetNumber}`).text();
             $(`#tdAssetKeeper${assetNumber}`).html(`${data.borrower}<input class='itemReturnForm' name="returnee" value="${data.borrower}">`);
             $('input.itemReturnForm').hide();
-            $(`#inStock${assetNumber}`).show();
 
             //這裡 這個不能按
-            // $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" id="test" value="歸還">')
-            
+            $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm test" value="歸還">')
+            $('.consumables').append('<input type="submit" class="btn btn-outline-secondary btn-sm test" value="借了之後的">')
+            $('.test').on('click', returntest)
+            // $('.itemReturnForm').on('submit', returntest)
 
         })
     })
 
     //歸還工具
     $('input.itemReturnForm').hide();
-    $('.itemReturnForm').on('submit', function (e) {
+    // $('.itemReturnForm').on('submit', function (e) {
+    //     e.preventDefault();
+
+    //     $.ajax({
+    //         url: '/tool/return',
+    //         type: 'POST',
+    //         data: new FormData(this),
+    //         contentType: false,//一定要加
+    //         cache: false,
+    //         processData: false,//一定要加
+    //         dataType: "json"
+    //     }).done(function (data) {
+    //         $('.itemReturn').modal('hide');
+    //         let toolID = data.toolID;
+    //         let remainQ = parseInt($(`#tdRemainQ${toolID}`).text()) + 1;
+    //         let assetNumber = data.assetNum;
+
+    //         $(`#tdRemainQ${toolID}`).text(remainQ);
+
+    //         //清空借用人及更改狀態 去掉歸還btn
+    //         $(`#tdAssetStatus${assetNumber}`).text("在庫");
+    //         $(`#tdAssetKeeper${assetNumber}`).text("");
+    //         $(`#tdAssetReturnBTN${assetNumber}`).html("");
+
+    //         //歸還動態修改可借清單
+    //         let toolOrder = data.order;
+    //         let lastoption = parseInt($(`select#borrowModalAssetNumber${toolID} option:last`).attr('toolOrder'));
+
+    //         if (toolOrder < lastoption) {
+
+    //             for (let i = toolOrder; i <= lastoption; i++) {
+    //                 let nextOptionOrder = parseInt($(`select#borrowModalAssetNumber${toolID} option[toolorder='${i + 1}']`).attr('toolOrder'))
+    //                 if (isNaN(nextOptionOrder) != true) {
+    //                     $(`select#borrowModalAssetNumber${toolID} option[toolorder='${i + 1}']`).before(`<option value="${assetNumber}" toolorder="${data.order}"> ${assetNumber} </option>`);
+    //                     break
+    //                 }
+    //             }
+    //         } else {
+    //             for (let i = toolOrder; i >= 0; i--) {
+    //                 let preOptionOrder = parseInt($(`select#borrowModalAssetNumber${toolID} option[toolorder='${i - 1}']`).attr('toolOrder'))
+    //                 if (isNaN(preOptionOrder) != true) {
+    //                     $(`select#borrowModalAssetNumber${toolID} option[toolorder='${i - 1}']`).after(`<option value="${assetNumber}" toolorder="${data.order}"> ${assetNumber} </option>`);
+    //                     break
+    //                 }
+    //             }
+    //         }
+    //     })
+
+    // })
+
+    $('.itemReturnForm').on('submit', returntest)
+let assetQ = 0
+    function returntest(e){
         e.preventDefault();
 
         $.ajax({
@@ -330,11 +382,31 @@
             }
         })
 
-    })
+    }
 
-$('#test').on('click', function(){
-    console.log('test')
-})
+    function click1 () {
+        alert('fine')
+        console.log('test')
+        $('.consumables').append('<input type="submit" class="btn btn-outline-secondary btn-sm test" value="click之後的">');
+        $('.test').on('click', click1)
+    }
+    $('.test').on('click', click1)
+
+    $('.test').on('click', ()=>{
+        assetQ++;
+        console.log(assetQ)
+    });
+    $('.test').on('click', addAssetQSum(assetQ));
+    function minusAssetQSum(num) {
+        if (num > 1) {
+            num--;
+        }
+        console.log('minus')
+    }
+    function addAssetQSum(num) {
+        num++;
+        console.log('add');
+    }
 </script>
 
 <%- include('parts/html_foot') %>
