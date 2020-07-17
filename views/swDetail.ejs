@@ -1,0 +1,65 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables" style="max-width: 800px;">
+
+    <h5 class="card-title"><%= locals.data.item %></h5>
+    <% for( let i = 0; i < locals.data.list.length; i++){  
+        let item = data.list[i] %>
+    <div class="SWItemDIV " style="max-width: 800px;">
+        <div class="card border-secondary mb-3" style="max-width: 800px;">
+            <div class="row no-gutters">
+
+                <div class="card-header"><%= item.ID %></div>
+                <div class=" card-body text-secondary" style="max-width: 350px;">
+                    <!-- <h5 class="card-title">Secondary card title</h5> -->
+                    <div class="card-body-content">
+                        <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
+                        <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
+                    </div>
+                    <div onclick="unfold(this)" class="card-body-icon1" id="unfoldIcon<%= item.ID %>"
+                        itemID="<%= item.ID %>">
+                        <img src="../../lib/pic/send.png" style="width: 25px">
+                    </div>
+                    <div onclick="fold(this)" class="card-body-icon2" id="foldIcon<%= item.ID %>"
+                        itemID="<%= item.ID %>">
+                        <img src="../../lib/pic/camera-back.png" style="width: 25px">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="card border-secondary mb-3 card-bodyDetail" id="card-bodyDetail<%= item.ID%>">
+            <div class="card-body text-secondary ">
+                <!-- <h5 class="card-title">Secondary card title</h5> -->
+                <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
+                <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
+                <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
+                <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
+                <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
+                <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
+            </div>
+        </div>
+    </div>
+    <% }%>
+</div>
+<%- include('parts/html_script') %>
+<script>
+    $('.card-bodyDetail').hide();
+    $('.card-body-icon2').hide();
+
+
+    function unfold(which) {
+        const itemID = $(which).attr('itemID');
+        $(`#card-bodyDetail${itemID}`).show();
+        $(`#unfoldIcon${itemID}`).hide();
+        $(`#foldIcon${itemID}`).show();
+    }
+    function fold(which) {
+        const itemID = $(which).attr('itemID');
+        $(`#card-bodyDetail${itemID}`).hide();
+        $(`#unfoldIcon${itemID}`).show();
+        $(`#foldIcon${itemID}`).hide();
+    }
+</script>
+<%- include('parts/html_foot') %>

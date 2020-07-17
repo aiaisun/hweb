@@ -3,7 +3,7 @@
 <div class="consumables">
     <% if (locals.role != 'admin') { %>
     <div class="consumablesIcon">
-        <a href="/software/add"><img src="../lib/pic/add1.png" style="width:30px"></a>
+        <a href="/software/additem"><img src="../lib/pic/add1.png" style="width:30px"></a>
     </div>
     <div class="consumablesIcon">
         <a href="/software"><img src="../lib/pic/refresh.png" style="width:30px"></a>
@@ -25,12 +25,12 @@
                 <tr>
                     <th scope="row">
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#">紀錄</button>
+                            data-target="#itemDetailModal<%= i %>">Focal</button>
 
                         <% if (locals.role != 'admin') { %>
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>" 
-                            onclick='javascript:location.href="/addsoftware/<%= item._id %>"' >新增 </button>
+                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>"
+                            onclick='javascript:location.href="/addsoftware/<%= item._id %>"'>新增 </button>
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#itemRevise<%= i %>">修改</button>
                         <% }%>
@@ -46,5 +46,83 @@
         </table>
     </div>
 </div>
+
+<!-- 查詢清單的modal -->
+<% for( let i = 0; i < locals.data.length; i++){  
+    let item = data[i] %>
+<div id="itemDetailModal<%= i %>" class=" modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><%= item.item %> </h5>
+                <button style="margin-left: 10px;"type="button" class="btn btn-outline-secondary btn-sm" onclick='javascript:location.href="/software/<%= item._id %>"'>清單</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <table class="table table-borderless table-hover"">
+                    <thead>
+                        <tr>
+                            <th scope="col">軟體編號</th>                            
+                            <th scope=" col">HOST ID</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">Maintenance Expire</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <% for( let j = item.list.length -1 ; j >= 0  ; j--){  
+                              %>
+                        <tr>
+                            <td>
+                                <%= item.list[j].ID %>
+                            </td>
+                            <td>
+                                <%= item.list[j].hostID %>
+                            </td>
+
+
+                            <% if( parseInt(today.substring(0, 4)) <  parseInt(item.list[j].expireDate.substring(0, 4)) ){ %>
+                            <td style="color: #00af80;">
+                                使用中
+                            </td>
+                            <% } else if ( parseInt(today.substring(0, 4)) ==  parseInt(item.list[j].expireDate.substring(0, 4)) && 
+                                parseInt(today.substring(5, 7)) <  parseInt(item.list[j].expireDate.substring(5, 7)) ) { %>
+                            <td style="color: #00af80;">
+                                使用中
+                            </td>
+                            <% } else if ( parseInt(today.substring(5, 7)) ==  parseInt(item.list[j].expireDate.substring(5, 7)) &&
+                                parseInt(today.substring(8, 10)) <=  parseInt(item.list[j].expireDate.substring(8, 10)) ){ %>
+                            <td style="color: #00af80;">
+                                使用中
+                            </td>
+
+                            <% } else { %>
+                            <td style="color:#000000;">
+                                過期
+                            </td>
+                            <% } %>
+
+                            <td>
+                                <%= item.list[j].expireDate %>
+                            </td>
+                        </tr>
+                        <% }%>
+
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<% }%>
 <%- include('parts/html_script') %>
+<script>
+
+</script>
+
+
 <%- include('parts/html_foot') %>

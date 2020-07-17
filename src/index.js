@@ -645,17 +645,24 @@ app.post('/tool/return', upload.single('tlcfile'), (req, res) => {
 
 ///////////////////////
 ///軟體
-///////tools 工具
+///////
 app.get('/software', (req, res) => {
     const data = req.userData;
+    //今天日期
+    const timeFormat = "YYYY-MM-DD";
+    const today = moment(new Date());
+    data.today = today.format(timeFormat);
+
     const swCollection = mongodb.collection('software');
     swCollection.find().toArray(function (err, document) {
         if (err) return console.log(err)
 
         data.data = document,
-            res.render('sw', data);
-        // console.log(document)
+        res.render('sw', data);
+
     })
+
+
 
 });
 
@@ -664,14 +671,13 @@ app.get('/software', (req, res) => {
 app.get('/addsoftware/:swID', (req, res) => {
     const item = { '_id': mongoObjectID(req.params.swID) };
     const data = req.userData;
-    // data.swID = req.params.swID;
+
     const swCollection = mongodb.collection('software');
     swCollection.findOne(item, { 'projection': { "item": 1, "partNumber": 1 } }, function (err, document) {
         if (err) return console.log(err)
 
         data.data = document,
             res.render('swAdd2', data);
-        console.log(document)
     })
 
 });
@@ -706,7 +712,8 @@ app.post('/addsoftware/:swID', async (req, res) => {
     res.redirect('/software');
 });
 
-//新增採購軟體的網頁 第一種 開發完可以把這個刪掉 swADD.ejs 和這兩個app
+//新增採購軟體的網頁 第一種 
+//開發完可以把這個刪掉 swADD.ejs 和這兩個app
 app.get('/software/add', (req, res) => {
     const data = req.userData;
     const swCollection = mongodb.collection('software');
@@ -780,6 +787,22 @@ app.post('/software/additem', (req, res) => {
     console.log(`新增${newSW.item}成功`)
     res.redirect('/software');
 });
+
+//SW INFO
+app.get('/software/:ID', (req, res) => {
+    const data = req.userData;
+    const swCollection = mongodb.collection('software');
+    const item = { '_id': mongoObjectID(req.params.ID) };
+    swCollection.findOne(item, function (err, document) {
+        if (err) return console.log(err)
+
+        data.data = document,
+            res.render('swDetail', data);
+        // console.log(document)
+    })
+
+});
+
 
 // 自定404 page
 app.use((req, res) => {
