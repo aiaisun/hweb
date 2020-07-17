@@ -1,0 +1,123 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables">
+    <div>
+        <form method="POST">
+            <div class="form-row addOrderFirstRow">
+                <div class="form-group col-md-4">
+                    <label for="orderItem">採購項目</label>
+                    <input type="text" class="form-control" id="orderItem" name="orderItem"
+                        value="<%= locals.data.item %>" disabled>
+                </div>
+                <div class="form-group col-md-4 orderNumber">
+                    <label for="orderNumber">採購單號</label>
+                    <input type="text" class="form-control" id="orderNumber" name="orderNumber">
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="purchaseDate">採購日期</label>
+                    <input onchange="updateExpire()" type="date" class="form-control" id="purchaseDate"
+                        name="purchaseDate">
+                </div>
+            </div>
+
+            <div id="addToolAssetList" class="form-group col-md-9" style="margin-top: 30px;">
+
+                <div class="form-row">
+                    <div class="form-group col-md-1 addItemTitle">
+                        <label>編號</label>
+                    </div>
+
+
+                    <div class="form-group col-md-3 addItemTitle">
+                        <label>Host ID</label>
+                    </div>
+                    <div class="form-group col-md-4 addItemTitle">
+                        <label>到期日</label>
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <button id="addToolAssetNum" type="button" style="width:30 px"
+                            class="btn btn-outline-secondary btn-sm addToolAssetNum">＋</button>
+                        <button id="removeToolAssetNum" type="button" style="width:30 px"
+                            class="btn btn-outline-secondary btn-sm addToolAssetNum">－</button>
+                    </div>
+
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-1 addItemOrder">
+                        <label>1</label>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <input type="text" class="form-control" name="hostID">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <input type="date" class="form-control expireDateInput" name="expireDate">
+                    </div>
+                </div>
+
+            </div>
+
+
+    </div>
+    <input id="quantity" type="number" class="form-control" name="quantity" value="1">
+    <button id="addtoolbtn" type="submit" class="btn btn-secondary">新增</button>
+    </form>
+</div>
+<%- include('parts/html_script') %>
+
+
+<script>
+
+
+    $('#addAssetListTitle').hide();
+    $('#quantity').hide();
+    $(".orderNumber").hide();
+    const swList = ['OrCAD® Capture CIS', 'Allegro PCB Designer'];
+    let assetQ = 0;
+    $('#addToolAssetNum').click(() => {
+
+        assetQ++;
+        $('#quantity').val(assetQ + 1);
+        let text = `<div id="col${assetQ}" class="form-row">\
+            <div class="form-group col-md-1 addItemOrder">\
+                        <label>${assetQ + 1}</label>\
+                    </div>\      
+                    <div class="form-group col-md-3">\
+                        <input type="text" class="form-control" name="hostID">\
+                    </div>\
+                    <div class="form-group col-md-3">\
+                        <input type="date" class="form-control expireDateInput" name="expireDate">\
+                    </div>\
+                </div>`
+        $('#addToolAssetList').append(text);
+        $('input.expireDateInput').val($('input.expireDateInput').val());
+    });
+
+    //更新到期日期
+    function updateExpire() {
+        $('#orderNumber').val($("#purchaseDate").val().replace('-', '').replace('-', ''));
+        const purchaseDate = $("#purchaseDate").val();
+        const purchaseYear = parseInt(purchaseDate.substring(2, 4));
+        const expireYear = (purchaseYear + 2).toString();
+        const expireDate = purchaseDate.substring(0, 2) + expireYear + purchaseDate.substring(4);
+
+        $('input.expireDateInput').val(expireDate);
+    }
+
+    $('#removeToolAssetNum').click(() => {
+        if (assetQ > 0) {
+            $(`#col${assetQ}`).remove();
+            assetQ--;
+            $('#quantity').val(assetQ + 1);
+        }
+    })
+
+
+
+
+
+
+</script>
+<%- include('parts/html_foot') %>

@@ -659,7 +659,54 @@ app.get('/software', (req, res) => {
 
 });
 
-//新增採購軟體的網頁
+//新增採購軟體的網頁 第二種
+
+app.get('/addsoftware/:swID', (req, res) => {
+    const item = { '_id': mongoObjectID(req.params.swID) };
+    const data = req.userData;
+    // data.swID = req.params.swID;
+    const swCollection = mongodb.collection('software');
+    swCollection.findOne(item, { 'projection': { "item": 1, "partNumber": 1 } }, function (err, document) {
+        if (err) return console.log(err)
+
+        data.data = document,
+            res.render('swAdd2', data);
+        console.log(document)
+    })
+
+});
+
+app.post('/addsoftware/:swID', async (req, res) => {
+    const swCollection = mongodb.collection('software');
+    const item = { '_id': mongoObjectID(req.params.swID) };
+
+    async function insertData(item, newSW) { //function 先找筆數再insert進去
+        const setQuantity = await swCollection.findOne(item, { 'projection': { "_id": 0, "list.hostID": 1 } })
+        const length = setQuantity.list.length;
+
+        newSW.ID = length + 1;
+        await swCollection.findOneAndUpdate(item, { $push: { list: newSW } });
+    };
+    const newSW = {
+        "purchaseDate": req.body.purchaseDate,
+        "order": req.body.orderNumber,
+    }
+    if (req.body.quantity > 1) {//如果筆數超過1
+        for (let i = 0; i < req.body.hostID.length; i++) {
+            newSW.hostID = req.body.hostID[i];
+            newSW.expireDate = req.body.expireDate[i];
+            await insertData(item, newSW);
+        }
+    } else {
+        newSW.hostID = req.body.hostID;
+        newSW.expireDate = req.body.expireDate;
+        await insertData(item, newSW);
+
+    };
+    res.redirect('/software');
+});
+
+//新增採購軟體的網頁 第一種 開發完可以把這個刪掉 swADD.ejs 和這兩個app
 app.get('/software/add', (req, res) => {
     const data = req.userData;
     const swCollection = mongodb.collection('software');
@@ -672,9 +719,7 @@ app.get('/software/add', (req, res) => {
     })
 
 });
-
-
-app.post('/software/add',  async(req, res) => {
+app.post('/software/add', async (req, res) => {
     const swCollection = mongodb.collection('software');
 
     async function insertData(item, newSW) {
@@ -710,8 +755,6 @@ app.post('/software/add',  async(req, res) => {
         }
         await insertData(item, newSW)
     }
-
-
     res.redirect('/software');
 });
 

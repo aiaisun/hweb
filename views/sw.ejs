@@ -29,7 +29,8 @@
 
                         <% if (locals.role != 'admin') { %>
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>">新增</button>
+                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>" 
+                            onclick='javascript:location.href="/addsoftware/<%= item._id %>"' >新增 </button>
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#itemRevise<%= i %>">修改</button>
                         <% }%>
