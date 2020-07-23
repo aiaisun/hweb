@@ -1,53 +1,157 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
-<div class="consumables" style="max-width: 800px;">
-
-    <h5 class="card-title"><%= locals.data.item %></h5>
+<div class="consumables">
+    
+    <h5 class="card-title"><%= locals.data.item %> <a href="/software"><img src="../lib/pic/back.png" style="width:20px; margin-left: 10px;"></a></h5>
+    
     <% for( let i = 0; i < locals.data.list.length; i++){  
         let item = data.list[i] %>
-    <div class="SWItemDIV " style="max-width: 800px;">
-        <div class="card border-secondary mb-3" style="max-width: 800px;">
-            <div class="row no-gutters">
+    <div class="row" style="align-items: start">
+        <div class="card border-secondary mb-3 ">
+            <div class="row no-gutters" style="width: 360px;">
 
-                <div class="card-header"><%= item.ID %></div>
-                <div class=" card-body text-secondary" style="max-width: 350px;">
-                    <!-- <h5 class="card-title">Secondary card title</h5> -->
-                    <div class="card-body-content">
-                        <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
-                        <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
+                <div class="card-header" style="width: 58.55px; text-align: center;"><%= item.ID %></div>
+
+                <div class="card-body text-secondary" style="padding: 8px 0px;">
+                    <div class='row' style="padding-left: 20px;">
+                        <div id="statusBadge<%= item.ID %>">
+                            <% if (item.status == "使用中"){ %>
+                            <span class="badge badge-pill badge-success">In Use</span>
+                            <% } else if (item.status == "即將過期"){%>
+                            <span class="badge badge-pill badge-warning">Outdated</span>
+                            <% } else {%>
+                            <span class="badge badge-pill badge-secondary">Dated</span>
+                            <% } %>
+                        </div>
+                        <div onclick="unfold(this)" class="card-body-icon1" id="unfoldIcon<%= item.ID %>"
+                            itemID="<%= item.ID %>">
+                            <a href="#"> <img src="../../lib/pic/send.png" style="width: 25px"></a>
+                        </div>
+                        <div onclick="fold(this)" class="card-body-icon2" id="foldIcon<%= item.ID %>"
+                            itemID="<%= item.ID %>">
+                            <a href="#"> <img src="../../lib/pic/camera-back.png" style="width: 25px"></a>
+                        </div>
                     </div>
-                    <div onclick="unfold(this)" class="card-body-icon1" id="unfoldIcon<%= item.ID %>"
-                        itemID="<%= item.ID %>">
-                        <img src="../../lib/pic/send.png" style="width: 25px">
+
+                    <div class="card-body-content" >
+                        
+                        <P class="card-text"><span style="color: black;">Maintenance Expire </span>
+                            <span id="maintenanceEXP<%= item.ID %>">
+                                <%= item.expireDate%></span></P>
+                        <P class="card-text"><span style="color: black;">Host ID </span> <span>
+                                <%= item.hostID%></span>
+                        </P>
+                        <P class="card-text"><span style="color: black;">Purchase Date </span><span>
+                                <%= item.purchaseDate%></span></P>
+
                     </div>
-                    <div onclick="fold(this)" class="card-body-icon2" id="foldIcon<%= item.ID %>"
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-secondary mb-3 card-bodyDetail" id="card-bodyDetail<%= item.ID%>" style="width:394px" >
+
+            <div class="card-body text-secondary">
+                <!-- 第一行 維護紀錄 -->
+                <div class="row">
+                    <div style="padding-left: 15px;">
+                        <p style="color: black;">維護紀錄</p>
+                    </div>
+                    <div style='margin-left:10px;'>
+                        <a href="/software/<%= data._id%>/revise/<%= item.ID %>" ><img
+                            src="../../lib/pic/pen1.png" style="width: 12px"></a>
+                            
+                    </div>
+
+                    <div onclick="addNewPur(this)" class="addNewPurIcon icon" id="addNewPurIcon<%= item.ID %>"
                         itemID="<%= item.ID %>">
-                        <img src="../../lib/pic/camera-back.png" style="width: 25px">
+                        <a href="#"><img src="../../lib/pic/plus.png" style="width: 19px"></a>
+                    </div>
+                    <div onclick="closeNewPurForm(this)" class="closeNewPurIcon icon" id="closeNewPurIcon<%= item.ID %>"
+                        itemID="<%= item.ID %>">
+                        <a href="#"><img src="../../lib/pic/minus.png" style="width: 19px"></a>
                     </div>
                 </div>
 
+                <div style="margin-right:20px; ">
+                    <div id="purDateList<%= item.ID %>">
+                        <% for( let j = 0; j < item.purchaseRecord.length; j++){  
+                        let record = item.purchaseRecord[j] %>
+                        <div class='row'>
+                            <P class="card-text"><span class='dates' style="color: black;">續購起始 </span><span
+                                    class='datesContent'> <%= record.newPurDate %></span></P>
+                            <P class="card-text"><span class='dates' style="color: black;">續購結束 </span><span
+                                    class='datesContent'> <%= record.newExpDate %></span></P>
+                        </div>
+                        <% } %>
+                    </div>
+                    <div class='row'>
+                        <div>
+                            <p style="color: black;" class='dates'>備註</p>
+                        </div>
+                        <div style="width:305px; text-align:justify;" class='datesContent'>
+                            <p id="noteContent<%= item.ID %>">
+                                <span
+                                    id="noteContentText<%= item.ID %>"><%= item.noteRecord ? item.noteRecord[item.noteRecord.length -1].note:"" %></span>
+                                <a onclick="reviseNote(this)" href="#" itemID="<%= item.ID %>"><img
+                                        src="../../lib/pic/pen1.png" style="width: 12px"></a>
+                            </p>
+                            <form class="noteForm" method="post" id="noteForm<%= item.ID %>">
+                                <input class='newPurFormSWID' type="text" name='SWID' value="<%= item.ID %>">
+                                <textarea maxlength="50" class="form-control" rows="2" name='note'
+                                    style="width:305px; text-align: justfy"
+                                    value=''><%= item.noteRecord ? item.noteRecord[item.noteRecord.length -1].note:"" %></textarea>
+                                <div>
+                                    <input type="submit" class="form-control btn btn-outline-secondary btn-sm"
+                                        value="修改" style='width:50px; height: 30px;  margin-left:255px;margin-top: 5px;'
+                                        required>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-
         </div>
-        <div class="card border-secondary mb-3 card-bodyDetail" id="card-bodyDetail<%= item.ID%>">
-            <div class="card-body text-secondary ">
-                <!-- <h5 class="card-title">Secondary card title</h5> -->
-                <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
-                <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
-                <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
-                <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
-                <P class="card-text"><span>Host ID </span> <span> <%= item.hostID%></span></P>
-                <P class="card-text"><span>Maintenance Expire </span><span> <%= item.expireDate%></span></P>
+
+        <div class="card border-secondary  mb-3 card-bodyDetail2" id="newPurForm<%= item.ID%>" style="padding: 0px 0px;">
+            <div class="card-body text-secondary " style="padding: 20px 20px;"><!-- change here  -->
+                <form class="newPurForm" method="post">
+                    <input class='newPurFormSWID' type="text" name='SWID' value="<%= item.ID %>">
+                    <div class="form-row" style="margin: 0px 0px 0px 0px;"><!-- change here  -->
+                        
+                        <div class="col-md-5 mb-3">
+                            <label for="newPur">續購起始</label>
+                            <input type="date" class="form-control purDateInput" name="newPur" required style="padding: 0px 0px;">
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="newExp" >續購結束</label>
+                            <input type="date" class="form-control purDateInput" name="newExp" required style="padding: 0px 0px;">
+                        </div>
+
+                        <div class="col-md-2 mb-3">
+                            <label for="validationDefault02" style='color: white;' >.</label>
+                            <input type="submit" class="form-control btn btn-secondary" value="提交" required style="padding: 0px 0px; ">
+                        </div>
+                        <!-- <div onclick="doneAddNewPur(this)" class="icon" itemID="<%= item.ID %>">
+                            <a href="#"> <img src="../../lib/pic/close1.png" style="width: 19px"></a>
+                        </div> -->
+
+                    </div>
+                </form>
             </div>
         </div>
     </div>
     <% }%>
 </div>
+
+
 <%- include('parts/html_script') %>
 <script>
     $('.card-bodyDetail').hide();
     $('.card-body-icon2').hide();
-
+    $('.card-bodyDetail2').hide();
+    $('.noteForm').hide();
+    $('.closeNewPurIcon').hide()
 
     function unfold(which) {
         const itemID = $(which).attr('itemID');
@@ -61,5 +165,112 @@
         $(`#unfoldIcon${itemID}`).show();
         $(`#foldIcon${itemID}`).hide();
     }
+    function addNewPur(which) {
+        const itemID = $(which).attr('itemID');
+        $(`#newPurForm${itemID}`).show();
+        $(`#addNewPurIcon${itemID}`).hide();
+        $(`#closeNewPurIcon${itemID}`).show();
+    }
+    function closeNewPurForm(which){
+        const itemID = $(which).attr('itemID');
+        $(`#newPurForm${itemID}`).hide();
+        $(`#addNewPurIcon${itemID}`).show();
+        $(`#closeNewPurIcon${itemID}`).hide();
+
+    } 
+    // function doneAddNewPur(which) {
+    //     const itemID = $(which).attr('itemID');
+    //     $(`#newPurForm${itemID}`).hide();
+    // }
+    function reviseNote(which) {
+        const itemID = $(which).attr('itemID');
+        $(`#noteContent${itemID}`).hide();
+        $(`#noteForm${itemID}`).show();
+
+    }
+
+    function judgeStatus(currentDate, expDate) {
+        const currentYear = parseInt(currentDate.substring(0, 4));//2020
+        const expYear = parseInt(expDate.substring(0, 4));
+        const currentMonth = parseInt(currentDate.substring(5, 7));
+        const expMonth = parseInt(expDate.substring(5, 7));
+        const currentDay = parseInt(currentDate.substring(8, 10));
+        const expDay = parseInt(expDate.substring(8, 10));
+        if (currentYear < expYear) {
+            return "使用中"
+        } else if (currentYear == expYear) {
+            if (expMonth - currentMonth > 3) {
+                return "使用中"
+            } else {
+                return "即將過期"
+            }
+        } else {
+            return "過期"
+        }
+    }
+
+    $(".newPurFormSWID").hide();
+    $('.newPurForm').on('submit', function (e) { //新增新的購買紀錄
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}/newmaintain`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+
+        }).done(function (data) {
+            console.log(data);
+            console.log(judgeStatus(data.currentDate, data.newExp));
+            //更新當前頁面的資料
+            //更新 EXP
+            console.log($(`#maintenanceEXP${data.SWID}`).text());
+            $(`#maintenanceEXP${data.SWID}`).text(data.newExp);
+
+            //增加新紀錄
+            $(`#purDateList${data.SWID}`).append(`<div class="row">\
+                            <p class="card-text"><span class="dates" style="color: black;">續購起始 </span><span class="datesContent"> ${data.newPur}</span></p>\
+                            <p class="card-text"><span class="dates" style="color: black;">續購結束 </span><span class="datesContent"> ${data.newExp}</span></p>\
+                            </div>`);
+            //清空新增日期的欄位
+            $('.purDateInput').val('');
+            $(`#newPurForm${data.SWID}`).hide();
+
+            const status = judgeStatus(data.currentDate, data.newExp);
+
+            if ( status == "使用中"){
+                $(`#statusBadge${data.SWID}`).html('<span class="badge badge-pill badge-success">In Use</span>');
+            } else if ( status == "即將過期"){
+                $(`#statusBadge${data.SWID}`).html('<span class="badge badge-pill badge-warning">Outdated</span>');
+            } else {
+                $(`#statusBadge${data.SWID}`).html('<span class="badge badge-pill badge-secondary">Dated</span>');
+            }
+        })
+    })
+
+    $('.noteForm').on('submit', function (e) { //新增新的備註
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}/revisenote`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            $('.noteForm').hide();
+            $(`#reviseNoteIcon${data.SWID}`).show();
+            $(`#noteContent${data.SWID}`).show();
+            $(`#noteContentText${data.SWID}`).text(data.note);
+        })
+    })
+
 </script>
 <%- include('parts/html_foot') %>

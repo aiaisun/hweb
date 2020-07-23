@@ -1,5 +1,7 @@
 
-
+.itemModal {
+    margin-right: 5px;
+}
 
 .addItemOrder {
     /* text-align:center; */
@@ -14,24 +16,36 @@
 }
 
 
-/* .card-body-content{
-    float : left ;
-    margin-right: 20px;
-    display: inline-block;
-
+.card-body-content{
+    
+    margin: 0px 10px;
+    
 }
 
-.card-body-icon{
-    float :left ;
-    margin-left: 20px;
 
-} */
+.card { 
+    
+    margin-right: 20px;
+} 
 
-/* .card { 
-    /* float :left ;  */
-    /* display: inline-block; */
-/* }  */
+.card-body-icon1{
+    position: absolute;
+    right: 10px;
+}
+.card-body-icon2{
+    position: absolute;
+    right: 10px;
+}
 
-/* .SWItemDIV{
-    display:flex; 
-}  */
+.icon{
+    position: absolute;
+    right: 10px;
+}
+
+.dates {
+    margin-left: 15px;
+}
+.datesContent{
+    margin-left:10px;
+    /* margin: 0px 10px; */
+}

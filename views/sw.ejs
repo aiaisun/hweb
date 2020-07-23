@@ -1,19 +1,19 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
-<div class="consumables">
+<div class="consumables" >
     <% if (locals.role != 'admin') { %>
-    <div class="consumablesIcon">
-        <a href="/software/additem"><img src="../lib/pic/add1.png" style="width:30px"></a>
+    <div class="consumablesIcon" >
+        <a href="/software/additem"><img src="../lib/pic/plus.png" style="width:30px"></a>
     </div>
     <div class="consumablesIcon">
-        <a href="/software"><img src="../lib/pic/refresh.png" style="width:30px"></a>
+        <a href="/software"><img src="../lib/pic/reload.png" style="width:30px"></a>
     </div>
     <% } %>
-    <div class="consumablesTable">
+    <div class="consumablesTable" style="width: 50%; ">
         <table class="table table-hover table-bordered ">
             <thead>
                 <tr>
-                    <th scope="col" style="width:10px;"></th>
+                    
                     <th style="text-align:center;width:100px;" scope="col">項目</th>
                     <th style="text-align:center;width:50px;" scope="col">Part Number</th>
                     <th style="text-align:center;width:50px;" scope="col">數量</th>
@@ -23,23 +23,22 @@
                 <% for( let i = 0; i < locals.data.length; i++){  
                     let item = data[i] %>
                 <tr>
-                    <th scope="row">
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#itemDetailModal<%= i %>">Focal</button>
-
-                        <% if (locals.role != 'admin') { %>
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>"
-                            onclick='javascript:location.href="/addsoftware/<%= item._id %>"'>新增 </button>
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#itemRevise<%= i %>">修改</button>
-                        <% }%>
-                        <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
-                        <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
-                    </th>
-                    <td><%= item.item %></td>
+                    
+                    <td><button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                            data-target="#itemDetailModal<%= i %>" >Focal</button>
+                            <a href="/software/<%= item._id %>" style="text-decoration: none; color: black"><%= item.item %></a>
+                        
+                    </td>
                     <td><%= item.partNumber %></td>
-                    <td><%= item.list.length %></td>
+                    <td>
+                        <% if (locals.role != 'admin') { %>
+                            <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                                data-target="#addModal" itemid="<%= item._id %>" itemname="<%= item.item %>"
+                                onclick='javascript:location.href="/addsoftware/<%= item._id %>"'>新增 </button>
+    
+                            <% }%>
+                            <%= item.list.length %>
+                    </td>
                 </tr>
                 <% }%>
             </tbody>
@@ -56,7 +55,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><%= item.item %> </h5>
-                <button style="margin-left: 10px;"type="button" class="btn btn-outline-secondary btn-sm" onclick='javascript:location.href="/software/<%= item._id %>"'>清單</button>
+                <button style="margin-left: 10px;" type="button" class="btn btn-outline-secondary btn-sm"
+                    onclick='javascript:location.href="/software/<%= item._id %>"'>清單</button>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -66,10 +66,10 @@
                 <table class="table table-borderless table-hover"">
                     <thead>
                         <tr>
-                            <th scope="col">軟體編號</th>                            
-                            <th scope=" col">HOST ID</th>
-                            <th scope="col">狀態</th>
-                            <th scope="col">Maintenance Expire</th>
+                            <th scope=" col">軟體編號</th>
+                    <th scope=" col">HOST ID</th>
+                    <th scope="col">狀態</th>
+                    <th scope="col">Maintenance Expire</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -114,7 +114,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
         </div>
     </div>
 </div>

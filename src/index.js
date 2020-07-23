@@ -658,7 +658,7 @@ app.get('/software', (req, res) => {
         if (err) return console.log(err)
 
         data.data = document,
-        res.render('sw', data);
+            res.render('sw', data);
 
     })
 
@@ -678,10 +678,10 @@ app.get('/addsoftware/:swID', (req, res) => {
 
         data.data = document,
             res.render('swAdd2', data);
+
     })
 
 });
-
 app.post('/addsoftware/:swID', async (req, res) => {
     const swCollection = mongodb.collection('software');
     const item = { '_id': mongoObjectID(req.params.swID) };
@@ -796,12 +796,173 @@ app.get('/software/:ID', (req, res) => {
     swCollection.findOne(item, function (err, document) {
         if (err) return console.log(err)
 
-        data.data = document,
-            res.render('swDetail', data);
-        // console.log(document)
+
+        const timeFormat = "YYYY-MM-DD";
+        const today = moment(new Date());
+        const currentDate = today.format(timeFormat);
+
+        for (let i = 0; i < document.list.length; i++) {
+
+            const SW = document.list[i];
+            // console.log(SW.expireDate);
+            // console.log(currentDate);
+            const currentYear = parseInt(currentDate.substring(0, 4));//2020
+            const expYear = parseInt(SW.expireDate.substring(0, 4));
+            const currentMonth = parseInt(currentDate.substring(5, 7));
+            const expMonth = parseInt(SW.expireDate.substring(5, 7));
+            const currentDay = parseInt(currentDate.substring(8, 10));
+            const expDay = parseInt(SW.expireDate.substring(8, 10));
+            if (currentYear < expYear) {
+                SW.status = "使用中"
+            } else if (currentYear == expYear) {
+                if (expMonth - currentMonth > 3) {
+                    SW.status = "使用中"
+                } else {
+                    SW.status = "即將過期"
+                }
+            } else {
+                SW.status = "過期"
+            }
+        }
+
+        data.data = document;
+        // console.log(data.data.list);
+        res.render('swDetail', data);
+
     })
 
 });
+
+app.post('/software/:ID/newmaintain', upload.single(), (req, res) => {
+
+    const swCollection = mongodb.collection('software');
+    const item = { '_id': mongoObjectID(req.params.ID) };
+    let newPur = {
+        'newPurDate': req.body.newPur,
+        'newExpDate': req.body.newExp
+    }
+    let SWID = parseInt(req.body.SWID);
+    swCollection.findOneAndUpdate(item,
+        { $set: { 'list.$[elem].expireDate': req.body.newExp } },
+        { arrayFilters: [{ "elem.ID": SWID }] },
+        (err, document) => {
+            if (err) return res.json(err);
+        });
+    swCollection.findOneAndUpdate(item,
+        { $push: { 'list.$[elem].purchaseRecord': newPur } },
+        { arrayFilters: [{ "elem.ID": SWID }] },
+        (err, document) => {
+            if (err) return res.json(err);
+            console.log(`新增軟體續購紀錄成功- ${document.value.item} 第${SWID}套,  ${newPur.newPurDate} 到 ${newPur.newExpDate}`);
+        });
+    const timeFormat = "YYYY-MM-DD";
+    const today = moment(new Date());
+    const currentDate = today.format(timeFormat);
+    const data = req.body;
+    data.currentDate = currentDate;
+
+    res.json(req.body)
+
+});
+
+//新增備註
+app.post('/software/:ID/revisenote', upload.single(), (req, res) => {
+    const swCollection = mongodb.collection('software');
+    const item = { '_id': mongoObjectID(req.params.ID) };
+    let SWID = parseInt(req.body.SWID);
+
+    const timeFormat = "YYYY-MM-DD";
+    const today = moment(new Date());
+    const noteDate = today.format(timeFormat);
+
+    let newNote = {
+        'noteDate': noteDate,
+        'note': req.body.note
+    };
+    swCollection.findOneAndUpdate(item,
+        { $push: { 'list.$[elem].noteRecord': newNote } },
+        { arrayFilters: [{ "elem.ID": SWID }] },
+        (err, document) => {
+            if (err) return res.json(err);
+            console.log(`新增軟體備註成功- ${newNote.newPurDate}, ${document.value.item} 第${SWID}套。`);
+        });
+    res.json(req.body);
+})
+//revise SW 紀錄
+app.get('/software/:ID/revise/:setID', (req, res) => {
+    const data = req.userData;
+    const swCollection = mongodb.collection('software');
+
+    swCollection.findOne({ '_id': mongoObjectID(req.params.ID), "list": { "$elemMatch": { "ID": parseInt(req.params.setID) } } },
+        { "projection": { "list.$": 1, "item": 1 } },
+        (err, document) => {
+            if (err) return console.log(err);
+            // console.log(document);
+            data._id = document._id;
+            data.item = document.item;
+            data.list = document.list[0];
+            // console.log(data)
+            // res.json(data);
+            res.render('reviseSWDetail', data)
+        });
+
+});
+
+app.post('/software/:ID/revise/:setID', (req, res) => {
+    const data = req.userData;
+    const swCollection = mongodb.collection('software');
+    const item = { '_id': mongoObjectID(req.params.ID) };
+    let SWID = parseInt(req.params.setID);
+    let newdata = {
+        'hostID': req.body.hostID,
+        'expireDate': req.body.expireDate
+    };
+    const purchaseRecord = []
+
+    if (typeof req.body.newPurDate == 'object') {//如果筆數超過1
+        
+        for (let i = 0; i < req.body.newPurDate.length; i++) {
+            const eachRecord = {
+                newPurDate: req.body.newPurDate[i],
+                newExpDate: req.body.newExpireDate[i]
+            }
+            purchaseRecord.push(eachRecord);
+        }
+        newdata.purchaseRecord = purchaseRecord;
+        swCollection.findOneAndUpdate(item,
+            {
+                $set: {
+                    'list.$[elem].hostID': req.body.hostID,
+                    'list.$[elem].expireDate': req.body.expireDate,
+                    'list.$[elem].purchaseRecord': purchaseRecord
+                }
+            },
+            { arrayFilters: [{ "elem.ID": SWID }] },
+            (err, document) => {
+                if (err) return res.json(err);
+            });
+    } else {
+        const eachRecord = {
+            newPurDate: req.body.newPurDate,
+            newExpDate: req.body.newExpireDate
+        };
+        newdata.purchaseRecord = [eachRecord];
+
+        swCollection.findOneAndUpdate(item,
+            {$set: {
+                    'list.$[elem].hostID': req.body.hostID,
+                    'list.$[elem].expireDate': req.body.expireDate,
+                    'list.$[elem].purchaseRecord': [eachRecord]
+                }},
+            { arrayFilters: [{ "elem.ID": SWID }] },
+            (err, document) => {
+                if (err) return res.json(err);
+            });
+
+    }
+    res.redirect(`/software/${req.params.ID}`)
+});
+
 
 
 // 自定404 page
