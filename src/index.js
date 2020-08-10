@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const tz = require('moment-timezone');
 const moment = require('moment');
+
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectId;
 const mongo = 'mongodb://localhost:27017/hweb'
@@ -920,7 +921,7 @@ app.post('/software/:ID/revise/:setID', (req, res) => {
     const purchaseRecord = []
 
     if (typeof req.body.newPurDate == 'object') {//如果筆數超過1
-        
+
         for (let i = 0; i < req.body.newPurDate.length; i++) {
             const eachRecord = {
                 newPurDate: req.body.newPurDate[i],
@@ -949,11 +950,13 @@ app.post('/software/:ID/revise/:setID', (req, res) => {
         newdata.purchaseRecord = [eachRecord];
 
         swCollection.findOneAndUpdate(item,
-            {$set: {
+            {
+                $set: {
                     'list.$[elem].hostID': req.body.hostID,
                     'list.$[elem].expireDate': req.body.expireDate,
                     'list.$[elem].purchaseRecord': [eachRecord]
-                }},
+                }
+            },
             { arrayFilters: [{ "elem.ID": SWID }] },
             (err, document) => {
                 if (err) return res.json(err);
@@ -961,6 +964,165 @@ app.post('/software/:ID/revise/:setID', (req, res) => {
 
     }
     res.redirect(`/software/${req.params.ID}`)
+});
+
+///儀器預約系統
+app.get('/facility/booking', (req, res) => {
+    console.log("booking system")
+    res.render('bookingsystem')
+})
+
+/////sighting
+app.get('/sighting', (req, res) => {
+
+    res.render('sightingHome')
+})
+
+app.get('/sighting/submit', (req, res) => {
+
+    res.render('sightingForm')
+});
+
+app.post('/sighting/submit', (req, res) => {
+    const sightingCollection = mongodb.collection('sighting');
+    const timeFormat = "YYYY-MM-DD HH:mm";
+    const mo1 = moment(new Date());
+    const issue = {
+        'ALINo': req.body.ALIno,
+        'createDate': mo1.format(timeFormat),
+        'creator': req.session.loginUser,
+        'status': 'Working',
+        'phase': "NPI",
+        'title': req.body.title,
+        'priority': req.body.priority,
+        'project': req.body.project,
+        'category': req.body.category,
+        'BIOSV': req.body.BIOSV,
+        'ECV': req.body.ECV,
+        'BOXSKU': req.body.BOXSKU,
+        'preloadV': req.body.preloadV,
+        'TIPV': req.body.TIPV,
+        'TIGUIV': req.body.TIGUIV,
+        'BBFWV': req.body.BBFWV,
+        'iTBTV': req.body.iTBTV,
+        'description': req.body.description,
+        'reproduce': req.body.reproduce,
+    };
+    const mailOptions = {
+        from: 'alisunlcfc@gmail.com',
+        to: '',
+        subject: `[Sighting Inform] ${issue.ALINo} is created.`,
+        html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${issue.ALINo}</h1>
+             
+                    <h2 style='font-style: Calibri;'>Category    : ${issue.category}</h2>\ 
+                    <h2 style='font-style: Calibri;'>Priority    : ${issue.priority}</h2>\
+                    <h2 style='font-style: Calibri;'>Project     : ${issue.project}</h2>\
+                    <h2 style='font-style: Calibri;'>Title       : ${issue.title}</h2>\                   
+                    <h2 style='font-style: 微軟正黑體;'>Description : ${issue.description}</h2>\
+                    `
+    };
+
+    if (req.body.category == "CPU") {
+        issue.owner = "alii.sun"
+        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
+    } else if ((req.body.category == "GPU")) {
+        issue.owner = "ryan.yu";
+        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
+    } else {
+        issue.owner = "anthony.ye";
+        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
+    }
+    sightingCollection.insertOne(issue, function (err, document) {
+        if (err) return res.json(err);
+        console.log(`ALI creared: No. ${issue.ALINo}, creator ${issue.creator}`);
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log(`已成功通知 ${mailOptions.to}`);
+                // console.log(info.response);
+            }
+        })
+    })
+
+    res.redirect('/sighting')
+})
+
+app.post('/sighting/query', upload.single(), (req, res) => {
+    const sightingCollection = mongodb.collection('sighting');
+    const querySelectors = {
+        'ALIno': req.body.ALIno,
+        'title': req.body.title,
+        'project': req.body.project,
+        'category': req.body.category,
+        'priority': req.body.priority,
+    };
+    console.log(querySelectors);
+    // 搜尋db的function
+
+    function queryMany(queryCondition) {
+        sightingCollection.find( queryCondition, { 'projection': { "priority": 1, "ALINo": 1, "title": 1, "status": 1, "category": 1, "project": 1, "createDate": 1, "owner": 1 } }).toArray(function (err, document) {
+            if (err) return res.json(err);
+
+            res.json(document);
+        });
+    }
+
+    if (querySelectors.ALIno) {//只搜尋編號
+        const queryCondition = { "ALINo": querySelectors.ALIno };
+        queryMany(queryCondition);
+    } else if (!querySelectors.title && !querySelectors.project && !querySelectors.category && !querySelectors.priority) {
+        res.json('')
+    } else {//如果沒有 Ali no.
+        /////這裡宣告所有的queryconditions
+        const queryCondition = {};
+        if (querySelectors.title) {
+            queryCondition.title = { $regex: querySelectors.title };            
+        };
+        
+        if (querySelectors.project) {
+            queryCondition.project = querySelectors.project;
+        };
+        if (querySelectors.category) {
+            console.log(querySelectors.category)
+            const conditionList = [];
+
+            if (typeof querySelectors.category == 'object') {//多個priority
+                //單一category 的query conditions
+
+                for (let i = 0; i < querySelectors.category.length; i++) {
+                    conditionList.push(querySelectors.category[i]);
+                }
+                queryCondition.category = { $in: conditionList };
+
+            } else {
+                //單一category
+                queryCondition.category = querySelectors.category;
+            }
+        };
+
+        if (querySelectors.priority) {
+            console.log(querySelectors.priority)
+            const conditionList = [];
+            if (typeof querySelectors.priority == 'object') {//多個priority
+                //先整理priority 的query conditions
+
+                for (let i = 0; i < querySelectors.priority.length; i++) {
+                    conditionList.push(querySelectors.priority[i]);
+                }
+                queryCondition.priority = { $in: conditionList };
+
+            } else {
+                //單一priority
+                queryCondition.priority = querySelectors.priority;
+            }
+        }
+        console.log(queryCondition);
+        queryMany(queryCondition);
+
+    }
+
 });
 
 

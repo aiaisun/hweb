@@ -1,0 +1,151 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="consumables">
+    <div class="consumablesIcon">
+        <a href="/sighting"><img src="../lib/pic/reload.png" style="width:30px"></a>
+    </div>
+    <div class="consumablesTable">
+        <form method="POST">
+            <div class="form-group row" id="ALINoDiv">
+                <label for="ALINo" class="col-sm-2 col-form-label">ALI No.</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" id="ALINo" name="ALIno" readonly="true" value="">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="title" class="col-sm-2 col-form-label">Title</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="title" name="title">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="priority" class="col-sm-2 col-form-label">Priority</label>
+                <div class="col-sm-2">
+                    <select id="priority" name="priority" class="form-control">
+                        <option value='' style="display:none"></option>
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Emergency</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="project" class="col-sm-2 col-form-label">Project</label>
+                <div class="col-sm-4">
+                    <select id="project" class="form-control" name="project">
+                        <option value='' style="display:none"></option>
+                        <option>Drift3 / Ironhide3</option>
+                        <option>Lark</option>
+                        <option>Lusso</option>
+                        <option>Matilda</option>
+                        <option>Odin2 / Thor2_Intel</option>
+                        <option>Odin2 / Thor2_AMD</option>
+                        <option>Raptor2 / Blackbird2</option>
+                        <option>Thor-P_gen2</option>
+                        <option>Tiger / Serval</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="category" class="col-sm-2 col-form-label">Category</label>
+                <div class="col-sm-2">
+                    <select id="category" class="form-control" name="category" onchange="return EVinput(this)" required>
+                        <option value='' style="display:none"></option>
+                        <option>CPU</option>
+                        <option>GPU</option>
+                        <option>USBC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="BIOSV" class="col-sm-2 col-form-label">Environment Variables</label>
+                <div class=" col-sm-4">
+                    <div class="row EV">
+                        <div class="col-sm-6 ">
+                            <input type="text" class="form-control" id="BIOSV" name="BIOSV"placeholder="BIOS Version" >
+                        </div>
+
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="ECV" name="ECV" placeholder="EC Version" >
+                        </div>
+                    </div>
+                    <div class="row EV">
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="BOXSKU" name="BOXSKU" placeholder="BOX SKU" >
+                        </div>
+
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="preloadV" name="preloadV" placeholder="Preload Version" >
+                        </div>
+                    </div>
+                    <div class="row usbc EV">
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control usbc" id="TIPV" name="TIPV" placeholder="TI Patch version" value="NA" required>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control usbc" id="TIGUIV" name="TIGUIV" placeholder="TI GUI Version" value="NA" required>
+                        </div>
+                    </div>
+                    <div class="row usbc EV">
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control usbc" id="BBFWV" name="BBFWV" placeholder="BBFW version" value="NA" required>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control usbc" id="iTBTV" name="iTBTV" placeholder="iTBT NVM" value="NA" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="description" class="col-sm-2 col-form-label">Description</label>
+                <div class="col-sm-4">
+                    <textarea class="form-control" id="description" rows="5" name="description"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="reproduce" class="col-sm-2 col-form-label">Reproduce Method</label>
+                <div class="col-sm-4">
+                    <textarea class="form-control" id="reproduce" rows="5" name="reproduce"></textarea>
+                </div>
+            </div>
+
+
+
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <button type="submit" onclick="return informALINo()" class="btn btn-danger">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<%- include('parts/html_script') %>
+<script>
+    $(".usbc").hide();
+    function EVinput(which) {
+
+        const category = $(which).val();
+        if (category == "USBC"){
+            $('input.usbc').val();
+            $(".usbc").show();
+            $('input.usbc').val("");
+        } else {
+            $(".usbc").hide();
+            $('input.usbc').val("NA");
+        }
+    };
+    $('#ALINoDiv').hide();
+function informALINo(){
+    const currentDate = (new Date().format('YmdHis'));
+    const ALINo = "ALI" + currentDate.substring(2,);
+    console.log(ALINo);
+    $('#ALINo').val(ALINo);
+
+}
+    
+</script>
+<%- include('parts/html_foot') %>
