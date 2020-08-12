@@ -1,0 +1,278 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+<div class="aliList">
+    <!-- <div class="consumablesIcon"> -->
+    <a href="/sighting"><img src="../lib/pic/reload.png" style="width:30px"></a>
+    <!-- </div> -->
+
+</div>
+<div class="aliList">
+
+    <table class="aliDetailTable" cellpadding="3">
+        <thead>
+            <tr>
+                <th style="width: 150px"></th>
+                <th class="col2" style="width: 500px;"></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="padding-bottom: 500px;">
+                <td style="width: 113px;">Title</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.title %></td>
+            </tr>
+
+            <tr>
+                <td style="width: 113px;">ALI No.</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.ALINo %></td>
+            </tr>
+
+            <tr>
+                <td style="width: 113px;">Status</td>
+                <td class="col2" style="width: 500px;" id="statusVal" val="<%= locals.data.status %>">
+                    <span><%= locals.data.status %></span>
+                    <% if (locals.role != 'admin') { %>
+                    <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
+                        data-toggle="modal" data-target="#changeStatus" value='Change'>
+                    <% } %>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">Priority</td>
+                <td class="col2" style="width: 500px;" id="priorityVal" val="<%= locals.data.priority %>">
+                    <span><%= locals.data.priority %></span>
+                    <% if (locals.role != 'admin') { %>
+                    <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
+                        data-toggle="modal" data-target="#changePriority" value='Change'>
+                    <% } %>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width: 113px;">Project</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.project %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">Open Date</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.createDate %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">Category</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.category %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">Engineer Owner</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.owner %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">BOX SKU</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.BOXSKU %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">BIOS Version</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.BIOSV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">EC Version</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.ECV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">Preload Version</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.preloadV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">TIPV</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.TIPV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">TIGUIV</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.TIGUIV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">BBFWV</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.BBFWV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">iTBTV</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.iTBTV %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">Description</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.description %></td>
+            </tr>
+            <tr>
+                <td style="width: 113px;">To Reproduce</td>
+                <td class="col2" style="width: 500px;"><%= locals.data.reproduce %></td>
+            </tr>
+
+
+        </tbody>
+    </table>
+
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                aria-selected="true">AR</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+                aria-selected="false">Remark</a>
+        </li>
+
+    </ul>
+    <div class="tab-content" id="myTabContent" style="height:1000px">
+        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
+        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+            <input>
+        </div>
+    </div>
+
+</div>
+
+//change status Modal
+<div class="modal" tabindex="-1" id="changeStatus">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Change Status</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">Status</div>
+                    <div class="col-sm-2">
+                        <form method="post" class="changeStatusForm">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="working"
+                                    value="Working" name="status">
+                                <label class="form-check-label form-control-sm" for="working">Working</label>
+                            </div>
+
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="close" value="Close"
+                                    name="status">
+                                <label class="form-check-label form-control-sm" for="close">Close</label>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-danger btn-sm" value="Save changes">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+//change Priority Modal
+<div class="modal" tabindex="-1" id="changePriority">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Change Priority</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">Priority</div>
+                    <div class="col-sm-2">
+                        <form method="post" class="changePriorityForm">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="emergency"
+                                    value="Emergency" name="priority">
+                                <label class="form-check-label form-control-sm" for="emergency">Emergency</label>
+                            </div>
+
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="high" value="High"
+                                    name="priority">
+                                <label class="form-check-label form-control-sm" for="high">High</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="medium" value="Medium"
+                                    name="priority">
+                                <label class="form-check-label form-control-sm" for="medium">Medium</label>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-danger btn-sm" value="Save changes">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<%- include('parts/html_script') %>
+<script>
+
+    //check the original value
+    const statusVal = $('#statusVal').attr('val');
+    if ($('#statusVal').attr('val') == "Working") {
+        $('#working').prop('checked', true);
+    } else {
+        $('#close').prop('checked', true);
+    }
+
+    //check the original priority 
+    const priorityVal = $('#priorityVal').attr('val');
+    if (priorityVal == "Emergency") {
+        $('#emergency').prop('checked', true);
+    } else if (priorityVal == "High") {
+        $('#high').prop('checked', true);
+    } else {
+        $('#medium').prop('checked', true);
+    }
+
+    //更改issue狀態
+    $('.changeStatusForm').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('#changeStatus').modal('hide');
+            $('#statusVal span').text(data.status);
+            $('#statusVal').attr('val', data.status);
+
+        })
+    })
+    $('.changePriorityForm').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('#changePriority').modal('hide');
+            $('#priorityVal span').text(data.priority);
+            $('#priorityVal').attr('val', data.priority);
+
+        })
+    })
+
+</script>
+<%- include('parts/html_foot') %>

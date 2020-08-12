@@ -97,8 +97,8 @@
                             <label class="form-check-label form-control-sm" for="allP">All</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input form-control-sm" type="checkbox" id="emergency" value="Emergency"
-                                name="priority">
+                            <input class="form-check-input form-control-sm" type="checkbox" id="emergency"
+                                value="Emergency" name="priority">
                             <label class="form-check-label form-control-sm" for="emergency">Emergency</label>
                         </div>
 
@@ -112,7 +112,7 @@
                                 name="priority">
                             <label class="form-check-label form-control-sm" for="medium">Medium</label>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
@@ -146,6 +146,35 @@
     </table>
 
 </div>
+
+<!-- <table class="">
+    <thead>
+        <tr>
+            <th style="width: 8%;">Priority</th>
+            <th style="width: 12%;">Number</th>
+            <th style="width: 30%;">Title</th>
+            <th style="width: 10%;">State</th>
+            <th style="width: 8%;">Category</th>
+            <th style="width: 10%;">Project</th>
+            <th style="width: 12%;">Created</th>
+            <th style="width: 10%;">Engineer Owner</th>
+        </tr>
+    </thead>
+    <tbody id="queryResult">
+        <tr>
+            <td style="width: 8%;">Priority</td>
+
+            <td style="width: 12%;"><a href="/sighting">Number</a></td>
+
+            <td style="width: 30%;">Title</td>
+            <td style="width: 10%;">State</td>
+            <td style="width: 8%;">Category</td>
+            <td style="width: 10%;">Project</td>
+            <td style="width: 12%;">Created</td>
+            <td style="width: 10%;">Engineer Owner</td>
+        </tr>
+    </tbody>
+</table> -->
 
 <%- include('parts/html_script') %>
 <script>
@@ -210,7 +239,17 @@
             $('.sightingQuery').hide();
         }
     };
-
+    //滑到issue 變色的功能
+    function overIssue() {
+        $("tbody tr").mouseover(function () {
+            $(this).css("background-color", "#e9ecef");
+        });
+    };
+    function leaveIssue() {
+        $("tbody tr").mouseleave(function () {
+            $(this).css("background-color", "white")
+        });
+    };
     $('#querySelect').on('submit', function (e) {
         e.preventDefault();
 
@@ -236,7 +275,7 @@
                         $('#queryResult').append(`\
                 <tr>\
                 <td>${data[i].priority}</td>\
-                <td>${data[i].ALINo}</td>\
+                <td><a href="/sighting/${data[i].ALINo}">${data[i].ALINo}</a></td>\
                 <td>${data[i].title}</td>\
                 <td>${data[i].status}</td>\
                 <td>${data[i].category}</td>\
@@ -250,7 +289,7 @@
                     $('#queryResult').append(`\
                 <tr>\
                 <td>${data.priority}</td>\
-                <td>${data.ALINo}</td>\
+                <td><a href="/sighting/${data[i].ALINo}">${data.ALINo}</a></td>\
                 <td>${data.title}</td>\
                 <td>${data.status}</td>\
                 <td>${data.category}</td>\
@@ -259,6 +298,9 @@
                 <td>${data.owner}</td>\
                 </tr>`);
                 }
+
+                overIssue();
+                leaveIssue();
             } else {
 
                 $("#result").text("0 objects");
@@ -267,6 +309,7 @@
             }
         })
     })
+
 
 </script>
 <%- include('parts/html_foot') %>

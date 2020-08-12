@@ -1062,7 +1062,7 @@ app.post('/sighting/query', upload.single(), (req, res) => {
     // 搜尋db的function
 
     function queryMany(queryCondition) {
-        sightingCollection.find( queryCondition, { 'projection': { "priority": 1, "ALINo": 1, "title": 1, "status": 1, "category": 1, "project": 1, "createDate": 1, "owner": 1 } }).toArray(function (err, document) {
+        sightingCollection.find(queryCondition, { 'projection': { "priority": 1, "ALINo": 1, "title": 1, "status": 1, "category": 1, "project": 1, "createDate": 1, "owner": 1 } }).toArray(function (err, document) {
             if (err) return res.json(err);
 
             res.json(document);
@@ -1078,9 +1078,9 @@ app.post('/sighting/query', upload.single(), (req, res) => {
         /////這裡宣告所有的queryconditions
         const queryCondition = {};
         if (querySelectors.title) {
-            queryCondition.title = { $regex: querySelectors.title };            
+            queryCondition.title = { $regex: querySelectors.title };
         };
-        
+
         if (querySelectors.project) {
             queryCondition.project = querySelectors.project;
         };
@@ -1125,6 +1125,45 @@ app.post('/sighting/query', upload.single(), (req, res) => {
 
 });
 
+//issue 詳細網頁的功能
+app.get('/sighting/:alino', upload.single(), (req, res) => {
+    const data = req.userData;
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+
+    sightingCollection.findOne(queryCondition, function (err, document) {
+        if (err) return res.json(err);
+        // console.log(document);
+        data.data = document;
+        // console.log(data);
+        res.render('sightingDetails', data)
+    });
+})
+
+app.post('/sighting/:alino', upload.single(), (req, res) => {
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+    //change status and priority  
+    if (req.body.status) {
+        sightingCollection.findOneAndUpdate(queryCondition,
+            { $set: { 'status': req.body.status } },
+            function (err, document) {
+                if (err) return res.json(err);
+                // console.log(document);
+                res.json(req.body);
+            });
+    };
+    if (req.body.priority) {
+        sightingCollection.findOneAndUpdate(queryCondition,
+            { $set: { 'priority': req.body.priority } },
+            function (err, document) {
+                if (err) return res.json(err);
+                // console.log(document);
+                res.json(req.body);
+            });
+    }
+
+})
 
 
 // 自定404 page
