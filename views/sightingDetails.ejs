@@ -19,7 +19,7 @@
         <tbody>
             <tr style="padding-bottom: 500px;">
                 <td style="width: 113px;">Title</td>
-                <td class="col2" style="width: 500px;"><%= locals.data.title %></td>
+                <td class="col2 tdTitle" style="width: 500px; text-align: justify;"><%= locals.data.title %></td>
             </tr>
 
             <tr>
@@ -109,28 +109,153 @@
         </tbody>
     </table>
 
-
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-                aria-selected="true">AR</a>
+            <a class="nav-link active" id="AR-tab" data-toggle="tab" href="#AR" role="tab" aria-controls="home"
+                aria-selected="true" style="color: #dc3545;">AR</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
-                aria-selected="false">Remark</a>
+            <a class="nav-link" id="remark-tab" data-toggle="tab" href="#remark" role="tab" aria-controls="remark"
+                aria-selected="false" style="color: #dc3545;">Remark</a>
         </li>
 
     </ul>
-    <div class="tab-content" id="myTabContent" style="height:1000px">
-        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
-        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-            <input>
+    <div class="tab-content" id="myTabContent" style="height:1000px;">
+
+        <div class="tab-pane fade show active" id="AR" role="tabpanel" aria-labelledby="remark-tab">
+            <form method="POST" id="addARForm">
+                <div>
+                    <div style='margin-bottom: 10px;'>
+                        <% if (locals.role != 'admin') { %>
+                        <input type="button" style="border-color:#D3D3D3;" id="showARForm"
+                            class="btn btn-outline-secondary btn-sm" value='Add'>
+                        <input type="button" style="border-color:#D3D3D3;" id="hideARForm"
+                            class="btn btn-outline-secondary btn-sm" value='Cancel'>
+                        <input type="submit" style="border-color:#D3D3D3;" id="addAR"
+                            class="btn btn-outline-danger btn-sm" value='Submit AR'>
+
+                        <% } %>
+
+                    </div>
+                </div>
+
+                <div class="card border-secondary  mb-3 " id="addARCard">
+                    <div class="row no-gutters" style="width: 100%;">
+
+                        <div class="card-header" style=" text-align: center;"></div>
+
+                        <div class="card-body text-secondary " style="padding: 8px 0px;">
+
+
+                            <div class="card-body-content">
+                                <input id="ARDateinForm" name="ARDate">
+                                <div class='row iconSet'>
+                                    <div class="ARIcon" id="AddARStep">
+                                        <img src="../../lib/pic/plus.png" style="width: 20px">
+                                    </div>
+                                    <div class="ARIcon" id="deleteARStep">
+                                        <img src="../../lib/pic/minus.png" style="width: 20px">
+                                    </div>
+                                </div>
+
+                                <div id="ARSteps">
+                                    <div class="input-group input-group-sm mb-2">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">AR #1</span>
+                                        </div>
+                                        <textarea class="form-control ARTextarea" name="ar" rows="2"
+                                            aria-label="With textarea"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- database 的 AR  -->
+            <% for( let i = 0; i < locals.data.ARList.length; i++){  
+                let AR = data.ARList[i] %>
+            <div class="card border-secondary mb-3 ">
+                <div class="row no-gutters" style="width: 100%;">
+
+                    <div class="card-header" style=" text-align: center;"><%= AR.date %> </div>
+
+                    <div class="card-body text-secondary" style="padding: 8px 0px;">
+
+
+                        <div class="card-body-content">
+
+                            <% for( let j = 0; j < AR.AR.length; j++){  
+                                let ARItem = AR.AR[j] %>
+                            <P class="card-text">
+                                <span class="badge badge-secondary">AR #<%= j+1 %></span>
+                                <span><%= ARItem %></span>
+                            </P>
+
+                            <div id="ARSteps" class='row'>
+                                <div class="input-group input-group-sm mb-2" style="width:85%; margin-left: 15px;">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><%= locals.data.creator %></span>
+                                    </div>
+                                    <textarea class="form-control ARTextarea" name="ar" rows="1"
+                                        aria-label="With textarea"></textarea>
+                                </div>
+                                <div style="margin-left: 15px;width:10%;">
+                                    <input type="button" style="border-color:#D3D3D3;"
+                                        class="btn btn-outline-secondary btn-sm" value='submit'>
+                                </div>
+                            </div>
+                            <% } %>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="tab-pane fade " id="remark" role="tabpanel" aria-labelledby="AR-tab">
+            <% if (loginUser) { %>
+            <div style="margin-top: 10px;">
+                <form class="form-inline" type="POST" id="addRemark">
+
+                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref" style="text-align: top;">From
+                        <%= loginUser %></label>
+
+                    <!-- <textarea class="form-control form-control-sm" aria-label="With textarea"></textarea> -->
+                    <textarea maxlength="80%" class="form-control" rows="3" name='remark'
+                        style="width:80%; text-align: justfy" value=''></textarea>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm"
+                        style="margin-left: 10px;margin-bottom: -50px;">Remark</button>
+                </form>
+            </div>
+            <% } %>
+            <table id="remarkTable" class="table-sm" style="width:100%; margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%"></th>
+                        <th style="width:20%"></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="remarkList">
+                    <% for( let i = 0; i < locals.data.remark.length; i++){  
+                        let item = data.remark[i] %>
+                    <tr>
+                        <td><%= item.date%></th>
+                        <td><%= item.remarker%></td>
+                        <td id='remarkContent'><%= item.remark%></td>
+                    </tr>
+                    <% } %>
+            </table>
+
         </div>
     </div>
 
 </div>
 
-//change status Modal
+<!-- change status Modal -->
 <div class="modal" tabindex="-1" id="changeStatus">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -168,7 +293,7 @@
     </div>
 </div>
 
-//change Priority Modal
+<!-- change Priority Modal -->
 <div class="modal" tabindex="-1" id="changePriority">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -273,6 +398,101 @@
 
         })
     })
+    $('#addRemark').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}/addRemark`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('#remarkList').append(`
+            <tr>\
+            <td>${data.date}</th>\
+            <td>${data.remarker}</td>\
+            <td id='remarkContent'>${data.remark}</td>\
+            </tr>\
+            `)
+            // $('#changePriority').modal('hide');
+            // $('#priorityVal span').text(data.priority);
+            // $('#priorityVal').attr('val', data.priority);
 
+        })
+    })
+
+
+    let assetQ = 0;
+    $('#AddARStep').click(() => {
+        // console.log(typeof assetQ)
+        // assetQ = parseInt(assetQ)
+        assetQ++;
+        // console.log(assetQ);
+
+        $('#ARSteps').append(`<div class="input-group input-group-sm mb-2 newARTextarea" id="col${assetQ}">\
+                                <div class="input-group-prepend">\
+                                <span class="input-group-text">AR #${assetQ + 1}</span>\
+                                </div>\
+                                <textarea class="form-control ARTextarea" name="ar" rows="2" aria-label="With textarea"></textarea>\
+                                </div>`);
+
+    });
+    $('#deleteARStep').click(() => {
+        if (assetQ > 0) {
+            $(`#col${assetQ}`).remove();
+            assetQ--;
+        };
+    })
+
+    //幫AR把日期塞進去
+    const currentDate = (new Date().format('m/d'));
+    $('#addARCard .card-header').text(currentDate);
+    $('#ARDateinForm').val(currentDate);
+
+
+    //add AR
+    $('#ARDateinForm').hide();
+    $('#addARForm').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}/addAR`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('.ARTextarea').val('');
+            $('.newARTextarea').hide();
+            // $('#changePriority').modal('hide');
+            // $('#priorityVal span').text(data.priority);
+            // $('#priorityVal').attr('val', data.priority);
+
+        })
+    })
+
+    //icon調整
+    $('#addARCard').hide();
+    $('#addAR').hide();
+    $("#hideARForm").hide();
+    $("#showARForm").click(() => {
+        $('#addARCard').show();
+        $("#hideARForm").show();
+        $("#showARForm").hide();
+        $('#addAR').show();
+    })
+    $("#hideARForm").click(() => {
+        $('#addARCard').hide();
+        $('#addAR').hide();
+        $("#showARForm").show();
+        $("#hideARForm").hide();
+    })
 </script>
 <%- include('parts/html_foot') %>

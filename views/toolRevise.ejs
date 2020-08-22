@@ -6,7 +6,7 @@
         <a href="/tool"><img src="../lib/pic/back.png" style="width:30px"></a>
     </div>
     <form id="reviseToolForm" method="POST" onsubmit="return checkAssetNum(this)">
-        
+
         <div class="consumablesTable">
 
 
@@ -51,11 +51,35 @@
                 <% } %>
             </div>
         </div>
-    
-    <div class="consumablesIcon">
-        <button id="addtoolbtn" type="submit" class="btn btn-secondary">修改</button>
+
+        <div class="consumablesIcon">
+            <button id="addtoolbtn" type="submit" class="toolbtn btn btn-secondary">修改</button>
+            <button id="deletetoolbtn" type="button" class="toolbtn btn btn-secondary" data-toggle="modal"
+                data-target="#deleteAlert">刪除</button>
+        </div>
+    </form>
+</div>
+
+<div id="deleteAlert" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><%= item %></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>確認刪除?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <form method="post" id="deleteToolForm">
+                    <button type="submit" class="btn btn-danger">刪除</button>
+                </form>
+            </div>
+        </div>
     </div>
-</form>
 </div>
 <%- include('parts/html_script') %>
 
@@ -87,7 +111,29 @@
                 return false;
                 break;
             };
-        };   
+        };
     }
+    function alertdeletion(msg) {
+        $('#deleteAlert').modal('hide');
+        alert(msg);
+    };
+$('#deleteID').hide();
+    $('#deleteToolForm').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}/delete`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            
+            window.location = 'http://localhost:3000/tool';
+        })
+    })
+
 </script>
 <%- include('parts/html_foot') %>

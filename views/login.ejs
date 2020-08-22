@@ -13,7 +13,7 @@
         <img src="../lib/pic/tick.png" alt="Girl in a jacket" width="60" height="60">   
     </div>
     <div class="registerSuccesstext">
-        <a href="/" style="color:#202224;">登入成功，返回首頁</a>
+        <a id="backToLastHref" href="/" style="color:#202224;">登入成功，返回首頁</a>
     </div>
     </div>
 <% } else { %>
@@ -70,4 +70,7 @@
 </div>
 <% } %>
 <%- include('parts/html_script') %>
+<script>
+// $('#backToLastHref').attr('href', document.referrer);
+</script>
 <%- include('parts/html_foot') %>

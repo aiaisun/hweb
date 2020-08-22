@@ -1,5 +1,11 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
+<% if (locals.delete){ %>
+<div class="alert alert-secondary show" role="alert">
+    刪除成功
+</div>
+<% } %>
+
 <div class="consumables">
     <% if (locals.role != 'admin') { %>
     <div class="consumablesIcon">
@@ -32,10 +38,10 @@
                             data-target="#borrowModal<%= item._id %>" itemid="<%= item._id %>"
                             itemname="<%= item.item %>">借用</button>
 
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#adminItemBorrowRecord<%= i %>">歸還</button>
 
-                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button"  data-toggle="modal"
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#itemRevise<%= i %>"
                             onclick='javascript:location.href="/toolrevise/<%= item._id %>"'>修改</button>
                         <% } else {%>
@@ -215,10 +221,11 @@
                                 </td>
 
                                 <td id="tdAssetReturnBTN<%= item.assetlist[j].assetnumber%>">
-                                    
+
                                     <input type="submit" class="btn btn-outline-secondary btn-sm 
-                                    <%= item.assetlist[j].keeper != '' ? 'outOfStock' : 'inStock'%>" id="inStock<%= item.assetlist[j].assetnumber %>"value="歸還">
-                                    
+                                    <%= item.assetlist[j].keeper != '' ? 'outOfStock' : 'inStock'%>"
+                                        id="inStock<%= item.assetlist[j].assetnumber %>" value="歸還">
+
                                 </td>
                             </form>
                         </tr>
@@ -240,7 +247,7 @@
 
 <%- include('parts/html_script') %>
 <script>
-
+    $('.show').fadeOut(1500);
     //登記借用工具資產
     $('.borrowModalItemID').hide()
     $('.inStock').hide()
@@ -275,7 +282,7 @@
 
             //這裡 這個不能按
             // $(`#tdAssetReturnBTN${assetNumber}`).html('<input type="submit" class="btn btn-outline-secondary btn-sm" id="test" value="歸還">')
-            
+
 
         })
     })
@@ -332,9 +339,9 @@
 
     })
 
-$('#test').on('click', function(){
-    console.log('test')
-})
+    $('#test').on('click', function () {
+        console.log('test')
+    })
 </script>
 
 <%- include('parts/html_foot') %>

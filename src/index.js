@@ -436,13 +436,17 @@ app.post('/consumables/reviseitem', upload.single('tlcfile'), (req, res) => {
 ///////tools 工具
 app.get('/tool', (req, res) => {
     const data = req.userData;
+    data.delete = req.session.delete;
+    delete req.session.delete;
+    // console.log(req.session);
+    // console.log(data);
     const consumablesCollection = mongodb.collection('tool');
     consumablesCollection.find().toArray(function (err, document) {
         if (err) return console.log(err)
 
         data.data = document,
-            res.render('tool', data);
-        // console.log(document)
+        res.render('tool', data);
+        // req.session.delete = false;
     })
 
 });
@@ -456,16 +460,26 @@ app.get('/tool/add', (req, res) => {
 app.post('/tool/add', (req, res) => {
     const consumablesCollection = mongodb.collection('tool');
     let assetNumberList = []
-    for (let i = 0; i < req.body.assetNum.length; i++) {
-        assetNumberList.push({ "id": i, "assetnumber": req.body.assetNum[i], "keeper": "", "borrowrecord": [] })
-    }
+    // console.log(req.body.assetNum);
+    if (typeof req.body.assetNum == 'object') {
+        for (let i = 0; i < req.body.assetNum.length; i++) {
+            assetNumberList.push({ "id": i, "assetnumber": req.body.assetNum[i], "keeper": "", "borrowrecord": [] })
+        }
+    } else {
+        assetNumberList = [{
+            "id": 0,
+            "assetnumber": req.body.assetNum,
+            "keeper": "",
+            "borrowrecord": []
+        }]
+    };
+    console.log(assetNumberList);
     let newTool = {
         'item': req.body.item,
         'brand': req.body.brand,
         'model': req.body.model,
         'description': req.body.description,
         "assetlist": assetNumberList
-
     };
     consumablesCollection.insertOne(newTool, function (err, document) {
         if (err) return res.json(err);
@@ -530,13 +544,13 @@ app.get('/toolrecord/:toolID/:assetID', (req, res) => {
 //修改tool資料
 app.get('/toolrevise/:toolID', (req, res) => {
     const data = req.userData;
+
     const consumablesCollection = mongodb.collection('tool');
     let itemID = {
         '_id': mongoObjectID(req.params.toolID)
     };
     consumablesCollection.findOne(itemID, (err, document) => {
         if (err) return console.log(err);
-
         data.item = document.item;
         data.brand = document.brand;
         data.model = document.model;
@@ -590,6 +604,22 @@ app.post('/toolrevise/:toolID', (req, res) => {
         };
     };
     res.redirect('/tool');
+})
+
+
+//刪除tool
+app.post('/toolrevise/:toolID/delete', upload.single(), (req, res) => {
+    req.session.delete = true;
+
+    // console.log(req.session)
+    const consumablesCollection = mongodb.collection('tool');
+    // res.json('success');
+    let itemID = { '_id': mongoObjectID(req.params.toolID) }
+
+    consumablesCollection.deleteOne(itemID, (err, document) => {
+        if (err) return res.json(err);
+        res.json('刪除成功');
+    });
 })
 
 //歸還工具
@@ -974,14 +1004,15 @@ app.get('/facility/booking', (req, res) => {
 
 /////sighting
 app.get('/sighting', (req, res) => {
-
-    res.render('sightingHome')
+    const data = req.userData;
+    res.render('sightingHome', data)
 })
 
 app.get('/sighting/submit', (req, res) => {
-
-    res.render('sightingForm')
+    const data = req.userData;
+    res.render('sightingForm', data)
 });
+
 
 app.post('/sighting/submit', (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
@@ -1007,6 +1038,8 @@ app.post('/sighting/submit', (req, res) => {
         'iTBTV': req.body.iTBTV,
         'description': req.body.description,
         'reproduce': req.body.reproduce,
+        'remark': [],
+        'ARList': []
     };
     const mailOptions = {
         from: 'alisunlcfc@gmail.com',
@@ -1019,6 +1052,7 @@ app.post('/sighting/submit', (req, res) => {
                     <h2 style='font-style: Calibri;'>Project     : ${issue.project}</h2>\
                     <h2 style='font-style: Calibri;'>Title       : ${issue.title}</h2>\                   
                     <h2 style='font-style: 微軟正黑體;'>Description : ${issue.description}</h2>\
+                    <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${issue.ALINo}</h2>\
                     `
     };
 
@@ -1058,7 +1092,7 @@ app.post('/sighting/query', upload.single(), (req, res) => {
         'category': req.body.category,
         'priority': req.body.priority,
     };
-    console.log(querySelectors);
+    // console.log(querySelectors);
     // 搜尋db的function
 
     function queryMany(queryCondition) {
@@ -1085,7 +1119,7 @@ app.post('/sighting/query', upload.single(), (req, res) => {
             queryCondition.project = querySelectors.project;
         };
         if (querySelectors.category) {
-            console.log(querySelectors.category)
+            // console.log(querySelectors.category)
             const conditionList = [];
 
             if (typeof querySelectors.category == 'object') {//多個priority
@@ -1103,7 +1137,7 @@ app.post('/sighting/query', upload.single(), (req, res) => {
         };
 
         if (querySelectors.priority) {
-            console.log(querySelectors.priority)
+            // console.log(querySelectors.priority)
             const conditionList = [];
             if (typeof querySelectors.priority == 'object') {//多個priority
                 //先整理priority 的query conditions
@@ -1118,7 +1152,7 @@ app.post('/sighting/query', upload.single(), (req, res) => {
                 queryCondition.priority = querySelectors.priority;
             }
         }
-        console.log(queryCondition);
+        // console.log(queryCondition);
         queryMany(queryCondition);
 
     }
@@ -1136,6 +1170,7 @@ app.get('/sighting/:alino', upload.single(), (req, res) => {
         // console.log(document);
         data.data = document;
         // console.log(data);
+
         res.render('sightingDetails', data)
     });
 })
@@ -1165,6 +1200,63 @@ app.post('/sighting/:alino', upload.single(), (req, res) => {
 
 })
 
+//add remark
+app.post('/sighting/:alino/addRemark', upload.single(), (req, res) => {
+
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+
+    const data = req.userData;
+    const remarker = data.loginUser;
+    const timeFormat = "YYYY/MM/DD HH:mm";
+    const today = moment(new Date());
+    const remarkDate = today.format(timeFormat);
+    console.log(remarkDate);
+    console.log(remarker);
+
+    const remark = {
+        "date": remarkDate,
+        "remarker": remarker,
+        "remark": req.body.remark,
+    }
+    sightingCollection.findOneAndUpdate(queryCondition,
+        { $push: { 'remark': remark } },
+        function (err, document) {
+            if (err) return res.json(err);
+            res.json(remark);
+        });
+
+})
+
+
+//owner add new AR 
+app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
+
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+
+    const data = req.userData;
+    const commenter = data.loginUser;
+    const AR = {
+        "ID": 1,
+        "date": req.body.ARDate,
+        "commenter": commenter
+    };
+    if (typeof req.body.ar == 'object') {
+        AR.AR = req.body.ar;
+    } else {
+        AR.AR = [req.body.ar];
+    }
+
+    async function findARNum(queryCondition, AR) {
+        const ARNum = await sightingCollection.findOne(queryCondition, { 'projection': { "_id": 0, "ARList": 1 } })
+        const num = ARNum.ARList.length;
+        AR.ID = num + 1;
+        await sightingCollection.findOneAndUpdate(queryCondition, { $push: { 'ARList': AR } });
+    }
+    await findARNum(queryCondition, AR);
+    res.json(AR);
+})
 
 // 自定404 page
 app.use((req, res) => {
