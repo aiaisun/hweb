@@ -445,7 +445,7 @@ app.get('/tool', (req, res) => {
         if (err) return console.log(err)
 
         data.data = document,
-        res.render('tool', data);
+            res.render('tool', data);
         // req.session.delete = false;
     })
 
@@ -1010,6 +1010,7 @@ app.get('/sighting', (req, res) => {
 
 app.get('/sighting/submit', (req, res) => {
     const data = req.userData;
+
     res.render('sightingForm', data)
 });
 
@@ -1164,7 +1165,6 @@ app.get('/sighting/:alino', upload.single(), (req, res) => {
     const data = req.userData;
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
-
     sightingCollection.findOne(queryCondition, function (err, document) {
         if (err) return res.json(err);
         // console.log(document);
@@ -1237,27 +1237,51 @@ app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
 
     const data = req.userData;
     const commenter = data.loginUser;
-    const AR = {
-        "ID": 1,
-        "date": req.body.ARDate,
-        "commenter": commenter
-    };
+    const
+        newAR = {
+            "ID": 1,
+            "date": req.body.ARDate,
+            "commenter": commenter
+        };
     if (typeof req.body.ar == 'object') {
-        AR.AR = req.body.ar;
+        newAR.AR = [];
+        for (let i = 0; i < req.body.ar.length; i++) {
+            newAR.AR.push({
+                "index": i,
+                "request": req.body.ar[i],
+                "reply": ""
+            });
+        };
     } else {
-        AR.AR = [req.body.ar];
+        newAR.AR = [{
+            "index": 0,
+            "request": req.body.ar,
+            "reply": ""
+        }];
     }
-
-    async function findARNum(queryCondition, AR) {
+    async function findARNum(queryCondition, newAR) {
         const ARNum = await sightingCollection.findOne(queryCondition, { 'projection': { "_id": 0, "ARList": 1 } })
         const num = ARNum.ARList.length;
-        AR.ID = num + 1;
-        await sightingCollection.findOneAndUpdate(queryCondition, { $push: { 'ARList': AR } });
+        newAR.ID = num + 1;
+        await sightingCollection.findOneAndUpdate(queryCondition, { $push: { 'ARList': newAR } });
     }
-    await findARNum(queryCondition, AR);
-    res.json(AR);
+    await findARNum(queryCondition, newAR);
+    res.json(newAR);
 })
 
+app.post('/sighting/:alino/replyAR', upload.single(), (req, res) => {
+
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+
+    sightingCollection.findOneAndUpdate( queryCondition,
+        { $set: { 'ARList.$[elem].AR.$[elem2].reply': req.body.reply } },
+        { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) },{"elem2.index": parseInt(req.body.index)}] },
+        (err, document) => {
+            if (err) return res.json(err);
+        });
+    res.json(req.body);
+})
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');
