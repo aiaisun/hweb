@@ -108,7 +108,7 @@
                 <td style="width: 113px;">To Reproduce</td>
                 <td class="col2" style="width: 500px;"><%= locals.data.reproduce %></td>
             </tr>
-            
+
 
 
         </tbody>
@@ -199,12 +199,40 @@
                                     <span class="badge badge-secondary">AR #<%= j+1 %></span>
                                     <span><%= ARItem.request %></span>
                                 </P>
-                                <% if (locals.data.creator == loginUser) {%>
+                                <% if (locals.data.creator != loginUser) {%>
                                 <% if (ARItem.reply) {%>
-                                <P class="card-text">
+                                <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>">
                                     <span class="badge badge-success"><%= data.creator%></span>
-                                    <span><%= ARItem.reply %></span>
+                                    <span
+                                        id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
+                                    <img onclick="reviseAR(this)" href="#" itemID="<%= item.ID %><%= ARItem.index %>"
+                                        src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">
                                 </P>
+
+
+
+                                <form method="POST" class="reviseAR">
+                                    <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
+                                        <div class="input-group input-group-sm mb-2"
+                                            style="width:85%; margin-left: 15px;">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><%= locals.data.creator %></span>
+                                            </div>
+                                            <input class="inputInfo" name="ARID" type='text' value="<%= item.ID %>">
+                                            <textarea class="form-control ARTextarea" name="reply" rows="1"
+                                                aria-label="With textarea" required><%= ARItem.reply %></textarea>
+                                        </div>
+                                        <div style="margin-left: 15px;width:10%;">
+                                            <input class="inputInfo" type="text" name="index"
+                                                value='<%= ARItem.index %>'>
+                                            <input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                                class="btn btn-outline-secondary btn-sm" value='submit'>
+
+                                        </div>
+
+                                    </div>
+                                </form>
+
 
                                 <% } else { %>
                                 <form method="POST" class="replyAR">
@@ -228,12 +256,34 @@
 
                                         </div>
                                 </form>
-                                
+
                             </div>
-                            <P id="afterReplay<%= item.ID %><%= ARItem.index %>" class="card-text afterReplay">
+                            <!-- 新增AR 之後切換成 rivseAR form  -->
+                            <P id="ARContentText<%= item.ID %><%= ARItem.index %>" class="card-text afterReplay">
                                 <span class="badge badge-success"><%= data.creator%></span>
-                                <span id="afterReplayContent<%= item.ID %><%= ARItem.index %>"></span>
+                                <span id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"></span>
                             </P>
+
+                            <form method="POST" class="reviseAR">
+                                <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
+                                    <div class="input-group input-group-sm mb-2" style="width:85%; margin-left: 15px;">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><%= locals.data.creator %></span>
+                                        </div>
+                                        <input class="inputInfo" name="ARID" type='text' value="<%= item.ID %>">
+                                        <textarea class="form-control ARTextarea" name="reply" rows="1"
+                                            aria-label="With textarea" required></textarea>
+                                    </div>
+                                    <div style="margin-left: 15px;width:10%;">
+                                        <input class="inputInfo" type="text" name="index" value='<%= ARItem.index %>'>
+                                        <input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                            class="btn btn-outline-secondary btn-sm" value='submit'>
+
+                                    </div>
+
+                                </div>
+                            </form>
+
                             <% } %>
 
                             <% } else { %>
@@ -507,7 +557,6 @@
             processData: false,//一定要加
             dataType: "json"
         }).done(function (data) {
-
             //要把格子清成一個 不然畫面會一直保存上次 AR input的數量
             $('.refreshARCol').remove();
 
@@ -595,10 +644,51 @@
             const index = data.index;
             console.log(ARID + index);
             $(`#${ARID + index}`).hide();
-            $(`#afterReplay${ARID + index}`).show();
-            $(`#afterReplayContent${ARID + index}`).text(data.reply);
+            $(`#ARContentText${ARID + index}`).show();
+            $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
+            $(`#ARContentTextSpan${ARID + index}`).append(`
+            <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
+                                        src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
+            `);
+            $(`#reviseARP${ARID + index} textarea`).text(data.reply);
         });
     })
+
+    //AR細節
+    $('.reviseARP').hide();
+    function reviseAR(which) {
+        const itemID = $(which).attr('itemID');
+        $(`#ARContentText${itemID}`).hide();
+        $(`#reviseARP${itemID}`).show();
+    };
+
+    $('.reviseAR').on('submit', function (e) { //新增新的備註
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}/reviseAR`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            const ARID = data.ARID;
+            const index = data.index;
+            console.log(ARID + index);
+            $(`#ARContentText${ARID + index}`).show();
+            $(`#reviseARP${ARID + index}`).hide();
+            $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
+            $(`#ARContentTextSpan${ARID + index}`).append(`
+            <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
+                                        src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
+            `);
+        })
+    })
+
 </script>
 
 <%- include('parts/html_foot') %>

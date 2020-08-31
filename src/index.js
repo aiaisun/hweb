@@ -1268,7 +1268,7 @@ app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
     await findARNum(queryCondition, newAR);
     res.json(newAR);
 })
-
+//回覆AR 
 app.post('/sighting/:alino/replyAR', upload.single(), (req, res) => {
 
     const sightingCollection = mongodb.collection('sighting');
@@ -1281,7 +1281,23 @@ app.post('/sighting/:alino/replyAR', upload.single(), (req, res) => {
             if (err) return res.json(err);
         });
     res.json(req.body);
-})
+});
+//使用者修改已回覆的AR
+app.post('/sighting/:alino/reviseAR', upload.single(), (req, res) => {
+
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+
+    sightingCollection.findOneAndUpdate( queryCondition,
+        { $set: { 'ARList.$[elem].AR.$[elem2].reply': req.body.reply } },
+        { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) },{"elem2.index": parseInt(req.body.index)}] },
+        (err, document) => {
+            if (err) return res.json(err);
+        });
+    res.json(req.body);
+});
+
+
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');
