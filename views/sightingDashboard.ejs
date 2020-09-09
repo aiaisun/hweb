@@ -1,0 +1,356 @@
+<%- include('parts/html_head') %>
+<%- include('parts/navbar') %>
+
+<div id="title">
+    <div id="head">
+
+    </div>
+    <div class="aliDashboard row">
+        <div id="left">
+            <div id="issueStatus">
+                <header>
+                    <h3>Issue Status</h3>
+
+                </header>
+
+                <section>
+                    <div id="statusaria" class='row'>
+                        <div id="main" style="width: 70%;height:400px;"></div>
+                        <div>
+                            <p style="font-size: 18px;">
+                                <h4>Category &nbsp;<%= locals.sightingrole %></h4>
+                            </p>
+                            <p style="font-size: 18px;">
+                                <span>Working&nbsp;:&nbsp;&nbsp;&nbsp;</span><span><%= locals.wNUM %></span>
+                            </p>
+                            <p style="font-size: 18px;">
+                                <span>Closed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span><%= locals.cNUM %></span>
+                            </p>
+
+                        </div>
+                    </div>
+                    <div>
+
+                    </div>
+                </section>
+
+            </div>
+
+            <div id="issueProject" style="margin-top:15px">
+                <header>
+                    <!-- <h3>Project Ratio</h3> -->
+
+                </header>
+
+                <section>
+                    <div id="statusaria" class='row'>
+                        <div id="second" style="width: 70%;height:400px;"></div>
+                        <div>
+                            <p style="font-size: 18px;">
+                            <h4>Project Ratio</h4>
+                            </p>
+                            <% for (let i = 0; i< locals.projectRatio.length; i++) { %>
+                            <p style="font-size: 18px;">
+                                <span><%= locals.projectRatio[i]._id %>&nbsp;:&nbsp;</span><span><%= locals.projectRatio[i].count %></span>
+                            </p>
+                            
+                            <% } %>
+
+                        </div>
+                        
+                    </div>
+                    <div>
+
+                    </div>
+                </section>
+
+
+            </div>
+        </div>
+        <div id="right">
+            <div id="issueStatus">
+                <header>
+                    <h3>Issue List</h3>
+                </header>
+
+                <section>
+                    <div id="issuearia">
+                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#working-home"
+                                    role="tab" aria-controls="working-home" aria-selected="true">Working</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile"
+                                    role="tab" aria-controls="pills-profile" aria-selected="false">Close</a>
+                            </li>
+
+                        </ul>
+                        <div class="tab-content" id="pills-tabContent">
+
+                            <div class="tab-pane fade show active" id="working-home" role="tabpanel"
+                                aria-labelledby="working-home-tab">
+
+                                <div class="">
+                                    <div id="result"></div>
+                                    <table class="aliListTable table table-hover" style="border-spacing: 10px;">
+                                        <thead>
+                                            <tr>
+
+                                                <th style="width: 12%;">Number</th>
+                                                <th style="width: 8%;">Priority</th>
+                                                <th style="width: 30%;">Title</th>
+                                                <th style="width: 10%;">Create Date</th>
+                                                <th style="width: 8%;">Category</th>
+                                                <th style="width: 10%;">Project</th>
+                                            </tr>
+                                        </thead>
+                                        <% for (let p=0; p < locals.WpageNum; p++) {%>
+
+                                        <tbody class="wqueryResult" id="wqueryResult<%= p+1 %>">
+                                            <% for (let i=0 + p*10 ; i < (p+1)*10 ; i++) {%>
+                                            <% if (working[i]) {%>
+                                            <tr>
+                                                <td style="width: 12%;"><a
+                                                        href="/sighting/<%=working[i].ALINo %>"><%= working[i].ALINo %></a>
+                                                </td>
+                                                <td style="width: 8%;"><%= working[i].priority %></td>
+                                                <td style="width: 30%;"><%= working[i].title %></td>
+                                                <td style="width: 10%;"><%= working[i].createDate.substring(5, 10 ) %>
+                                                </td>
+                                                <td style="width: 10%;"><%= working[i].category %></td>
+                                                <td style="width: 8%;"><%= working[i].project %></td>
+                                            </tr>
+                                            <% } %>
+                                            <% } %>
+                                        </tbody>
+                                        <% } %>
+                                    </table>
+
+
+
+                                    <div id="pagenum">
+                                        <nav aria-label="...">
+                                            <ul class="pagination pagination-sm justify-content-center">
+                                                <% if (locals.WpageNum > 0) {%>
+                                                <li class="page-item active" aria-current="page"><a
+                                                        onclick="WswitchPage(this)" class="page-link" href="#"
+                                                        page="1">1</a></li>
+                                                <% } %>
+                                                <% for (let i = 1; i < locals.WpageNum; i++) {%>
+                                                <li class="page-item "><a onclick="WswitchPage(this)" class="page-link"
+                                                        href="#" page="<%= i+1%>"><%= i+1 %></a></li>
+                                                <% } %>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-profile" role="tabpanel"
+                                aria-labelledby="pills-profile-tab">
+
+                                <div class="">
+                                    <div id="result"></div>
+                                    <table class="aliListTable table table-hover" style="border-spacing: 10px;">
+                                        <thead>
+                                            <tr>
+
+                                                <th style="width: 12%;">Number</th>
+                                                <th style="width: 8%;">Priority</th>
+                                                <th style="width: 30%;">Title</th>
+                                                <th style="width: 10%;">Create Date</th>
+                                                <th style="width: 8%;">Category</th>
+                                                <th style="width: 10%;">Project</th>
+                                            </tr>
+                                        </thead>
+                                        <% for (let p=0; p < locals.CpageNum; p++) {%>
+
+                                        <tbody class="cqueryResult" id="cqueryResult<%= p+1 %>">
+                                            <% for (let i=0 + p*10 ; i < (p+1)*10 ; i++) {%>
+                                            <% if (close[i]) {%>
+                                            <tr>
+                                                <td style="width: 12%;">
+                                                    <a href="/sighting/<%=working[i].ALINo %>"><%= close[i].ALINo %></a>
+                                                </td>
+                                                <td style="width: 8%;"><%= close[i].priority %></td>
+                                                <td style="width: 30%;"><%= close[i].title %></td>
+                                                <td style="width: 10%;"><%= close[i].createDate.substring(5, 10 ) %>
+                                                </td>
+                                                <td style="width: 10%;"><%= close[i].category %></td>
+                                                <td style="width: 8%;"><%= close[i].project %></td>
+                                            </tr>
+                                            <% } %>
+                                            <% } %>
+                                        </tbody>
+                                        <% } %>
+                                    </table>
+
+
+
+                                    <div id="cpagenum">
+                                        <nav aria-label="...">
+                                            <ul class="pagination pagination-sm justify-content-center">
+                                                <% if (locals.CpageNum > 0) {%>
+                                                <li class="page-item active" aria-current="page"><a
+                                                        onclick="CswitchPage(this)" class="page-link" href="#"
+                                                        page="1">1</a></li>
+                                                <% } %>
+                                                <% for (let i = 1; i < locals.CpageNum; i++) {%>
+                                                <li class="page-item "><a onclick="CswitchPage(this)" class="page-link"
+                                                        href="#" page="<%= i+1%>"><%= i+1 %></a></li>
+                                                <% } %>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="hideData">
+    <p id="wNUM"><%= locals.wNUM %></p>
+    <p id="cNUM"><%= locals.cNUM %></p>
+    <P id="projectRatio">
+    <p id="projectNum"><%= locals.projectRatio.length%></p>
+    <% for (let i = 0; i< locals.projectRatio.length; i++) { %>
+    <span id="project<%= i %>"><%= locals.projectRatio[i]._id %></span>
+    <span id="projectNum<%= i %>"><%= locals.projectRatio[i].count %></span>
+    <% } %>
+    </p>
+    <P id="projectRatiotest"><%= locals.projectRatio %></P>
+</div>
+<%- include('parts/html_script') %>
+
+
+<script type="text/javascript">
+
+
+
+
+$('.hideData').hide()
+    var myChart = echarts.init($('#main').get(0));
+    const option = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 10,
+            data: ['Working', 'Close']
+        },
+        series: [
+            {
+                name: 'Status',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '30',
+                        fontWeight: 'bold'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: [
+                    { value: parseInt($('#wNUM').text()), name: 'Working' },
+                    { value: parseInt($('#cNUM').text()), name: 'Close' }
+                ]
+            }
+        ]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    //第二個圖形
+    //整理好資料
+    const projectList = [];
+    const projectChartData = [];
+    for (let i = 0; i < parseInt($('#projectNum').text()); i++) {
+        let project = $(`#project${i}`).text();
+        projectList.push(project);
+        let projectData = { value: parseInt($(`#projectNum${i}`).text()), name: project }
+        projectChartData.push(projectData);
+    }
+    // console.log(projectList);
+    // console.log(projectChartData);
+
+
+    var myChart2 = echarts.init($('#second').get(0));
+
+    const option2 = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 10,
+            data: projectList
+        },
+        series: [
+            {
+                name: 'Status',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '30',
+                        fontWeight: 'bold'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: projectChartData
+            }
+        ]
+    };
+    myChart2.setOption(option2);
+
+    $('.wqueryResult').hide();
+    $('#wqueryResult1').show();
+    $('.cqueryResult').hide();
+    $('#cqueryResult1').show();
+    // $('#queryResult2').show();
+
+    function WswitchPage(which) {
+        const page = $(which).attr('page');
+        // console.log(page);
+        $('.wqueryResult').hide();
+        $(`#wqueryResult${page}`).show();
+    };
+    function CswitchPage(which) {
+        const page = $(which).attr('page');
+        // console.log(page);
+        $('.cqueryResult').hide();
+        $(`#cqueryResult${page}`).show();
+    }
+</script>
+<%- include('parts/html_foot') %>

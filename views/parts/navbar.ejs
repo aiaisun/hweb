@@ -25,8 +25,17 @@
 
           </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/sighting">Sighting </a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Sighting
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/sighting">Sighting </a>
+          <a class="dropdown-item" href="/sighting">Issue Database </a>
+          <% if (locals.sightingrole == "CPU" |  locals.sightingrole == "USBC" | locals.sightingrole == "GPU") { %>
+          <a class="dropdown-item" href="/sightingdashboard">Dashboard</a>
+          <% } %>
+        </div>
         </li>
 
         <li class="nav-item">

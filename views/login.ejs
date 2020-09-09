@@ -13,7 +13,7 @@
         <img src="../lib/pic/tick.png" alt="Girl in a jacket" width="60" height="60">   
     </div>
     <div class="registerSuccesstext">
-        <a id="backToLastHref" href="/" style="color:#202224;">登入成功，返回首頁</a>
+        <a id="backToLastHref" href="<%= locals.referer %>" style="color:#202224;">登入成功，返回前頁</a>
     </div>
     </div>
 <% } else { %>
@@ -61,6 +61,7 @@
         <div class="loginbtn">
             <button id="loginbtn" type="submit" class="btn btn-secondary">登入</button>
         </div>
+        <input type="text" class="form-check-input" id="referer" name="referer">
     </form>
 
     <div class="smallword">
@@ -72,5 +73,9 @@
 <%- include('parts/html_script') %>
 <script>
 // $('#backToLastHref').attr('href', document.referrer);
+// console.log(document.referrer);
+
+$('#referer').hide()
+$('#referer').val(document.referrer);
 </script>
 <%- include('parts/html_foot') %>

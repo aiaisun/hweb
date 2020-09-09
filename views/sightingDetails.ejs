@@ -31,7 +31,7 @@
                 <td style="width: 113px;">Status</td>
                 <td class="col2" style="width: 500px;" id="statusVal" val="<%= locals.data.status %>">
                     <span><%= locals.data.status %></span>
-                    <% if (locals.role != 'admin') { %>
+                    <% if (locals.data.owner == loginUser) { %>
                     <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
                         data-toggle="modal" data-target="#changeStatus" value='Change'>
                     <% } %>
@@ -41,7 +41,7 @@
                 <td style="width: 113px;">Priority</td>
                 <td class="col2" style="width: 500px;" id="priorityVal" val="<%= locals.data.priority %>">
                     <span><%= locals.data.priority %></span>
-                    <% if (locals.role != 'admin') { %>
+                    <% if (locals.data.owner == loginUser) { %>
                     <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
                         data-toggle="modal" data-target="#changePriority" value='Change'>
                     <% } %>
@@ -132,7 +132,7 @@
                 <form method="POST" id="addARForm">
                     <div>
                         <div style='margin-bottom: 10px;'>
-                            <% if (locals.data.owner != loginUser) {%>
+                            <% if (locals.data.owner == loginUser) {%>
                             <input type="button" style="border-color:#D3D3D3;" id="showARForm"
                                 class="btn btn-outline-secondary btn-sm" value='Add'>
                             <input type="button" style="border-color:#D3D3D3;" id="hideARForm"
@@ -199,7 +199,7 @@
                                     <span class="badge badge-secondary">AR #<%= j+1 %></span>
                                     <span><%= ARItem.request %></span>
                                 </P>
-                                <% if (locals.data.creator != loginUser) {%>
+                                <% if (locals.data.creator == loginUser) {%>
                                 <% if (ARItem.reply) {%>
                                 <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>">
                                     <span class="badge badge-success"><%= data.creator%></span>

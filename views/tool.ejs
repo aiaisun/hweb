@@ -6,17 +6,20 @@
 </div>
 <% } %>
 
+
 <div class="consumables">
-    <% if (locals.role != 'admin') { %>
+    
+    <% if (locals.role == "admin") { %>
     <div class="consumablesIcon">
         <a href="/tool/add"><img src="../lib/pic/plus.png" style="width:30px"></a>
     </div>
+    <% }else{}%>
+   
     <div class="consumablesIcon">
         <a href="/tool"><img src="../lib/pic/reload.png" style="width:30px"></a>
     </div>
-    <% }%>
     <div class="consumablesTable">
-        <table class="table table-bordered">
+        <table class="table table-hover table-bordered">
             <thead>
                 <tr>
                     <th scope="col" style="width:10px;"></th>
@@ -32,26 +35,42 @@
             let item = data[i] %>
                 <tr>
                     <th scope="row">
-                        <% if (locals.role != 'admin') { %>
+
+                        <% if (locals.role){ %>
+<!-- 如果登入的話 -->
+
+                        <% if (locals.role == "admin") { %>
+
 
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#borrowModal<%= item._id %>" itemid="<%= item._id %>"
-                            itemname="<%= item.item %>">借用</button>
+                            itemname="<%= item.item %>">領用</button>
 
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
-                            data-target="#adminItemBorrowRecord<%= i %>">歸還</button>
+                            data-target="#adminItemBorrowRecord<%= i %>">紀錄</button>
 
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#itemRevise<%= i %>"
                             onclick='javascript:location.href="/toolrevise/<%= item._id %>"'>修改</button>
+                            
+                        <% } else { %>
+                        <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
+                            data-target="#itemBorrowRecord<%= i %>">紀錄</button>
+                        <% }%>
+
+                        
+
                         <% } else {%>
+                            <!-- 沒登入 -->
                         <button class="itemModal btn btn-outline-secondary btn-sm" type="button" data-toggle="modal"
                             data-target="#itemBorrowRecord<%= i %>">紀錄</button>
                         <% }%>
                         <!-- <img class="listIcon" src="../lib/pic/pen.png" style="width:23px"> -->
                         <!-- <img class="listIcon" src="../lib/pic/list4.png" style="width:23px"> -->
                     </th>
-                    <td><%= item.item %></td>
+                    <td><%= item.item %>
+                        
+                    </td>
                     <td><%= item.brand %></td>
                     <td><%= item.model %></td>
                     <td><%= item.description %></td>

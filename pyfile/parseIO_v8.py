@@ -100,7 +100,7 @@ for i in rawData:
         netName = i[0]
         
         netNameList.append(netName) #建立netnamelist
-    elif i[-1] == "0.000": #找到location
+    elif i[-1] == "0.000" or i[-1] == "0.0000": #找到location
 
         data = {} #清空 
 
@@ -116,7 +116,7 @@ for i in rawData:
                 sys.stdout.flush()
             
             SQS.append(data)
-    elif i[-1] == "mils": #找到TOTAL
+    elif i[-1] == "mils" or i[-1] == "millimeters": #找到TOTAL
         data = {} #清空
         ttlLength = float(i[3])
         data.update({"net_name" : netName, "total_length" : ttlLength})
@@ -310,7 +310,7 @@ write.save()
 # print(f"step5: Save data to {filename}.xlsx. -DONE")
 
 outputData = {
-    # "elsxPath" : elsxPath,
+    "result" : "Parse Succeeded.",
     "downloadPath" : elsxPath.replace("./public/", "")
 }
 

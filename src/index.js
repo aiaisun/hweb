@@ -52,7 +52,6 @@ const transporter = nodemailer.createTransport({
 })
 
 
-
 // member system//
 // Create a connect to MongoDB  Q 為什app要設在db 連接裡面
 mongoClient.connect(mongo, { useUnifiedTopology: true }, function (err, db) {
@@ -72,9 +71,8 @@ const checkUser = function (req, res, next) {
         isLogined: !!req.session.loginUser,
         loginUser: req.session.loginUser,
         userEName: req.session.userEName,
-    };
-    if (req.session.loginUser == "alii.sun") {
-        req.userData.role = 'admin';
+        role: req.session.role,
+        sightingrole: req.session.sightingrole
     };
     next();
 }
@@ -97,7 +95,7 @@ app.get('/user/trysession', (req, res) => {
 
 
 //////////////////// 登入 ////////////////////
-app.get('/user/login', (req, res) => {
+app.get('/user/login', async (req, res) => {
     const data = req.userData;
     const timeFormat = "YYYY-MM-DD HH:mm:ss";
     const mo1 = moment(new Date());
@@ -108,6 +106,35 @@ app.get('/user/login', (req, res) => {
     if (data.isLogined) {//true
         console.log(`${data.loginUser} 於 ${mo1.format(timeFormat)} 登入`)
     }
+    if (req.session.referer) {
+        data.referer = req.session.referer;
+        delete req.session.referer;
+    }
+    async function checkUsersightingRole(account) {
+        const collection = mongodb.collection('users');
+        const role = await collection.findOne(account, { 'projection': { "sightingrole": 1, "_id": 0 } })
+
+        if (role) {
+            req.session.sightingrole = role.sightingrole;
+        } else {
+            req.session.sightingrole = '';
+        }
+    }
+    async function checkUserRole(account) {
+        const collection = mongodb.collection('users');
+        const role = await collection.findOne(account, { 'projection': { "role": 1, "_id": 0 } })
+
+        if (role) {
+            req.session.role = role.role;
+        } else {
+            req.session.role = '';
+        }
+    }
+
+    let account = { 'userAccount': req.session.loginUser };
+    await checkUserRole(account);
+    await checkUsersightingRole(account);
+
     res.render('login', data);
 })
 
@@ -122,7 +149,8 @@ app.post('/user/login', (req, res) => {
     collection.findOne(account, (err, document) => {
         if (document) { //true
             req.session.loginUser = req.body.userAccount;
-            req.session.userEName = document.userEName
+            req.session.userEName = document.userEName;
+            req.session.referer = req.body.referer;
         } else { // false
             req.session.flashMsg = "帳號密碼錯誤";
         }
@@ -130,6 +158,7 @@ app.post('/user/login', (req, res) => {
     })
     // res.redirect('/user/login'); 如果放這個 redirect之後session會被更新
 })
+
 
 //////////////////// 登出 ////////////////////
 app.get('/user/logout', (req, res) => {
@@ -182,6 +211,8 @@ app.post('/user/register', upload.single('tlcfile'), (req, res) => {
                 'userEmail': req.body.userAccount + "@lcfuturecenter.com",
                 'userPW': req.body.userpassword,
                 'create_date': mo1.format(timeFormat),
+                "role": "",
+                "sightingrole": ""
             }
             collection.insertOne(insertDate, function (err, document) {
                 if (err) return res.json(err);
@@ -240,6 +271,8 @@ app.get('/tlc', (req, res) => {
 })
 
 app.post('/tlc', upload.single('tlcfile'), (req, res) => {
+    const data = req.userData;
+    console.log(data.loginUser);
     console.log(req.file);//req.files 報錯
     const files = {
         "data": req.file,
@@ -285,15 +318,17 @@ function pythonParseTLC(req, res) {
     }
 
     // 因為python file 路徑填錯,所以一直報錯
-    PythonShell.run('./pyfile/parseIO_v7.py', options, (err, data) => {
+    PythonShell.run('./pyfile/parseIO_v8.py', options, (err, data) => {
         if (err) res.send(err)
         const parsedString = JSON.parse(data)
         // console.log(data);
         // console.log(parsedString);
-        console.log("Parsed Successfully");
+        console.log("Program run done.");
+        console.log("Result: ", parsedString);
         res.json(parsedString)
 
     })
+
 
     // PythonShell.run('./photocategory.py', options, (err, result) => {
     //     if (err) res.send(err)
@@ -434,12 +469,14 @@ app.post('/consumables/reviseitem', upload.single('tlcfile'), (req, res) => {
 
 
 ///////tools 工具
-app.get('/tool', (req, res) => {
+app.get('/tool', async (req, res) => {
+
     const data = req.userData;
     data.delete = req.session.delete;
     delete req.session.delete;
-    // console.log(req.session);
-    // console.log(data);
+
+
+    // console.log("sould be 2", data)
     const consumablesCollection = mongodb.collection('tool');
     consumablesCollection.find().toArray(function (err, document) {
         if (err) return console.log(err)
@@ -998,13 +1035,14 @@ app.post('/software/:ID/revise/:setID', (req, res) => {
 
 ///儀器預約系統
 app.get('/facility/booking', (req, res) => {
-    console.log("booking system")
+    // console.log("booking system")
     res.render('bookingsystem')
 })
 
 /////sighting
 app.get('/sighting', (req, res) => {
     const data = req.userData;
+    // console.log(data);
     res.render('sightingHome', data)
 })
 
@@ -1228,7 +1266,6 @@ app.post('/sighting/:alino/addRemark', upload.single(), (req, res) => {
 
 })
 
-
 //owner add new AR 
 app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
 
@@ -1274,9 +1311,9 @@ app.post('/sighting/:alino/replyAR', upload.single(), (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
 
-    sightingCollection.findOneAndUpdate( queryCondition,
+    sightingCollection.findOneAndUpdate(queryCondition,
         { $set: { 'ARList.$[elem].AR.$[elem2].reply': req.body.reply } },
-        { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) },{"elem2.index": parseInt(req.body.index)}] },
+        { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) }, { "elem2.index": parseInt(req.body.index) }] },
         (err, document) => {
             if (err) return res.json(err);
         });
@@ -1288,14 +1325,72 @@ app.post('/sighting/:alino/reviseAR', upload.single(), (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
 
-    sightingCollection.findOneAndUpdate( queryCondition,
+    sightingCollection.findOneAndUpdate(queryCondition,
         { $set: { 'ARList.$[elem].AR.$[elem2].reply': req.body.reply } },
-        { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) },{"elem2.index": parseInt(req.body.index)}] },
+        { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) }, { "elem2.index": parseInt(req.body.index) }] },
         (err, document) => {
             if (err) return res.json(err);
         });
     res.json(req.body);
 });
+
+//個人issue頁面
+
+
+app.get('/sightingdashboard', async (req, res) => {
+    const data = req.userData;
+    // console.log(data);
+    const sightingCollection = mongodb.collection('sighting');
+
+    //列出working and close issue
+    async function queryMany(queryWorking, queryClose, sightingrole) {
+
+        const working = await sightingCollection.find(queryWorking,
+            { 'projection': { "priority": 1, "ALINo": 1, "title": 1, "status": 1, "category": 1, "project": 1, "createDate": 1 } })
+            .toArray();
+        const close = await sightingCollection.find(queryClose,
+            { 'projection': { "priority": 1, "ALINo": 1, "title": 1, "status": 1, "category": 1, "project": 1, "createDate": 1 } })
+            .toArray();
+        //找出類別的案子分別issue的數量
+        const projectRatio = await sightingCollection.aggregate([{ $match : { category : sightingrole }} , { '$group': { "_id": "$project", count: { "$sum": 1 } } }]).toArray()
+        // console.log(working);
+        // console.log(close);
+        data.working = working;
+        data.close = close;
+        data.wNUM = working.length;
+        data.cNUM = close.length;
+        data.WpageNum = Math.ceil(working.length / 10);
+        data.CpageNum = Math.ceil(close.length / 10);
+        data.projectRatio = projectRatio;
+        // console.log(data);
+
+    }
+    // console.log(querySelectors);
+    const queryWorking = {
+        'phase': "NPI",
+        'category': data.sightingrole,
+        'status': "Working"
+    };
+    const queryClose = {
+        'phase': "NPI",
+        'category': data.sightingrole,
+        'status': "Close"
+    };
+    await queryMany(queryWorking, queryClose, data.sightingrole);
+    await res.render('sightingDashboard', data);
+
+
+});
+
+
+app.get('/sightingdashboard2', async (req, res) => {
+    const data = req.userData;
+    console.log(data);
+    const sightingCollection = mongodb.collection('sighting');
+    const test = await sightingCollection.aggregate([{$match:{category:"CPU"}},{'$group': { "_id": "$project", count: { "$sum": 1 } } }]).toArray()
+    console.log(test);
+    res.json("OK")
+})
 
 
 // 自定404 page
