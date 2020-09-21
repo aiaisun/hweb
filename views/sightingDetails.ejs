@@ -47,7 +47,21 @@
                     <% } %>
                 </td>
             </tr>
-
+            <tr>
+                <td style="width: 113px;">Category</td>
+                <td class="col2" style="width: 500px;" id="tansferStatus">
+                    <span><%= locals.data.category %></span>
+                    <% if (locals.data.owner == loginUser) { %>
+                        <% if (locals.data.transfer == true) { %>                        
+                            <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
+                            data-toggle="modal" data-target="#cancelTransferCAT" value='Transferring'>
+                            <% } else { %>
+                                <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
+                            data-toggle="modal" data-target="#changeCAT" value='Change'>
+                                <% } %>
+                        <% } %>
+                </td>
+            </tr>
             <tr>
                 <td style="width: 113px;">Project</td>
                 <td class="col2" style="width: 500px;"><%= locals.data.project %></td>
@@ -56,10 +70,7 @@
                 <td style="width: 113px;">Open Date</td>
                 <td class="col2" style="width: 500px;"><%= locals.data.createDate %></td>
             </tr>
-            <tr>
-                <td style="width: 113px;">Category</td>
-                <td class="col2" style="width: 500px;"><%= locals.data.category %></td>
-            </tr>
+            
             <tr>
                 <td style="width: 113px;">Engineer Owner</td>
                 <td class="col2" style="width: 500px;"><%= locals.data.owner %></td>
@@ -108,8 +119,6 @@
                 <td style="width: 113px;">To Reproduce</td>
                 <td class="col2" style="width: 500px;"><%= locals.data.reproduce %></td>
             </tr>
-
-
 
         </tbody>
     </table>
@@ -203,10 +212,8 @@
                                 <% if (ARItem.reply) {%>
                                 <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>">
                                     <span class="badge badge-success"><%= data.creator%></span>
-                                    <span
-                                        id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
-                                    <img onclick="reviseAR(this)" href="#" itemID="<%= item.ID %><%= ARItem.index %>"
-                                        src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">
+                                    <span id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
+                                    <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>"><img onclick="reviseAR(this)" href="#" itemID="<%= item.ID %><%= ARItem.index %>" src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;"></span>
                                 </P>
 
 
@@ -262,6 +269,7 @@
                             <P id="ARContentText<%= item.ID %><%= ARItem.index %>" class="card-text afterReplay">
                                 <span class="badge badge-success"><%= data.creator%></span>
                                 <span id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"></span>
+                                <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>"></span>
                             </P>
 
                             <form method="POST" class="reviseAR">
@@ -424,6 +432,95 @@
     </div>
 </div>
 
+<!-- change CAT. Modal -->
+<div class="modal" tabindex="-1" id="changeCAT">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Change Category</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">Category</div>
+                    <div class="col-sm-2">
+                        <form method="post" class="changeCATForm">
+                            <!-- to be deleted -->
+                            <!-- <input id="originalCAT" name="originalCAT" value="<%= locals.data.category %>"> -->
+                            <% if (locals.data.category != "CPU") { %>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="transferTOCPU"
+                                    value="CPU" name="CAT">
+                                <label class="form-check-label form-control-sm" for="transferTOCPU">CPU</label>
+                            </div>
+                            <% } %>
+                            <% if (locals.data.category != "GPU") { %>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="transferTOGPU" value="GPU"
+                                    name="CAT">
+                                <label class="form-check-label form-control-sm" for="transferTOGPU">GPU</label>
+                            </div>
+                            <% } %>
+                            <% if (locals.data.category != "USBC") { %>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input form-control-sm" type="radio" id="transferTOUSBC" value="USBC"
+                                    name="CAT">
+                                <label class="form-check-label form-control-sm" for="transferTOUSBC">USBC</label>
+                            </div>
+                            <% } %>
+
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">Comment</div>
+                    <div class="col-sm-10" style="padding: 0px 15px;">
+                        <textarea class="form-control ARTextarea" name="transferTempComment" rows="3"
+                                            aria-label="With textarea" required></textarea>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-danger btn-sm" value="Transfer">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- cancel transfer CAT. Modal -->
+<div class="modal" tabindex="-1" id="cancelTransferCAT">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Change Category</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">Transferring to <%= locals.data.transferTemp %></div>
+                    
+                        <form method="post" class="cancelChangeCATForm">
+                           
+                    
+                </div>
+            </div>
+            <input class="form-check-input form-control-sm" type="text" id="cancelTransfer" value="flase"
+                                    name="cancelTransfer">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-danger btn-sm" value="Cancel Transfer">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <%- include('parts/html_script') %>
 <script>
@@ -485,6 +582,56 @@
 
         })
     })
+
+    //transfer request
+    
+    // $('#originalCAT').hide();// to be deleted
+    $('.changeCATForm').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('#changeCAT').modal('hide');
+            $('#tansferStatus input').val('Transferring');
+            $('#tansferStatus input').attr('data-target','#cancelTransferCAT');
+            // $('#changePriority').modal('hide');
+            // $('#priorityVal span').text(data.priority);
+            // $('#priorityVal').attr('val', data.priority);
+
+        })
+    })
+//取消transfer request
+$('#cancelTransfer').hide();
+    $('.cancelChangeCATForm').on('submit', function (e) {
+        e.preventDefault();
+        let currentURL = location.pathname;
+        $.ajax({
+            url: `${currentURL}`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('#cancelTransferCAT').modal('hide');
+            $('#tansferStatus input').val('Change');
+            $('#tansferStatus input').attr('data-target','#changeCAT');
+            // $('#priorityVal span').text(data.priority);
+            // $('#priorityVal').attr('val', data.priority);
+
+        })
+    })
+
     $('#addRemark').on('submit', function (e) {
         e.preventDefault();
         let currentURL = location.pathname;
@@ -646,7 +793,7 @@
             $(`#${ARID + index}`).hide();
             $(`#ARContentText${ARID + index}`).show();
             $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
-            $(`#ARContentTextSpan${ARID + index}`).append(`
+            $(`#ARContentTextSpan2${ARID + index}`).append(`
             <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
                                         src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
             `);
@@ -682,10 +829,10 @@
             $(`#ARContentText${ARID + index}`).show();
             $(`#reviseARP${ARID + index}`).hide();
             $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
-            $(`#ARContentTextSpan${ARID + index}`).append(`
-            <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
-                                        src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
-            `);
+            // $(`#ARContentTextSpan${ARID + index}`).append(`
+            // <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
+            //                             src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
+            // `);
         })
     })
 

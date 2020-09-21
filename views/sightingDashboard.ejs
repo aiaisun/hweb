@@ -7,6 +7,44 @@
     </div>
     <div class="aliDashboard row">
         <div id="left">
+            <div id="issueTrasfer">
+                <header>
+                    <h3>Trasfer Requests</h3>
+
+                </header>
+
+                <section>
+                    <span class="badge badge-secondary">
+                        Notification <span class="badge badge-light"><%= locals.requestTansfer.length %></span>
+                    </span>
+                    <% if (locals.requestTansfer.length > 0 ) { %>
+                    <table class="table table-sm table-hover" id="transferTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">NO.</th>
+                                <th scope="col">CAT.</th>
+                                <th scope="col">Title</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%  for (let i = 0; i< locals.requestTansfer.length; i++) {%>
+                            <tr onclick="showTransferComment(this)" item="transferRequest<%= i %>">
+                                <th scope="row" style="width:10%"><%= i+1 %></th>
+                                <td style="width:23%"><%= requestTansfer[i].ALINo %></td>
+                                <td style="width:10%"><%= requestTansfer[i].category %></td>
+                                <td><%=requestTansfer[i].title %></td>
+                            </tr>
+                            <% } %>
+
+                        </tbody>
+                    </table>
+                    <% } else { %>
+                        <!-- <h1>123</h1> -->
+                    <% } %>
+                </section>
+
+            </div>
             <div id="issueStatus">
                 <header>
                     <h3>Issue Status</h3>
@@ -18,12 +56,12 @@
                         <div id="main" style="width: 70%;height:400px;"></div>
                         <div>
                             <p style="font-size: 18px;">
-                                <h4>Category &nbsp;<%= locals.sightingrole %></h4>
+                            <h4>Category &nbsp;<%= locals.sightingrole %></h4>
                             </p>
-                            <p style="font-size: 18px;">
+                            <p style="font-size: 18px;margin-bottom:5px;">
                                 <span>Working&nbsp;:&nbsp;&nbsp;&nbsp;</span><span><%= locals.wNUM %></span>
                             </p>
-                            <p style="font-size: 18px;">
+                            <p style="font-size: 18px;margin-bottom:5px;">
                                 <span>Closed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span><%= locals.cNUM %></span>
                             </p>
 
@@ -43,21 +81,21 @@
                 </header>
 
                 <section>
-                    <div id="statusaria" class='row'>
+                    <div id="statusaria2" class='row'>
                         <div id="second" style="width: 70%;height:400px;"></div>
                         <div>
                             <p style="font-size: 18px;">
                             <h4>Project Ratio</h4>
                             </p>
                             <% for (let i = 0; i< locals.projectRatio.length; i++) { %>
-                            <p style="font-size: 18px;">
+                            <p style="font-size: 18px;margin-bottom:5px;">
                                 <span><%= locals.projectRatio[i]._id %>&nbsp;:&nbsp;</span><span><%= locals.projectRatio[i].count %></span>
                             </p>
-                            
+
                             <% } %>
 
                         </div>
-                        
+
                     </div>
                     <div>
 
@@ -93,7 +131,8 @@
 
                                 <div class="">
                                     <div id="result"></div>
-                                    <table class="aliListTable table table-hover" style="border-spacing: 10px;">
+                                    <table class="aliListTable table table-hover" id="resultTable"
+                                        style="border-spacing: 10px;">
                                         <thead>
                                             <tr>
 
@@ -111,8 +150,9 @@
                                             <% for (let i=0 + p*10 ; i < (p+1)*10 ; i++) {%>
                                             <% if (working[i]) {%>
                                             <tr>
-                                                <td style="width: 12%;"><a
-                                                        href="/sighting/<%=working[i].ALINo %>"><%= working[i].ALINo %></a>
+                                                <td style="width: 12%;">
+                                                    <a href="/sighting/<%=working[i].ALINo %>"
+                                                        target="_blank"><%= working[i].ALINo %></a>
                                                 </td>
                                                 <td style="width: 8%;"><%= working[i].priority %></td>
                                                 <td style="width: 30%;"><%= working[i].title %></td>
@@ -231,15 +271,87 @@
     </p>
     <P id="projectRatiotest"><%= locals.projectRatio %></P>
 </div>
+
+
+<!-- cancel transfer CAT. Modal -->
+<%  for (let i = 0; i< locals.requestTansfer.length; i++) {%>
+<div class="modal" tabindex="-1" id="transferRequest<%= i %>">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Issue Summary</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <table class="table table-sm " id="transferTable">
+
+                        <tbody style="font-size: 14px;">
+                            <tr>
+                                <td style="width: 30%;">ALI NO. </td>
+                                <td><%= locals.requestTansfer[i].ALINo %></td>
+                            </tr>
+                            <tr>
+                                <td>Transfer Remark</td>
+                                <td><%= locals.requestTansfer[i].transferTempComment %></td>
+                            </tr>
+                            <form method="post" class="rejectTrans">
+                                <tr>
+                                    <td>Comment</td>
+                                    <td><textarea id="rejectReason" onchange="morrir(this)"
+                                            class="form-control ARTextarea" name="transferTempComment" rows="2"
+                                            aria-label="With textarea" required></textarea>
+                                    </td>
+                                </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+
+                <input class="hideData" type="text" name='reject' value='true'>
+                <input class="hideData" type="text" name='CAT' value='<%= requestTansfer[i].category %>'>
+                <input class="hideData" type="text" name='alino' value='<%= requestTansfer[i].ALINo%>'>
+                <input class="hideData" type="text" name='remark' value='<%= requestTansfer[i].transferTempComment %>'>
+                <input type="submit" class="btn btn-danger btn-sm" value="Reject">
+                </form>
+                <form method="post" class="acceptTrans">
+                    <input class="hideData" type="text" name='accept' value='true'>
+                    <input class="hideData" type="text" name='CAT' value='<%= requestTansfer[i].category %>'>
+                    <input class="hideData" type="text" name='alino' value='<%= requestTansfer[i].ALINo %>'>
+                    <input class="hideData" type="text" name='remark' value='<%= requestTansfer[i].transferTempComment %>'>
+                    <input class="hideData1" id="getMirror" type="text" name='comment' value=''>
+                    <input type="submit" class="btn btn-danger btn-sm" value="Accept">
+                </form>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<% } %>
+
 <%- include('parts/html_script') %>
 
 
 <script type="text/javascript">
+    function morrir(which) {
+        const comment = $(which).val();
+        $('#getMirror').val(comment);
+
+    }
 
 
 
 
-$('.hideData').hide()
+    $('.hideData').hide()
     var myChart = echarts.init($('#main').get(0));
     const option = {
         tooltip: {
@@ -352,5 +464,55 @@ $('.hideData').hide()
         $('.cqueryResult').hide();
         $(`#cqueryResult${page}`).show();
     }
+
+    function showTransferComment(which) {
+        // alert($(which).attr('item'));
+        const request = $(which).attr('item');
+        // console.log(request);
+        $(`#${request}`).modal('show');
+    }
+
+
+// accept transfer
+    $('.acceptTrans').on('submit', function (e) { //新增新的備註
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            // console.log(data);
+            window.location = 'http://localhost:3000/sightingdashboard';
+
+        })
+
+
+    });
+
+    //reject transfer 
+    $('.rejectTrans').on('submit', function (e) { //新增新的備註
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            // console.log(data);
+            window.location = 'http://localhost:3000/sightingdashboard';
+        })
+    })
+
 </script>
 <%- include('parts/html_foot') %>
