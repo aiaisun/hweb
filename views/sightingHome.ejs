@@ -2,7 +2,7 @@
 <%- include('parts/navbar') %>
 
 <div class="aliList">
-    <% if (locals.role == 'admin') { %>
+    <% if (locals.role != 'admin') { %>
 
     <a href="/sighting/submit"><button type="button" class="btn btn-danger ">Submit</button></a>
     <% } %>
@@ -271,11 +271,13 @@
                 $("#result").text("");
                 $('.aliListTable').show();
                 if (data.length) {
+                    
                     for (let i = 0; i < data.length; i++) {
+                        console.log(`/sighting/${data[i].ALINo}`, "123")
                         $('#queryResult').append(`\
                 <tr>\
                 <td>${data[i].priority}</td>\
-                <td><a href="/sighting/${data[i].ALINo}">${data[i].ALINo}</a></td>\
+                <td><a href="/sighting/${data[i].ALINo}" target="_blank" >${data[i].ALINo}</a></td>\
                 <td>${data[i].title}</td>\
                 <td>${data[i].status}</td>\
                 <td>${data[i].category}</td>\
@@ -286,10 +288,11 @@
                     }
 
                 } else {
+                    console.log(`/sighting/${data[i].ALINo}`)
                     $('#queryResult').append(`\
                 <tr>\
                 <td>${data.priority}</td>\
-                <td><a href="/sighting/${data[i].ALINo}">${data.ALINo}</a></td>\
+                <td><a href="/sighting/${data[i].ALINo}" target="_blank">${data.ALINo}</a></td>\
                 <td>${data.title}</td>\
                 <td>${data.status}</td>\
                 <td>${data.category}</td>\

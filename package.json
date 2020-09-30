@@ -36,6 +36,7 @@
     "nodemon": "^2.0.3",
     "popper.js": "^1.16.1",
     "python-shell": "^1.0.8",
+    "rimraf": "^3.0.2",
     "utf8": "^3.0.0"
   },
   "description": ""

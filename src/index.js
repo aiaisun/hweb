@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const tz = require('moment-timezone');
 const moment = require('moment');
+const rimraf = require("rimraf");
 
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectId;
@@ -29,7 +30,7 @@ app.use(session({
     }
 }))
 
-// set the storage engine
+// set the storage engine path 
 const storage = multer.diskStorage({
     destination: 'public/tmpTLC/', //save path
     filename: function (req, file, cb) {
@@ -40,9 +41,25 @@ const storage = multer.diskStorage({
 //init upload
 const upload = multer({ storage: storage });//single image Key:myImage
 
+//set issue storage path
+
+const issueStorage = multer.diskStorage({
+
+    destination: 'public/sightingFile/', //save path
+    filename: function (req, file, cb) {
+        cb(null, new Date().getTime() + "-" + file.originalname);
+    },
+    limit: {
+        fileSize: 5000000
+    }
+});
+
+const uploadEngine1 = multer({ storage: issueStorage });//single image Key:myImage
+
 //email system
 const nodemailer = require('nodemailer');
 const { resolve } = require('path');
+const { Console } = require('console');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -81,8 +98,16 @@ app.use(checkUser);
 // app.use()
 app.get('/', (req, res) => {
     const data = req.userData;
+
     res.render('home', data);
 });
+
+app.post('/', (req, res) => {
+    const data = req.userData;
+
+    res.render('home', data);
+});
+
 
 app.get('/user/trysession', (req, res) => {
     req.session.views = req.session.views || 0;
@@ -1053,10 +1078,27 @@ app.get('/sighting/submit', (req, res) => {
 });
 
 
-app.post('/sighting/submit', (req, res) => {
+//submit issue
+app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const timeFormat = "YYYY-MM-DD HH:mm";
     const mo1 = moment(new Date());
+    console.log(req.files)
+    // 建資料夾
+    const ALIno = req.body.ALIno;
+    const newDir = `public\\sightingFile\\${ALIno}`;
+    if (!fs.existsSync(newDir)) {
+        fs.mkdirSync(newDir);
+    };
+    //建立圖片路徑array 以及把所有上船的檔案放進ali的資料夾裡面
+    const filesPath = [];
+    for (let i = 0; i < req.files.length; i++) {
+        let newPath = `${newDir}\\${req.files[i].filename}`;
+        filesPath.push(newPath);
+        fs.rename(req.files[i].path, newPath, () => {
+        })
+    };
+
     const issue = {
         'ALINo': req.body.ALIno,
         'createDate': mo1.format(timeFormat),
@@ -1077,6 +1119,7 @@ app.post('/sighting/submit', (req, res) => {
         'iTBTV': req.body.iTBTV,
         'description': req.body.description,
         'reproduce': req.body.reproduce,
+        'attachment': filesPath,
         'remark': [],
         'ARList': [],
         'transfer': false
@@ -1102,10 +1145,14 @@ app.post('/sighting/submit', (req, res) => {
     } else if ((req.body.category == "GPU")) {
         issue.owner = "mark.lai";
         mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
-    } else {
+    } else if ((req.body.category == "USBC")) {
         issue.owner = "anthony.ye";
         mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
+    } else {
+        issue.owner = "alii.sun";
+        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
     }
+
     sightingCollection.insertOne(issue, function (err, document) {
         if (err) return res.json(err);
         console.log(`ALI creared: No. ${issue.ALINo}, creator ${issue.creator}`);
@@ -1123,7 +1170,7 @@ app.post('/sighting/submit', (req, res) => {
     res.redirect('/sighting')
 })
 
-app.post('/sighting/query', upload.single(), (req, res) => {
+app.post('/sighting/query', upload.single(), async (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const querySelectors = {
         'ALIno': req.body.ALIno,
@@ -1214,8 +1261,9 @@ app.get('/sighting/:alino', upload.single(), (req, res) => {
     });
 })
 
-app.post('/sighting/:alino', upload.single(), (req, res) => {
+app.post('/sighting/:alino', upload.single(), async (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
+    const userCollection = mongodb.collection('users');
     const queryCondition = { "ALINo": req.params.alino };
     const timeFormat = "YYYY-MM-DD HH:mm";
     const mo1 = moment(new Date());
@@ -1240,9 +1288,44 @@ app.post('/sighting/:alino', upload.single(), (req, res) => {
             });
     };
 
+    //send mail 
+    // function sendMail(mailOptions, consoleMSG) {
+    //     transporter.sendMail(mailOptions, function (error, info) {
+    //         if (error) {
+    //             console.log(error);
+    //         } else {
+    //             console.log(consoleMSG);
+    //         }
+    //     })
+    // };
+    // const mailOptions = {
+    //     from: 'alisunlcfc@gmail.com',
+    //     to: `${ownerEmail}`,
+    //     subject: `[Sighting Inform] Issue ${queryCondition.ALINo} transfer request is rejected.`,
+    //     html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
+    //     <h2 style='font-style: Calibri;'>Result     :  Reject</h2>\
+    //     <h2 style='font-style: Calibri;'>Comment    : ${req.body.transferTempComment}</h2>\ 
+    //                 <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
+    //                 `
+    // };
+    // const consoleMSG = `${queryCondition.ALINo} transfering, already informed ${req.body.CAT} owner ${ownerEmail}`;
 
+    //找出owner email
+    async function findOwnerEmail(queryCondition) {
+        // const issueCAT = await sightingCollection.findOne(queryCondition,
+        //     { 'projection': { "category": 1, "_id": 0 } });
+
+        const Owner = await userCollection.findOne({ 'sightingrole': req.body.CAT });
+        const OwnerEmail = Owner.userEmail;
+        await console.log(OwnerEmail);
+        return OwnerEmail
+    };
+    const transferToCAT = { "sightingrole": req.body.CAT };
+    console.log(req.body);
     if (req.body.CAT) {
         // insertTransferHis(sightingCollection, queryCondition, req.body.CAT);
+        await findOwnerEmail(transferToCAT);
+
         sightingCollection.findOneAndUpdate(queryCondition,
             { $set: { 'transfer': true, 'transferTemp': req.body.CAT, "transferTempComment": req.body.transferTempComment } },
             function (err, document) {
@@ -1384,7 +1467,7 @@ app.get('/sightingdashboard', async (req, res) => {
 
         //request 轉過來的issue
         const requestTansfer = await sightingCollection.find(queryTransfer,
-            { 'projection': { "ALINo": 1, "title": 1, "category": 1, "_id": 0, "transferTempComment": 1 } })
+            { 'projection': { "ALINo": 1, "title": 1, "category": 1, "_id": 0, "transferTempComment": 1, "transferTemp": 1 } })
             .toArray();
         // console.log(requestTansfer);
         // console.log(close);
@@ -1429,19 +1512,7 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const userCollection = mongodb.collection('users');
 
-
-    //找出owner email
-    async function findOwnerEmail(queryCondition) {
-        const issueCAT = await sightingCollection.findOne( queryCondition,
-            { 'projection': { "category": 1, "_id": 0 } });
-
-        const Owner = await userCollection.findOne({ 'sightingrole': issueCAT.category });
-        const OwnerEmail = Owner.userEmail;
-        // await console.log(OwnerEmail);
-        return OwnerEmail
-    };
-
-    //send mail 
+    //send mail function
     function sendMail(mailOptions, consoleMSG) {
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
@@ -1451,38 +1522,58 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
             }
         })
     };
-
-    async function acceptIssue( queryCondition, transferData) {
-        const insertTransferHis = await sightingCollection.findOneAndUpdate( queryCondition,
+    //接受issue的function
+    async function acceptIssue(queryCondition, transferData, newOwner) {
+        const insertTransferHis = await sightingCollection.findOneAndUpdate(queryCondition,
             { '$push': { "transferHis": transferData } });
 
-        const accept = await sightingCollection.findOneAndUpdate( queryCondition,
-            { '$set': { "transferTemp": "", "transferTempComment": "", "category": data.sightingrole, } });
-        
-            await console.log(`${queryCondition.ALINo} Transfer success`);
+        const accept = await sightingCollection.findOneAndUpdate(queryCondition,
+            { '$set': { "transfer": false, "transferTemp": "", "transferTempComment": "", "category": req.body.toCAT, "owner": newOwner } });
+        await console.log(`${queryCondition.ALINo} Transfer success`);
     }
-    
-
 
     //reject and send mail informing original owner
-    async function rejectIssue( queryCondition) {
+    async function rejectIssue(queryCondition, ownerAccount) {
         const reject = await sightingCollection.findOneAndUpdate(queryCondition,
             { '$set': { "transfer": false, "transferTemp": "", "transferTempComment": "" } });
     };
-    const ownerEmail = await findOwnerEmail( queryCondition);
+
+    //找出新舊owner
+
+    async function findOldOwner(queryCondition) {
+        const issueCAT = await sightingCollection.findOne(queryCondition,
+            { 'projection': { "category": 1, "_id": 0 } });
+
+        const owner = await userCollection.findOne({ 'sightingrole': issueCAT.category });
+        return owner
+    };
+    async function findNewOwner(newCAT) {
+        const owner = await userCollection.findOne({ 'sightingrole': newCAT });
+        return owner
+    };
+
+    //舊的onwer 
+    const oldOwner = await findOldOwner(queryCondition);
+    const oldOwnerEmail = oldOwner.userEmail;
+    const oldOwnerAccount = oldOwner.userAccount;
+
+    //新的onwer 
+    const newOwner = await findNewOwner(req.body.toCAT);
+    const newOwnerAccount = newOwner.userAccount;
+
     if (req.body.reject) {
-        
+
         const mailOptions = {
             from: 'alisunlcfc@gmail.com',
-            to: `${ownerEmail}`,
+            to: `${oldOwnerEmail}`,
             subject: `[Sighting Inform] Issue ${queryCondition.ALINo} transfer request is rejected.`,
             html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
             <h2 style='font-style: Calibri;'>Result     :  Reject</h2>\
-            <h2 style='font-style: Calibri;'>Comment    : ${req.body.transferTempComment}</h2>\ 
+            <h2 style='font-style: Calibri;'>Comment    : ${req.body.comment}</h2>\ 
                         <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
                         `
         };
-        const consoleMSG = `${queryCondition.ALINo} transfer failed, already informed ${req.body.CAT} owner ${ownerEmail}`;
+        const consoleMSG = `${queryCondition.ALINo} transfer was rejected, already informed ${req.body.CAT} owner ${oldOwnerAccount}`;
 
         await rejectIssue(queryCondition);
         sendMail(mailOptions, consoleMSG);
@@ -1490,29 +1581,28 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
 
     } else if (req.body.accept) {
         const transferData = {
-            "from"    : req.body.CAT,
-            "to"      : data.sightingrole,
-            "date"    : mo1.format(timeFormat),
-            "request" : req.body.remark,
-            "reply"   : req.body.comment
+            "from": req.body.CAT,
+            "to": data.sightingrole,
+            "date": mo1.format(timeFormat),
+            "request": req.body.remark,
+            "reply": req.body.comment
         };
-        await acceptIssue(queryCondition, transferData);
+        await acceptIssue(queryCondition, transferData, newOwnerAccount);
         const mailOptions = {
             from: 'alisunlcfc@gmail.com',
-            to: `${ownerEmail}`,
+            to: `${oldOwnerEmail}`,
             subject: `[Sighting Inform] Issue ${queryCondition.ALINo} transfer request is accepted.`,
             html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
             <h2 style='font-style: Calibri;'>Result     :  Accept</h2>\
-            <h2 style='font-style: Calibri;'>Comment    : ${req.body.transferTempComment}</h2>\ 
+            <h2 style='font-style: Calibri;'>Comment    : ${req.body.comment}</h2>\ 
                         <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
                         `
         };
-        const consoleMSG = `${queryCondition.ALINo} transfer success, already informed ${req.body.CAT} owner ${ownerEmail}`;
+        const consoleMSG = `${queryCondition.ALINo} transfer success, already informed original ${req.body.CAT} owner ${oldOwnerAccount}`;
 
         sendMail(mailOptions, consoleMSG);
         res.json(req.body);
     }
-
 })
 
 

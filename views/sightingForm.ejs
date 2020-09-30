@@ -5,8 +5,9 @@
         <a href="/sighting"><img src="../lib/pic/reload.png" style="width:30px"></a>
     </div>
     <div class="consumablesTable">
-        <form method="POST">
-            <div class="form-group row" id="ALINoDiv">
+        <form method="POST"  enctype="multipart/form-data">
+            <!-- <form method="POST" enctype="multipart/form-data"></form> -->
+            <div class="form-group row hideData">
                 <label for="ALINo" class="col-sm-2 col-form-label">ALI No.</label>
                 <div class="col-sm-2">
                     <input type="text" class="form-control" id="ALINo" name="ALIno" readonly="true" value="">
@@ -24,9 +25,9 @@
                 <div class="col-sm-2">
                     <select id="priority" name="priority" class="form-control">
                         <option value='' style="display:none"></option>
-                        <option>Emergency</option>                        
+                        <option>Emergency</option>
                         <option>High</option>
-                        <option>Medium</option>                        
+                        <option>Medium</option>
                     </select>
                 </div>
             </div>
@@ -50,7 +51,7 @@
             <div class="form-group row">
                 <label for="category" class="col-sm-2 col-form-label">Category</label>
                 <div class="col-sm-2">
-                    <select id="category" class="form-control" name="category" onchange="return EVinput(this)" required>
+                    <select id="category" class="form-control" name="category" onchange="return EVinput(this)">
                         <option value='' style="display:none"></option>
                         <option>CPU</option>
                         <option>GPU</option>
@@ -63,38 +64,43 @@
                 <div class=" col-sm-4">
                     <div class="row EV">
                         <div class="col-sm-6 ">
-                            <input type="text" class="form-control" id="BIOSV" name="BIOSV"placeholder="BIOS Version" required>
+                            <input type="text" class="form-control" id="BIOSV" name="BIOSV" placeholder="BIOS Version">
                         </div>
 
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="ECV" name="ECV" placeholder="EC Version" required>
+                            <input type="text" class="form-control" id="ECV" name="ECV" placeholder="EC Version">
                         </div>
                     </div>
                     <div class="row EV">
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="BOXSKU" name="BOXSKU" placeholder="BOX SKU" required>
+                            <input type="text" class="form-control" id="BOXSKU" name="BOXSKU" placeholder="BOX SKU">
                         </div>
 
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="preloadV" name="preloadV" placeholder="Preload Version" required>
+                            <input type="text" class="form-control" id="preloadV" name="preloadV"
+                                placeholder="Preload Version">
                         </div>
                     </div>
                     <div class="row usbc EV">
                         <div class="col-sm-6">
-                            <input type="text" class="form-control usbc" id="TIPV" name="TIPV" placeholder="TI Patch version" value="NA" required>
+                            <input type="text" class="form-control usbc" id="TIPV" name="TIPV"
+                                placeholder="TI Patch version" value="NA" required>
                         </div>
 
                         <div class="col-sm-6">
-                            <input type="text" class="form-control usbc" id="TIGUIV" name="TIGUIV" placeholder="TI GUI Version" value="NA" required>
+                            <input type="text" class="form-control usbc" id="TIGUIV" name="TIGUIV"
+                                placeholder="TI GUI Version" value="NA" required>
                         </div>
                     </div>
                     <div class="row usbc EV">
                         <div class="col-sm-6">
-                            <input type="text" class="form-control usbc" id="BBFWV" name="BBFWV" placeholder="BBFW version" value="NA" required>
+                            <input type="text" class="form-control usbc" id="BBFWV" name="BBFWV"
+                                placeholder="BBFW version" value="NA" required>
                         </div>
 
                         <div class="col-sm-6">
-                            <input type="text" class="form-control usbc" id="iTBTV" name="iTBTV" placeholder="iTBT NVM" value="NA" required>
+                            <input type="text" class="form-control usbc" id="iTBTV" name="iTBTV" placeholder="iTBT NVM"
+                                value="NA" required>
                         </div>
                     </div>
                 </div>
@@ -112,24 +118,96 @@
                     <textarea class="form-control" id="reproduce" rows="5" name="reproduce"></textarea>
                 </div>
             </div>
+            <div class="form-group row">
+                <label for="reproduce" class="col-sm-2 col-form-label">Attachment</label>
+                <!-- <div id="open" onclick="attachModal()">
+                    <a href="#"><img src="../../lib/pic/plus.png" style="width: 19px"></a>
+                </div> -->
+                <div class="col-sm-4 ">
+                    <form method="post" >
+                        <div class="mb-4 input-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="issueFile" name="issueFile"
+                                    aria-describedby="inputGroupFileAddon04" multiple onchange="text(this)">
 
+                                <label class="custom-file-label" for="issueFile">Choose file</label>
+
+
+                            </div>
+                        </div>
+
+                </div>
+                <div id="fileName">
+                </div>
+                <input class="hideData" id="fileArray" name="fileArray" value="">
+
+            </div>
 
 
             <div class="form-group row">
                 <div class="col-sm-10">
-                    <button type="submit" onclick="return informALINo()" class="btn btn-danger">Submit</button>
+                    <button type="submit" class="btn btn-danger" onclick="return informALINo()">Submit</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
+
+
+
 <%- include('parts/html_script') %>
 <script>
+    $('.hideData').hide();
+
+    $('.attach').on('submit', function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: '/sighting/submit/uploadfile',
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data)
+            $('.uploadfile').append(`<img src="../../lib/pic/uploadsuccess.png" style="width: 19px">`);
+            let folderName = $('#ALINo').val();
+            $('#folderName').val(folderName);
+            const fileArray = [];
+            for (let i = 0; i < data.files.length; i++) {
+                let fileName = data.files[i].filename;
+                fileArray.push(fileName);
+                console.log(data.files[i]);
+                $('#fileName2').append(`<span  class="col-sm-2 col-form-label">${fileName}</span><br>`);
+
+            };
+            $('#fileArray').val(fileArray);
+
+        });
+    });
+
+    function text(which) {
+        const fileName = $(which).val();
+        console.log($(which)[0].files)
+        $('#fileName').text("");
+        for (let i = 0; i < $(which)[0].files.length; i++) {
+            console.log($(which)[0].files[i].name);
+            const fileName = $(which)[0].files[i].name;
+            $('#fileName').append(`<span  class="mb-4 uploadfile">${fileName}</span><br>`);
+            // $('#fileName').append(" / ");
+
+        }
+        // console.log($(which)[0].files[0].name)
+    }
+
     $(".usbc").hide();
     function EVinput(which) {
 
         const category = $(which).val();
-        if (category == "USBC"){
+        if (category == "USBC") {
             $('input.usbc').val();
             $(".usbc").show();
             $('input.usbc').val("");
@@ -138,14 +216,16 @@
             $('input.usbc').val("NA");
         }
     };
-    $('#ALINoDiv').hide();
-function informALINo(){
-    const currentDate = (new Date().format('YmdHis'));
-    const ALINo = "ALI" + currentDate.substring(2,);
-    console.log(ALINo);
-    $('#ALINo').val(ALINo);
 
-}
-    
+
+    function informALINo() {
+        const currentDate = (new Date().format('YmdHis'));
+        const ALINo = "ALI" + currentDate.substring(2,);
+        $('#ALINo').val(ALINo);
+
+    };
+
+
+
 </script>
 <%- include('parts/html_foot') %>

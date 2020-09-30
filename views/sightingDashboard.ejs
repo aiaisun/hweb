@@ -301,7 +301,7 @@
                                 <tr>
                                     <td>Comment</td>
                                     <td><textarea id="rejectReason" onchange="morrir(this)"
-                                            class="form-control ARTextarea" name="transferTempComment" rows="2"
+                                            class="form-control ARTextarea" name="comment" rows="2"
                                             aria-label="With textarea" required></textarea>
                                     </td>
                                 </tr>
@@ -324,6 +324,7 @@
                     <input class="hideData" type="text" name='accept' value='true'>
                     <input class="hideData" type="text" name='CAT' value='<%= requestTansfer[i].category %>'>
                     <input class="hideData" type="text" name='alino' value='<%= requestTansfer[i].ALINo %>'>
+                    <input class="hideData" type="text" name='toCAT' value='<%= requestTansfer[i].transferTemp %>'>
                     <input class="hideData" type="text" name='remark' value='<%= requestTansfer[i].transferTempComment %>'>
                     <input class="hideData1" id="getMirror" type="text" name='comment' value=''>
                     <input type="submit" class="btn btn-danger btn-sm" value="Accept">
