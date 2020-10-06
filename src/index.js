@@ -156,12 +156,14 @@ app.get('/user/login', async (req, res) => {
         }
     }
 
+
     let account = { 'userAccount': req.session.loginUser };
     await checkUserRole(account);
     await checkUsersightingRole(account);
 
     res.render('login', data);
 })
+
 
 
 app.post('/user/login', (req, res) => {
@@ -354,18 +356,6 @@ function pythonParseTLC(req, res) {
 
     })
 
-
-    // PythonShell.run('./photocategory.py', options, (err, result) => {
-    //     if (err) res.send(err)
-    //     const parsedString = JSON.parse(result)
-    //     // console.log(result);
-    //     // console.log(parsedString);
-    //     // console.log(`name: ${parsedString.Name}, from: ${parsedString.From}`)
-    //     console.log(parsedString)
-    //     res.json(parsedString)
-
-    // })
-
 };
 
 //parse TLC!!!!!!!!!!!! 
@@ -382,13 +372,15 @@ function pythonParseVram(req, res) {
             path
         ]
     }
+
     // 因為python file 路徑填錯,所以一直報錯
     PythonShell.run('./pyfile/parseVram_v3.py', options, (err, data) => {
         if (err) res.send(err)
         const parsedString = JSON.parse(data)
         // console.log(data);
         // console.log(parsedString);
-        console.log("Parsed Successfully");
+        console.log("Program run done.");
+        console.log("Result: ", parsedString);
         res.json(parsedString)
 
     })
@@ -1080,24 +1072,29 @@ app.get('/sighting/submit', (req, res) => {
 
 //submit issue
 app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
+    const data = req.userData;
+    const userCollection = mongodb.collection('users');
     const sightingCollection = mongodb.collection('sighting');
     const timeFormat = "YYYY-MM-DD HH:mm";
     const mo1 = moment(new Date());
-    console.log(req.files)
+
     // 建資料夾
     const ALIno = req.body.ALIno;
     const newDir = `public\\sightingFile\\${ALIno}`;
     if (!fs.existsSync(newDir)) {
         fs.mkdirSync(newDir);
     };
+
     //建立圖片路徑array 以及把所有上船的檔案放進ali的資料夾裡面
     const filesPath = [];
     for (let i = 0; i < req.files.length; i++) {
         let newPath = `${newDir}\\${req.files[i].filename}`;
-        filesPath.push(newPath);
+        webPath = newPath.replace("public\\", "")
+        filesPath.push(webPath);
         fs.rename(req.files[i].path, newPath, () => {
         })
     };
+
 
     const issue = {
         'ALINo': req.body.ALIno,
@@ -1166,9 +1163,18 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
             }
         })
     })
-
+    // 把issue加到creator 的issue list 裡面
+    console.log(data);
+    const user = data.loginUser
+    const queryCondition = { userAccount: user }
+    // { $set: { 'priority': req.body.priority } },
+    userCollection.findOne(queryCondition, function (err, document) {
+        if (err) return res.json(err);
+        console.log(document)
+    });
     res.redirect('/sighting')
 })
+
 
 app.post('/sighting/query', upload.single(), async (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
@@ -1253,10 +1259,15 @@ app.get('/sighting/:alino', upload.single(), (req, res) => {
     const queryCondition = { "ALINo": req.params.alino };
     sightingCollection.findOne(queryCondition, function (err, document) {
         if (err) return res.json(err);
-        // console.log(document);
         data.data = document;
-        console.log(data);
+        const webPAth = []
+        for (let i = 0; i < data.data.attachment.length; i++) {
+            // 取路徑上的檔案名稱
+            webPAth.push(data.data.attachment[i].split("\\").slice(-1)[0])
+        }
 
+        data.data.webPAth = webPAth;
+        // console.log(data);
         res.render('sightingDetails', data)
     });
 })
@@ -1605,7 +1616,11 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
     }
 })
 
-
+app.get('/sightingpersonaldashboard', async (req, res) => {
+    const data = req.userData;
+    console.log(data)
+    res.render('sightingPersonalDashboard', data)
+})
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');

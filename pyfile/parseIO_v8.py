@@ -5,7 +5,6 @@ import pandas as pd
 import os
 
 ####Functions####
-
 # 開啟檔案
 def open_brd_file(filepath):
     f = open(filepath)
@@ -64,8 +63,7 @@ filepath = inputData["FilePath"]
 # filepath2 = ".\\public\\tmpTLC\\0511.txt"
 
 
-
-# step1: 開啟檔案
+#step1: 開啟檔案
 try:
     f = open_brd_file(filepath)
     # print(f"step1: Open file. (File name: {filepath}) -DONE")
@@ -147,6 +145,7 @@ dfsummary, dfSQS, dfSQSR = pd.DataFrame(summary), pd.DataFrame(SQS), pd.DataFram
 #修改df
 # print("step4: Parsing txt file...")
 # print("       Calculating... - 25%")
+#修改df
 for i in netNameList:
     indexList = dfSQSR[dfSQSR["net_name"] == f"{i}"].index.tolist()
     
@@ -167,10 +166,12 @@ for i in netNameList:
             gap = 0
             dfSQSR.loc[index,"gap"] = gap
         length -= 1
+
 # print("       Calculating... - 50%")
 
 #刪除多餘的VIA
 deleteNullVIAROW(dfSQSR)  
+
 
 #在summary建立branch path & branch length
 for i in netNameList:
@@ -182,6 +183,7 @@ for i in netNameList:
     NAN = 0
     
     for idx in indexList:
+
         ####################################################  前面的表層裡層    
 
         # try:
@@ -209,6 +211,7 @@ for i in netNameList:
     
     #把起始點&終點 加入summary
     start_end = f"{dfSQSR.loc[indexList[0], 'location']}:{dfSQSR.loc[indexList[-1], 'location']}"
+
     dfsummary.loc[netIndex, "start_end_path"] = start_end
     
     ####################在這裡加入表層裡層
@@ -248,6 +251,7 @@ dfsummary.insert(1, startEndColumn.name, startEndColumn)
 #轉成final SQS資料
 column1 = []
 column2 = []
+
 for row in range(dfsummary.shape[0]):
     column1.append(dfsummary.loc[row,"net_name"])
     column1.append(dfsummary.loc[row,"start_end_path"])

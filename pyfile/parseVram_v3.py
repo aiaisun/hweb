@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import os
 
+####Functions####
 # 開啟檔案
 def open_brd_file(filepath):
     f = open(filepath)
@@ -19,7 +20,6 @@ def deleteRow1(string):
     pattern = re.compile(r"\|")
     delete = pattern.findall(string)
     return delete
-
 #刪除- - -開頭
 def deleteRow2(string):
     pattern = re.compile(r"^\-$")
@@ -31,6 +31,11 @@ def deleteRow3(string):
     pattern = re.compile(r"^R")
     delete = pattern.findall(string)
     return delete
+
+# 存excel
+def save_excel(write, df, sheetName):
+#     df = pd.DataFrame(datalist)
+    df.to_excel(write, sheet_name=f'{sheetName}', index=False)
 
 #刪多餘的raw
 def deleteNullVIAROW(df):
@@ -44,12 +49,9 @@ def branchPathNum(df):
     maxPathNum = int((df.shape[1] - 7) / 2)
     return maxPathNum
 
-# 存excel
-def save_excel(write, df, sheetName):
-#     df = pd.DataFrame(datalist)
-    df.to_excel(write, sheet_name=f'{sheetName}', index=False)
 
-##########################RUN CODE######################################
+#########CODE#########
+
 
 inputData = {
     "Project" : sys.argv[1],
@@ -96,7 +98,7 @@ for i in rawData:
         netName = i[0]
         
         netNameList.append(netName) #建立netnamelist
-    elif i[-1] == "0.000": #找到location
+    elif i[-1] == "0.000" or i[-1] == "0.0000": #找到location
 
         data = {} #清空 
         try:
@@ -106,7 +108,7 @@ for i in rawData:
             print(netName," has error.")
         
         SQS.append(data)
-    elif i[-1] == "mils": #找到TOTAL
+    elif i[-1] == "mils" or i[-1] == "millimeters": #找到TOTAL
         data = {} #清空
         ttlLength = float(i[3])
         data.update({"net_name" : netName, "total_length" : ttlLength})
@@ -127,6 +129,7 @@ for i in rawData:
 dfsummary, dfSQS, dfSQSR = pd.DataFrame(summary), pd.DataFrame(SQS), pd.DataFrame(SQS)
 # print("step3: Transfer file format. -DONE")
 
+
 #step4: 分析txt
 #修改df
 # print("step4: Parsing txt file...")
@@ -137,7 +140,10 @@ for i in netNameList:
     
     # 填第一個元件的layer空格 
     # ex. TOP = TOP
-    dfSQSR.loc[indexList[0],"layer"] = dfSQSR.loc[indexList[1],"layer"]
+    if len(indexList) > 1:
+        dfSQSR.loc[indexList[0],"layer"] = dfSQSR.loc[indexList[1],"layer"]
+    else:
+        dfSQSR.loc[indexList[0],"layer"] = "TOP"
     
     #每個netname裡面找gap
     length = len(indexList)
@@ -151,6 +157,7 @@ for i in netNameList:
         length -= 1
 
 # print("       Calculating... - 50%")
+
 #刪除多餘的VIA
 deleteNullVIAROW(dfSQSR)
 
@@ -216,6 +223,7 @@ for i in netNameList:
             branchLen += dfSQSR.loc[k, "gap"]
 
         dfsummary.loc[netIndex, f"length{num}"] = branchLen
+
 # print("       Calculating... - 75%")
         
 #調整dfsummary的順序
@@ -271,7 +279,6 @@ final2 = {
 #轉成df 順便去掉空值
 dfFinal = pd.DataFrame(final).dropna(axis=0)        
 dfFinal2 = pd.DataFrame(final2).dropna(axis=0)   
-
 # print("       Calculating... - 100%")
 # print("       Parse txt file. -DONE")
 # print("       Converted to sheet1 and sheet2. -DONE")
@@ -428,7 +435,7 @@ write.save()
 # print(f"step6: Save data to {filename}.xlsx. -DONE")  
 
 outputData = {
-    # "elsxPath" : elsxPath,
+    "result" : "Parse Succeeded.",
     "downloadPath" : elsxPath.replace("./public/", "")
 }
 
