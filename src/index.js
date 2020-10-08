@@ -1409,7 +1409,7 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
     const filesPath = [];
     for (let i = 0; i < req.files.length; i++) {
         let newPath = `${folderPath}\\${req.files[i].filename}`;
-        webPath = newPath.replace("public\\", "")
+        let webPath = newPath.replace("public\\", "")
         filesPath.push(webPath);
         fs.rename(req.files[i].path, newPath, () => {
         })
@@ -1417,8 +1417,7 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
     // file的數量
     const ARFilePath = [];
 
-    let fileIdx = 0
-    // console.log(req.body.ARFileNum);
+    let fileIdx = 0;
     for (let i in req.body.ARFileNum) {
         const filePath = [];
         // console.log(fileIdx);
@@ -1426,12 +1425,15 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
         for (let j = 0; j < parseInt(req.body.ARFileNum[i]); j++) {
             // console.log("j",j);
             // console.log("fileidx",fileIdx)
-            filePath.push(`${folderPath}\\${req.files[fileIdx].filename}`);
+            // let webPath = newPath.replace("public\\", "")
+            // filesPath.push(webPath);
+            filePath.push(`${folderPath.replace("public\\", "")}\\${req.files[fileIdx].filename}`);
             fileIdx++;
         };
         ARFilePath.push(filePath);
     };
-    // console.log(ARFilePath)
+
+    console.log(ARFilePath)
     const
         newAR = {
             "ID": 1,
@@ -1447,12 +1449,13 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
                 "requestARFile": ARFilePath[i],
                 "reply": ""
             });
+    
         };
     } else {
         newAR.AR = [{
             "index": 0,
             "request": req.body.ar,
-            "requestARFile": ARFilePath[i],
+            "requestARFile": ARFilePath[0],
             "reply": ""
         }];
     }
@@ -1480,8 +1483,7 @@ app.post('/sighting/:alino/replyAR', upload.single(), (req, res) => {
     res.json(req.body);
 });
 //使用者修改已回覆的AR
-app.post('/sighting/:alino/reviseAR', (req, res) => {
-
+app.post('/sighting/:alino/reviseAR', upload.single(), (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
 

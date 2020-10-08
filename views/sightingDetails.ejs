@@ -146,6 +146,7 @@
         </li>
 
     </ul>
+
     <div class="tab-content" id="myTabContent" style="height:1000px;">
 
         <div class="tab-pane fade show active" id="AR" role="tabpanel" aria-labelledby="AR-tab">
@@ -173,7 +174,6 @@
 
                             <div class="card-body text-secondary " style="padding: 8px 0px;">
 
-
                                 <div class="card-body-content">
                                     <input id="ARDateinForm" name="ARDate">
                                     <div class='row iconSet'>
@@ -197,510 +197,537 @@
                                             </div>
                                             <input class="ARFile" id="1ARFile" type="file" name="ARFile"
                                                 onchange="fileNum(this)" multiple>
-                                            <input id="1ARFileNum" type="text" name="ARFileNum">
+                                            <input id="1ARFileNum" type="text" name="ARFileNum" value="0">
                                         </div>
 
                                     </div>
                                 </div>
+
                             </div>
+
                         </div>
                     </div>
+
                 </form>
             </div>
+
+
             <div id="ARContent">
                 <!-- database 的 AR  -->
                 <% for( let i = locals.data.ARList.length - 1; i >= 0 ; i--){  
                 let item = data.ARList[i] %>
+
                 <div class="card border-secondary mb-3 ">
+
                     <div class="row no-gutters" style="width: 100%;">
 
                         <div class="card-header " style=" text-align: center;">
                             <%= item.date %>
                         </div>
 
-                        <div class="card-body text-secondary" style="padding: 8px 0px;">
-
+                        <div class="card-body text-secondary" style="padding: 8px  0px 0px;">
 
                             <div class="card-body-content">
 
                                 <% for( let j = 0; j < item.AR.length; j++){  
                                 let ARItem = item.AR[j] %>
 
-                                <P class="card-text">
-                                    <span class="badge badge-secondary">AR #<%= j+1 %></span>
-                                    <span><%= ARItem.request %></span>
-                                </P>
-                                <% if (locals.data.creator == loginUser) {%>
-                                <% if (ARItem.reply) {%>
-                                <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>">
-                                    <span class="badge badge-success"><%= data.creator%></span>
-                                    <span
-                                        id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
-                                    <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>">
-                                        <img onclick="reviseAR(this)" href="#"
-                                            itemID="<%= item.ID %><%= ARItem.index %>" src="../../lib/pic/pen1.png"
-                                            style="width: 12px; margin-left: 5px;"></span>
-                                </P>
+                                <div
+                                    style="<%= (j!=0)?'border-top: #D3D3D3 2px dotted;padding-top:8px': ''%>;margin-bottom:8px">
+                                    <div style="margin-bottom: 5px;">
+                                        <P class="card-text" style="margin-bottom: 0px;">
+                                            <span class="badge badge-secondary">AR #<%= j+1 %></span>
+                                            <span><%= ARItem.request %></span>
+                                        </P>
+                                        <% if (ARItem.requestARFile.length > 0) {%>
+                                        <% for( let k = 0; k < ARItem.requestARFile.length; k++){ %>
+                                        <a href="../<%= ARItem.requestARFile[k] %>" class="badge badge-light" target="_blank">File<%= k + 1%></a>
+                                        <% } %>
+                                        <% } %>
 
-                                <form method="POST" class="reviseAR">
-                                    <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
-                                        <div class="input-group input-group-sm mb-2"
-                                            style="width:85%; margin-left: 15px;">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><%= locals.data.creator %></span>
+                                    </div>
+                                    <% if (locals.data.creator == loginUser) {%>
+
+                                    <% if (ARItem.reply) {%>
+                                    <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>">
+                                        <span class="badge badge-success"><%= data.creator%></span>
+                                        <span
+                                            id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
+                                        <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>">
+                                            <img onclick="reviseAR(this)" href="#"
+                                                itemID="<%= item.ID %><%= ARItem.index %>" src="../../lib/pic/pen1.png"
+                                                style="width: 12px; margin-left: 5px;">
+                                        </span>
+                                    </P>
+
+                                    <form method="POST" class="reviseAR">
+                                        <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
+                                            <div class="input-group input-group-sm mb-2"
+                                                style="width:85%; margin-left: 15px;">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><%= locals.data.creator %></span>
+                                                </div>
+                                                <input class="hideData" name="ARID" type='text' value="<%= item.ID %>">
+                                                <textarea class="form-control ARTextarea" name="reply" rows="1"
+                                                    aria-label="With textarea" required><%= ARItem.reply %></textarea>
                                             </div>
-                                            <input class="inputInfo" name="ARID" type='text' value="<%= item.ID %>">
-                                            <textarea class="form-control ARTextarea" name="reply" rows="1"
-                                                aria-label="With textarea" required><%= ARItem.reply %></textarea>
-                                        </div>
-                                        <div style="margin-left: 15px;width:10%;">
-                                            <input class="inputInfo" type="text" name="index"
-                                                value='<%= ARItem.index %>'>
-                                            <input name="comment" type="submit" style="border-color:#D3D3D3;"
-                                                class="btn btn-outline-secondary btn-sm" value='submit'>
-
-                                        </div>
-
-                                    </div>
-                                </form>
-
-                                <% } else { %>
-                                <form method="POST" class="replyAR">
-                                    <div id="<%= item.ID %><%= ARItem.index %>" class='row'>
-
-                                        <div class="input-group input-group-sm mb-2"
-                                            style="width:85%; margin-left: 15px;">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><%= locals.data.creator %></span>
+                                            <div style="margin-left: 15px;width:10%;">
+                                                <input class="hideData" type="text" name="index"
+                                                    value='<%= ARItem.index %>'>
+                                                <input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                                    class="btn btn-outline-secondary btn-sm" value='submit'>
                                             </div>
-
-                                            <input class="inputInfo" name="ARID" type='text' value="<%= item.ID %>">
-                                            <textarea class="form-control ARTextarea" name="reply" rows="1"
-                                                aria-label="With textarea" required></textarea>
                                         </div>
-                                        <div style="margin-left: 15px;width:10%;">
-                                            <input class="inputInfo" type="text" name="index"
-                                                value='<%= ARItem.index %>'>
-                                            <input name="comment" type="submit" style="border-color:#D3D3D3;"
-                                                class="btn btn-outline-secondary btn-sm" value='submit'>
+                                    </form>
 
+                                    <% } else { %>
+                                    <form method="POST" class="replyAR">
+                                        <div id="<%= item.ID %><%= ARItem.index %>" class='row'>
+
+                                            <div class="input-group input-group-sm mb-2"
+                                                style="width:85%; margin-left: 15px;">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><%= locals.data.creator %></span>
+                                                </div>
+                                                <input class="hideData" name="ARID" type='text' value="<%= item.ID %>">
+                                                <textarea class="form-control ARTextarea" name="reply" rows="1"
+                                                    aria-label="With textarea" required></textarea>
+                                            </div>
+                                            <div style="margin-left: 15px;width:10%;">
+                                                <input class="hideData" type="text" name="index"
+                                                    value='<%= ARItem.index %>'>
+                                                <input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                                    class="btn btn-outline-secondary btn-sm" value='submit'>
+                                            </div>
                                         </div>
-                                    
-                                </form>
+                                    </form>
 
-                            </div>
-                            <!-- 新增AR 之後切換成 rivseAR form  -->
-                            <P id="ARContentText<%= item.ID %><%= ARItem.index %>" class="card-text afterReplay">
-                                <span class="badge badge-success"><%= data.creator%></span>
-                                <span id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"></span>
-                                <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>"></span>
-                            </P>
 
-                            <form method="POST" class="reviseAR">
-                                <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
-                                    <div class="input-group input-group-sm mb-2" style="width:85%; margin-left: 15px;">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><%= locals.data.creator %></span>
+                                    <!-- 新增AR 之後切換成 rivseAR form  -->
+                                    <P id="ARContentText<%= item.ID %><%= ARItem.index %>"
+                                        class="card-text afterReplay">
+                                        <span class="badge badge-success"><%= data.creator%></span>
+                                        <span id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"></span>
+                                        <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>"></span>
+                                    </P>
+
+                                    <form method="POST" class="reviseAR">
+                                        <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
+                                            <div class="input-group input-group-sm mb-2"
+                                                style="width:85%; margin-left: 15px;">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><%= locals.data.creator %></span>
+                                                </div>
+                                                <input class="hideData" name="ARID" type='text' value="<%= item.ID %>">
+                                                <textarea class="form-control ARTextarea" name="reply" rows="1"
+                                                    aria-label="With textarea" required></textarea>
+                                            </div>
+                                            <div style="margin-left: 15px;width:10%;">
+                                                <input class="hideData" type="text" name="index"
+                                                    value='<%= ARItem.index %>'>
+                                                <input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                                    class="btn btn-outline-secondary btn-sm" value='submit'>
+                                            </div>
                                         </div>
-                                        <input class="inputInfo" name="ARID" type='text' value="<%= item.ID %>">
-                                        <textarea class="form-control ARTextarea" name="reply" rows="1"
-                                            aria-label="With textarea" required></textarea>
-                                    </div>
-                                    <div style="margin-left: 15px;width:10%;">
-                                        <input class="inputInfo" type="text" name="index" value='<%= ARItem.index %>'>
-                                        <input name="comment" type="submit" style="border-color:#D3D3D3;"
-                                            class="btn btn-outline-secondary btn-sm" value='submit'>
+                                    </form>
 
-                                    </div>
+                                    <% } %>
+
+                                    <% } else { %>
+
+                                    <P class="card-text" class="ARStatusLogout">
+
+                                        <span
+                                            class="badge <%= (ARItem.reply)? 'badge-success': 'badge-warning' %>"><%= data.creator%></span>
+                                        <span><%= ARItem.reply %></span>
+                                    </P>
+
+                                    <% } %>
 
                                 </div>
-                            </form>
 
-                            <% } %>
+                                <% } %>
 
-                            <% } else { %>
-                            <P class="card-text" class="ARStatusLogout" style="border-top: #D3D3D3 2px dotted">123
-                                <span
-                                    class="badge <%= (ARItem.reply)? 'badge-success': 'badge-warning' %>"><%= data.creator%></span>
-                                <span><%= ARItem.reply %>456</span>
-                            </P>
-                            <% } %>
-                            <% } %>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+                <% } %>
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade " id="remark" role="tabpanel" aria-labelledby="remark-tab">
+            <% if (loginUser) { %>
+            <div style="margin-top: 10px;">
+                <form class="form-inline" type="POST" id="addRemark">
+
+                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref" style="text-align: top;">From
+                        <%= loginUser %></label>
+
+                    <!-- <textarea class="form-control form-control-sm" aria-label="With textarea"></textarea> -->
+                    <textarea maxlength="80%" class="form-control" rows="3" name='remark'
+                        style="width:80%; text-align: justfy" value=''></textarea>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm"
+                        style="margin-left: 10px;margin-bottom: -50px;">Remark</button>
+                </form>
+            </div>
+            <% } %>
+            <table id="remarkTable" class="table-sm" style="width:100%; margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%"></th>
+                        <th style="width:20%"></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="remarkList">
+                    <% for( let i = 0; i < locals.data.remark.length; i++){  
+                        let item = data.remark[i] %>
+                    <tr>
+                        <td><%= item.date%></th>
+                        <td><%= item.remarker%></td>
+                        <td id='remarkContent'><%= item.remark%></td>
+                    </tr>
+                    <% } %>
+            </table>
+
+        </div>
+    </div>
+
+
+
+    <!-- change status Modal -->
+    <div class="modal" tabindex="-1" id="changeStatus">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Change Status</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-2">Status</div>
+                        <div class="col-sm-2">
+                            <form method="post" class="changeStatusForm">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="working"
+                                        value="Working" name="status">
+                                    <label class="form-check-label form-control-sm" for="working">Working</label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="close"
+                                        value="Close" name="status">
+                                    <label class="form-check-label form-control-sm" for="close">Close</label>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger btn-sm" value="Save changes">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- change Priority Modal -->
+    <div class="modal" tabindex="-1" id="changePriority">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Change Priority</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-2">Priority</div>
+                        <div class="col-sm-2">
+                            <form method="post" class="changePriorityForm">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="emergency"
+                                        value="Emergency" name="priority">
+                                    <label class="form-check-label form-control-sm" for="emergency">Emergency</label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="high" value="High"
+                                        name="priority">
+                                    <label class="form-check-label form-control-sm" for="high">High</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="medium"
+                                        value="Medium" name="priority">
+                                    <label class="form-check-label form-control-sm" for="medium">Medium</label>
+                                </div>
 
                         </div>
                     </div>
                 </div>
-            </div>
-            <% } %>
-        </div>
-    </div>
-
-    <div class="tab-pane fade " id="remark" role="tabpanel" aria-labelledby="remark-tab">
-        <% if (loginUser) { %>
-        <div style="margin-top: 10px;">
-            <form class="form-inline" type="POST" id="addRemark">
-
-                <label class="my-1 mr-2" for="inlineFormCustomSelectPref" style="text-align: top;">From
-                    <%= loginUser %></label>
-
-                <!-- <textarea class="form-control form-control-sm" aria-label="With textarea"></textarea> -->
-                <textarea maxlength="80%" class="form-control" rows="3" name='remark'
-                    style="width:80%; text-align: justfy" value=''></textarea>
-                <button type="submit" class="btn btn-outline-secondary btn-sm"
-                    style="margin-left: 10px;margin-bottom: -50px;">Remark</button>
-            </form>
-        </div>
-        <% } %>
-        <table id="remarkTable" class="table-sm" style="width:100%; margin-top: 20px;">
-            <thead>
-                <tr>
-                    <th style="width:20%"></th>
-                    <th style="width:20%"></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="remarkList">
-                <% for( let i = 0; i < locals.data.remark.length; i++){  
-                        let item = data.remark[i] %>
-                <tr>
-                    <td><%= item.date%></th>
-                    <td><%= item.remarker%></td>
-                    <td id='remarkContent'><%= item.remark%></td>
-                </tr>
-                <% } %>
-        </table>
-
-    </div>
-</div>
-
-</div>
-
-<!-- change status Modal -->
-<div class="modal" tabindex="-1" id="changeStatus">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title">Change Status</h6>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-2">Status</div>
-                    <div class="col-sm-2">
-                        <form method="post" class="changeStatusForm">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="working"
-                                    value="Working" name="status">
-                                <label class="form-check-label form-control-sm" for="working">Working</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="close" value="Close"
-                                    name="status">
-                                <label class="form-check-label form-control-sm" for="close">Close</label>
-                            </div>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger btn-sm" value="Save changes">
+                    </form>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-danger btn-sm" value="Save changes">
-                </form>
-            </div>
         </div>
     </div>
-</div>
 
-<!-- change Priority Modal -->
-<div class="modal" tabindex="-1" id="changePriority">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title">Change Priority</h6>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-2">Priority</div>
-                    <div class="col-sm-2">
-                        <form method="post" class="changePriorityForm">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="emergency"
-                                    value="Emergency" name="priority">
-                                <label class="form-check-label form-control-sm" for="emergency">Emergency</label>
-                            </div>
+    <!-- change CAT. Modal -->
+    <div class="modal" tabindex="-1" id="changeCAT">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Change Category</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-2">Category</div>
+                        <div class="col-sm-2">
+                            <form method="post" class="changeCATForm">
+                                <!-- to be deleted -->
+                                <!-- <input id="originalCAT" name="originalCAT" value="<%= locals.data.category %>"> -->
+                                <% if (locals.data.category != "CPU") { %>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="transferTOCPU"
+                                        value="CPU" name="CAT">
+                                    <label class="form-check-label form-control-sm" for="transferTOCPU">CPU</label>
+                                </div>
+                                <% } %>
+                                <% if (locals.data.category != "GPU") { %>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="transferTOGPU"
+                                        value="GPU" name="CAT">
+                                    <label class="form-check-label form-control-sm" for="transferTOGPU">GPU</label>
+                                </div>
+                                <% } %>
+                                <% if (locals.data.category != "USBC") { %>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input form-control-sm" type="radio" id="transferTOUSBC"
+                                        value="USBC" name="CAT">
+                                    <label class="form-check-label form-control-sm" for="transferTOUSBC">USBC</label>
+                                </div>
+                                <% } %>
 
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="high" value="High"
-                                    name="priority">
-                                <label class="form-check-label form-control-sm" for="high">High</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="medium" value="Medium"
-                                    name="priority">
-                                <label class="form-check-label form-control-sm" for="medium">Medium</label>
-                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">Comment</div>
+                        <div class="col-sm-10" style="padding: 0px 15px;">
+                            <textarea class="form-control ARTextarea" name="transferTempComment" rows="3"
+                                aria-label="With textarea" required></textarea>
+                        </div>
 
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-danger btn-sm" value="Save changes">
-                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger btn-sm" value="Transfer">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- change CAT. Modal -->
-<div class="modal" tabindex="-1" id="changeCAT">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title">Change Category</h6>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-2">Category</div>
-                    <div class="col-sm-2">
-                        <form method="post" class="changeCATForm">
-                            <!-- to be deleted -->
-                            <!-- <input id="originalCAT" name="originalCAT" value="<%= locals.data.category %>"> -->
-                            <% if (locals.data.category != "CPU") { %>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="transferTOCPU"
-                                    value="CPU" name="CAT">
-                                <label class="form-check-label form-control-sm" for="transferTOCPU">CPU</label>
-                            </div>
-                            <% } %>
-                            <% if (locals.data.category != "GPU") { %>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="transferTOGPU"
-                                    value="GPU" name="CAT">
-                                <label class="form-check-label form-control-sm" for="transferTOGPU">GPU</label>
-                            </div>
-                            <% } %>
-                            <% if (locals.data.category != "USBC") { %>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input form-control-sm" type="radio" id="transferTOUSBC"
-                                    value="USBC" name="CAT">
-                                <label class="form-check-label form-control-sm" for="transferTOUSBC">USBC</label>
-                            </div>
-                            <% } %>
+    <!-- cancel transfer CAT. Modal -->
+    <div class="modal" tabindex="-1" id="cancelTransferCAT">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Change Category</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">Transferring to <%= locals.data.transferTemp %></div>
+
+                        <form method="post" class="cancelChangeCATForm">
+
 
                     </div>
-
                 </div>
-                <div class="row">
-                    <div class="col-sm-2">Comment</div>
-                    <div class="col-sm-10" style="padding: 0px 15px;">
-                        <textarea class="form-control ARTextarea" name="transferTempComment" rows="3"
-                            aria-label="With textarea" required></textarea>
-                    </div>
-
+                <input class="form-check-input form-control-sm" type="text" id="cancelTransfer" value="flase"
+                    name="cancelTransfer">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger btn-sm" value="Cancel Transfer">
+                    </form>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-danger btn-sm" value="Transfer">
-                </form>
             </div>
         </div>
     </div>
-</div>
 
-<!-- cancel transfer CAT. Modal -->
-<div class="modal" tabindex="-1" id="cancelTransferCAT">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title">Change Category</h6>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-6">Transferring to <%= locals.data.transferTemp %></div>
+    <%- include('parts/html_script') %>
+    <script>
+        $('.hideData').hide();
+        //check the original value
+        const statusVal = $('#statusVal').attr('val');
+        if ($('#statusVal').attr('val') == "Working") {
+            $('#working').prop('checked', true);
+        } else {
+            $('#close').prop('checked', true);
+        }
 
-                    <form method="post" class="cancelChangeCATForm">
+        //check the original priority 
+        const priorityVal = $('#priorityVal').attr('val');
+        if (priorityVal == "Emergency") {
+            $('#emergency').prop('checked', true);
+        } else if (priorityVal == "High") {
+            $('#high').prop('checked', true);
+        } else {
+            $('#medium').prop('checked', true);
+        }
 
+        //更改issue狀態
+        $('.changeStatusForm').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                $('#changeStatus').modal('hide');
+                $('#statusVal span').text(data.status);
+                $('#statusVal').attr('val', data.status);
 
-                </div>
-            </div>
-            <input class="form-check-input form-control-sm" type="text" id="cancelTransfer" value="flase"
-                name="cancelTransfer">
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-danger btn-sm" value="Cancel Transfer">
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<%- include('parts/html_script') %>
-<script>
-
-    //check the original value
-    const statusVal = $('#statusVal').attr('val');
-    if ($('#statusVal').attr('val') == "Working") {
-        $('#working').prop('checked', true);
-    } else {
-        $('#close').prop('checked', true);
-    }
-
-    //check the original priority 
-    const priorityVal = $('#priorityVal').attr('val');
-    if (priorityVal == "Emergency") {
-        $('#emergency').prop('checked', true);
-    } else if (priorityVal == "High") {
-        $('#high').prop('checked', true);
-    } else {
-        $('#medium').prop('checked', true);
-    }
-
-    //更改issue狀態
-    $('.changeStatusForm').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            $('#changeStatus').modal('hide');
-            $('#statusVal span').text(data.status);
-            $('#statusVal').attr('val', data.status);
-
+            })
         })
-    })
-    $('.changePriorityForm').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            $('#changePriority').modal('hide');
-            $('#priorityVal span').text(data.priority);
-            $('#priorityVal').attr('val', data.priority);
+        $('.changePriorityForm').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                $('#changePriority').modal('hide');
+                $('#priorityVal span').text(data.priority);
+                $('#priorityVal').attr('val', data.priority);
 
+            })
         })
-    })
 
-    //transfer request
+        //transfer request
 
-    // $('#originalCAT').hide();// to be deleted
-    $('.changeCATForm').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            $('#changeCAT').modal('hide');
-            $('#tansferStatus input').val('Transferring');
-            $('#tansferStatus input').attr('data-target', '#cancelTransferCAT');
-            // $('#changePriority').modal('hide');
-            // $('#priorityVal span').text(data.priority);
-            // $('#priorityVal').attr('val', data.priority);
+        // $('#originalCAT').hide();// to be deleted
+        $('.changeCATForm').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                $('#changeCAT').modal('hide');
+                $('#tansferStatus input').val('Transferring');
+                $('#tansferStatus input').attr('data-target', '#cancelTransferCAT');
+                // $('#changePriority').modal('hide');
+                // $('#priorityVal span').text(data.priority);
+                // $('#priorityVal').attr('val', data.priority);
 
+            })
         })
-    })
-    //取消transfer request
-    $('#cancelTransfer').hide();
-    $('.cancelChangeCATForm').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            $('#cancelTransferCAT').modal('hide');
-            $('#tansferStatus input').val('Change');
-            $('#tansferStatus input').attr('data-target', '#changeCAT');
-            // $('#priorityVal span').text(data.priority);
-            // $('#priorityVal').attr('val', data.priority);
+        //取消transfer request
+        $('#cancelTransfer').hide();
+        $('.cancelChangeCATForm').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                $('#cancelTransferCAT').modal('hide');
+                $('#tansferStatus input').val('Change');
+                $('#tansferStatus input').attr('data-target', '#changeCAT');
+                // $('#priorityVal span').text(data.priority);
+                // $('#priorityVal').attr('val', data.priority);
 
+            })
         })
-    })
 
-    $('#addRemark').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}/addRemark`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            $('#remarkList').append(`
+        $('#addRemark').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}/addRemark`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                $('#remarkList').append(`
             <tr>\
             <td>${data.date}</th>\
             <td>${data.remarker}</td>\
             <td id='remarkContent'>${data.remark}</td>\
             </tr>\
             `)
-            // $('#changePriority').modal('hide');
-            // $('#priorityVal span').text(data.priority);
-            // $('#priorityVal').attr('val', data.priority);
+                // $('#changePriority').modal('hide');
+                // $('#priorityVal span').text(data.priority);
+                // $('#priorityVal').attr('val', data.priority);
 
+            })
         })
-    })
 
 
-    //計算AR上傳的數量
-    function fileNum(which) {
-        console.log(assetQ)
-        console.log($(`#${assetQ + 1}ARFile`).get(0).files);
-        let fileNum = $(`#${assetQ + 1}ARFile`).get(0).files.length;
-        $(`#${assetQ + 1}ARFileNum`).val(fileNum);
-    };
+        //計算AR上傳的數量
+        function fileNum(which) {
+            console.log(assetQ)
+            console.log($(`#${assetQ + 1}ARFile`).get(0).files);
+            let fileNum = $(`#${assetQ + 1}ARFile`).get(0).files.length;
+            $(`#${assetQ + 1}ARFileNum`).val(fileNum);
+        };
 
-    let assetQ = 0;
-    $('#AddARStep').click(() => {
-        // console.log(typeof assetQ)
-        // assetQ = parseInt(assetQ)
-        assetQ++;
-        // console.log(assetQ);
+        let assetQ = 0;
+        $('#AddARStep').click(() => {
+            // console.log(typeof assetQ)
+            // assetQ = parseInt(assetQ)
+            assetQ++;
+            // console.log(assetQ);
 
-        $('#ARSteps').append(`  <div class="eachARStep refreshARCol" id="col${assetQ}" style="border-top: #D3D3D3 2px dotted;padding-top:10px">\
+            $('#ARSteps').append(`  <div class="eachARStep refreshARCol" id="col${assetQ}" style="border-top: #D3D3D3 2px dotted;padding-top:10px">\
                                 <div class="input-group input-group-sm mb-2 newARTextarea">\
                                 <div class="input-group-prepend">\
                                 <span class="input-group-text">AR #${assetQ + 1}</span>\
@@ -712,52 +739,55 @@
                                 </div>`);
 
 
-    });
-    $('#deleteARStep').click(() => {
-        console.log(assetQ)
-        if (assetQ > 0) {
-            $(`#col${assetQ}`).remove();
-            assetQ--;
-        };
-    })
+        });
+        $('#deleteARStep').click(() => {
+            console.log(assetQ)
+            if (assetQ > 0) {
+                $(`#col${assetQ}`).remove();
+                assetQ--;
+            };
+        })
 
-    //幫AR把日期塞進去
-    const currentDate = (new Date().format('m/d'));
-    $('#addARCard .card-header').text(currentDate);
-    $('#ARDateinForm').val(currentDate);
-
-
-    //add AR
-
-    $('#ARDateinForm').hide();
-    $('#addARForm').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}/addAR`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            //要把格子清成一個 不然畫面會一直保存上次 AR input的數量
-            $('.refreshARCol').remove();
-
-            // console.log(data);
-            const creator = $('#aliCreator').text();
-            $('.ARTextarea').val('');
-            $('.newARTextarea').hide();
-            $('#addARCard').hide();
-
-            $("#showARForm").show();
-            $("#hideARForm").hide();
-            $('#addAR').hide();
+        //幫AR把日期塞進去
+        const currentDate = (new Date().format('m/d'));
+        $('#addARCard .card-header').text(currentDate);
+        $('#ARDateinForm').val(currentDate);
 
 
-            //ajax 完加進去
-            $('#ARContent').prepend(`
+        //add AR
+
+        $('#ARDateinForm').hide();
+        $('#addARForm').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}/addAR`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                //要把格子清成一個 不然畫面會一直保存上次 AR input的數量
+                $('.refreshARCol').remove();
+                //清除step1的資料
+                $('#1ARFileNum').val("0")
+                $('#1ARFile').val('')
+
+                // console.log(data);
+                const creator = $('#aliCreator').text();
+                $('.ARTextarea').val('');
+                $('.newARTextarea').hide();
+                $('#addARCard').hide();
+
+                $("#showARForm").show();
+                $("#hideARForm").hide();
+                $('#addAR').hide();
+
+
+                //ajax 完加進去
+                $('#ARContent').prepend(`
             <div class="card border-secondary mb-3 ">\
                 <div class="row no-gutters" style="width: 100%;">\
                         <div class="card-header " style=" text-align: center;">${data.date}</div>\
@@ -768,112 +798,112 @@
                 </div>\
             </div>\  
                 `);
-            for (let i = 0; i < data.AR.length; i++) {
-                // console.log(data.AR[i])
-                $("#ARPDiv").append(`<P class="card-text">\
+                for (let i = 0; i < data.AR.length; i++) {
+                    // console.log(data.AR[i])
+                    $("#ARPDiv").append(`<P class="card-text">\
                                     <span class="badge badge-secondary">AR #${i + 1}</span>\
                                     <span>${data.AR[i].request}</span>\
                                 </P>\
                                 `);
-                $("#ARPDiv").append(`
+                    $("#ARPDiv").append(`
                                 <P class="card-text">
                                     <span
                                         class="badge badge-warning">${creator}</span>
                                     <span></span>
                                 </P>`);
-            };
+                };
 
 
-            // $('#changePriority').modal('hide');
-            // $('#priorityVal span').text(data.priority);
-            // $('#priorityVal').attr('val', data.priority);
+                // $('#changePriority').modal('hide');
+                // $('#priorityVal span').text(data.priority);
+                // $('#priorityVal').attr('val', data.priority);
 
-        });
-    })
+            });
+        })
 
-    //icon調整
-    $('#addARCard').hide();
-    $('#addAR').hide();
-    $("#hideARForm").hide();
-    $("#showARForm").click(() => {
-        $('#addARCard').show();
-        $("#hideARForm").show();
-        $("#showARForm").hide();
-        $('#addAR').show();
-    })
-    $("#hideARForm").click(() => {
+        //icon調整
         $('#addARCard').hide();
         $('#addAR').hide();
-        $("#showARForm").show();
         $("#hideARForm").hide();
-    });
+        $("#showARForm").click(() => {
+            $('#addARCard').show();
+            $("#hideARForm").show();
+            $("#showARForm").hide();
+            $('#addAR').show();
+        })
+        $("#hideARForm").click(() => {
+            $('#addARCard').hide();
+            $('#addAR').hide();
+            $("#showARForm").show();
+            $("#hideARForm").hide();
+        });
 
 
-    //回覆AR
-    $('.inputInfo').hide();
-    $('.afterReplay').hide();//把ajax之後要顯示的p 先隱藏
-    $('.replyAR').on('submit', function (e) {
-        e.preventDefault();
-        let currentURL = location.pathname;
-        $.ajax({
-            url: `${currentURL}/replyAR`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            const ARID = data.ARID;
-            const index = data.index;
-            console.log(ARID + index);
-            $(`#${ARID + index}`).hide();
-            $(`#ARContentText${ARID + index}`).show();
-            $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
-            $(`#ARContentTextSpan2${ARID + index}`).append(`
+        //回覆AR
+        $('.hideData').hide();
+        $('.afterReplay').hide();//把ajax之後要顯示的p 先隱藏
+        $('.replyAR').on('submit', function (e) {
+            e.preventDefault();
+            let currentURL = location.pathname;
+            $.ajax({
+                url: `${currentURL}/replyAR`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                // console.log(data);
+                const ARID = data.ARID;
+                const index = data.index;
+                // console.log(ARID + index);
+                $(`#${ARID + index}`).hide();
+                $(`#ARContentText${ARID + index}`).show();
+                $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
+                $(`#ARContentTextSpan2${ARID + index}`).append(`
             <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
                                         src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
             `);
-            $(`#reviseARP${ARID + index} textarea`).text(data.reply);
-        });
-    })
-
-    //AR細節
-    $('.reviseARP').hide();
-    function reviseAR(which) {
-        const itemID = $(which).attr('itemID');
-        $(`#ARContentText${itemID}`).hide();
-        $(`#reviseARP${itemID}`).show();
-    };
-
-    $('.reviseAR').on('submit', function (e) { //新增新的備註
-        e.preventDefault();
-        let currentURL = location.pathname;
-
-        $.ajax({
-            url: `${currentURL}/reviseAR`,
-            type: 'POST',
-            data: new FormData(this),
-            contentType: false,//一定要加
-            cache: false,
-            processData: false,//一定要加
-            dataType: "json"
-        }).done(function (data) {
-            console.log(data);
-            const ARID = data.ARID;
-            const index = data.index;
-            console.log(ARID + index);
-            $(`#ARContentText${ARID + index}`).show();
-            $(`#reviseARP${ARID + index}`).hide();
-            $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
-            // $(`#ARContentTextSpan${ARID + index}`).append(`
-            // <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
-            //                             src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
-            // `);
+                $(`#reviseARP${ARID + index} textarea`).text(data.reply);
+            });
         })
-    })
 
-</script>
+        //AR細節
+        $('.reviseARP').hide();
+        function reviseAR(which) {
+            const itemID = $(which).attr('itemID');
+            $(`#ARContentText${itemID}`).hide();
+            $(`#reviseARP${itemID}`).show();
+        };
 
-<%- include('parts/html_foot') %>
+        $('.reviseAR').on('submit', function (e) { //新增新的備註
+            e.preventDefault();
+            let currentURL = location.pathname;
+
+            $.ajax({
+                url: `${currentURL}/reviseAR`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                const ARID = data.ARID;
+                const index = data.index;
+                console.log(ARID + index);
+                $(`#ARContentText${ARID + index}`).show();
+                $(`#reviseARP${ARID + index}`).hide();
+                $(`#ARContentTextSpan${ARID + index}`).text(data.reply);
+                // $(`#ARContentTextSpan${ARID + index}`).append(`
+                // <img onclick="reviseAR(this)" href="#" itemID="${ARID + index}"\
+                //                             src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
+                // `);
+            })
+        })
+
+    </script>
+
+    <%- include('parts/html_foot') %>
