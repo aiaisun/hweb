@@ -1389,13 +1389,49 @@ app.post('/sighting/:alino/addRemark', upload.single(), (req, res) => {
 })
 
 //owner add new AR 
-app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
-
+app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
-
     const data = req.userData;
     const commenter = data.loginUser;
+
+    // console.log(req.body);
+    console.log(req.files);
+
+    // 建資料夾
+    const folderName = req.params.alino;
+    const folderPath = `public\\sightingFile\\${folderName}\\ARFile`;
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+    };
+
+    //建立圖片路徑array 以及把所有上船的檔案放進ali的資料夾裡面
+    const filesPath = [];
+    for (let i = 0; i < req.files.length; i++) {
+        let newPath = `${folderPath}\\${req.files[i].filename}`;
+        webPath = newPath.replace("public\\", "")
+        filesPath.push(webPath);
+        fs.rename(req.files[i].path, newPath, () => {
+        })
+    };
+    // file的數量
+    const ARFilePath = [];
+
+    let fileIdx = 0
+    // console.log(req.body.ARFileNum);
+    for (let i in req.body.ARFileNum) {
+        const filePath = [];
+        // console.log(fileIdx);
+        // console.log(parseInt(req.body.ARFileNum[i]));//幾個file
+        for (let j = 0; j < parseInt(req.body.ARFileNum[i]); j++) {
+            // console.log("j",j);
+            // console.log("fileidx",fileIdx)
+            filePath.push(`${folderPath}\\${req.files[fileIdx].filename}`);
+            fileIdx++;
+        };
+        ARFilePath.push(filePath);
+    };
+    // console.log(ARFilePath)
     const
         newAR = {
             "ID": 1,
@@ -1408,6 +1444,7 @@ app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
             newAR.AR.push({
                 "index": i,
                 "request": req.body.ar[i],
+                "requestARFile": ARFilePath[i],
                 "reply": ""
             });
         };
@@ -1415,6 +1452,7 @@ app.post('/sighting/:alino/addAR', upload.single(), async (req, res) => {
         newAR.AR = [{
             "index": 0,
             "request": req.body.ar,
+            "requestARFile": ARFilePath[i],
             "reply": ""
         }];
     }

@@ -155,7 +155,7 @@
                         <div style='margin-bottom: 10px;'>
                             <% if (locals.data.owner == loginUser) {%>
                             <input type="button" style="border-color:#D3D3D3;" id="showARForm"
-                                class="btn btn-outline-secondary btn-sm" value='Add'>
+                                class="btn btn-outline-secondary btn-sm" value='Add New'>
                             <input type="button" style="border-color:#D3D3D3;" id="hideARForm"
                                 class="btn btn-outline-secondary btn-sm" value='Cancel'>
                             <input type="submit" style="border-color:#D3D3D3;" id="addAR"
@@ -195,7 +195,9 @@
                                                     aria-label="With textarea" required></textarea>
 
                                             </div>
-                                            <input type="file" value="AR1 File">
+                                            <input class="ARFile" id="1ARFile" type="file" name="ARFile"
+                                                onchange="fileNum(this)" multiple>
+                                            <input id="1ARFileNum" type="text" name="ARFileNum">
                                         </div>
 
                                     </div>
@@ -212,7 +214,9 @@
                 <div class="card border-secondary mb-3 ">
                     <div class="row no-gutters" style="width: 100%;">
 
-                        <div class="card-header " style=" text-align: center;"><%= item.date %> </div>
+                        <div class="card-header " style=" text-align: center;">
+                            <%= item.date %>
+                        </div>
 
                         <div class="card-body text-secondary" style="padding: 8px 0px;">
 
@@ -221,6 +225,7 @@
 
                                 <% for( let j = 0; j < item.AR.length; j++){  
                                 let ARItem = item.AR[j] %>
+
                                 <P class="card-text">
                                     <span class="badge badge-secondary">AR #<%= j+1 %></span>
                                     <span><%= ARItem.request %></span>
@@ -236,8 +241,6 @@
                                             itemID="<%= item.ID %><%= ARItem.index %>" src="../../lib/pic/pen1.png"
                                             style="width: 12px; margin-left: 5px;"></span>
                                 </P>
-                                <p>123</p>
-
 
                                 <form method="POST" class="reviseAR">
                                     <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
@@ -261,7 +264,6 @@
                                     </div>
                                 </form>
 
-
                                 <% } else { %>
                                 <form method="POST" class="replyAR">
                                     <div id="<%= item.ID %><%= ARItem.index %>" class='row'>
@@ -283,6 +285,7 @@
                                                 class="btn btn-outline-secondary btn-sm" value='submit'>
 
                                         </div>
+                                    
                                 </form>
 
                             </div>
@@ -316,13 +319,14 @@
                             <% } %>
 
                             <% } else { %>
-                            <P class="card-text">
+                            <P class="card-text" class="ARStatusLogout" style="border-top: #D3D3D3 2px dotted">123
                                 <span
                                     class="badge <%= (ARItem.reply)? 'badge-success': 'badge-warning' %>"><%= data.creator%></span>
-                                <span><%= ARItem.reply %></span>
+                                <span><%= ARItem.reply %>456</span>
                             </P>
                             <% } %>
                             <% } %>
+
                         </div>
                     </div>
                 </div>
@@ -681,6 +685,14 @@
     })
 
 
+    //計算AR上傳的數量
+    function fileNum(which) {
+        console.log(assetQ)
+        console.log($(`#${assetQ + 1}ARFile`).get(0).files);
+        let fileNum = $(`#${assetQ + 1}ARFile`).get(0).files.length;
+        $(`#${assetQ + 1}ARFileNum`).val(fileNum);
+    };
+
     let assetQ = 0;
     $('#AddARStep').click(() => {
         // console.log(typeof assetQ)
@@ -688,15 +700,17 @@
         assetQ++;
         // console.log(assetQ);
 
-        $('#ARSteps').append(`  <div class="eachARStep" id="col${assetQ}" style="border-top: #D3D3D3 2px dotted;padding-top:10px">\
-                                <div class="input-group input-group-sm mb-2 newARTextarea refreshARCol">\
+        $('#ARSteps').append(`  <div class="eachARStep refreshARCol" id="col${assetQ}" style="border-top: #D3D3D3 2px dotted;padding-top:10px">\
+                                <div class="input-group input-group-sm mb-2 newARTextarea">\
                                 <div class="input-group-prepend">\
                                 <span class="input-group-text">AR #${assetQ + 1}</span>\
                                 </div>\
                                 <textarea class="form-control ARTextarea" name="ar" rows="2" aria-label="With textarea" required></textarea>\
                                 </div>\
-                                <input  type="file" value="AR1 File">\
+                                <input class="ARFile" id="${assetQ + 1}ARFile" type="file" name="ARFile" onchange="fileNum(this)" multiple>\
+                                <input id="${assetQ + 1}ARFileNum" type="text" name="ARFileNum">\
                                 </div>`);
+
 
     });
     $('#deleteARStep').click(() => {
