@@ -1,11 +1,44 @@
 <%- include('parts/html_head') %>
 <%- include('parts/navbar') %>
+
 <div class="aliList">
     <!-- <div class="consumablesIcon"> -->
-    <a href="/sighting"><img src="../lib/pic/reload.png" style="width:30px"></a>
+    <% if (locals.isLogined) { %>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
+        data-target="#track">Track</button>
+    <% } %>
     <!-- </div> -->
-
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="track" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                確認加入我的追蹤清單？
+            </div>
+            <form method="post" class="trackIssue">
+                <input class="form-check-input form-control-sm hideData" type="text" 
+                                        value="<%= locals.data.ALINo%>" name="ALINo">
+                <div class="modal-footer">
+                    
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                    <input value="Yes" type="submit" class="btn btn-sm btn-danger">
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 <div class="aliList">
 
     <table class="aliDetailTable" cellpadding="3">
@@ -240,45 +273,90 @@
                                             <span><%= ARItem.request %></span>
                                         </P>
                                         <% if (ARItem.requestARFile.length > 0) {%>
-                                        <% for( let k = 0; k < ARItem.requestARFile.length; k++){ %>
-                                        <a href="../<%= ARItem.requestARFile[k] %>" class="badge badge-light" target="_blank">File<%= k + 1%></a>
-                                        <% } %>
+                                        <div>
+                                            <span class="badge badge-secondary">File</span>
+                                            <% for( let k = 0; k < ARItem.requestARFile.length; k++){ %>
+                                            <a href="../<%= ARItem.requestARFile[k] %>" class="badge badge-light"
+                                                target="_blank"><%= k + 1%></a>
+                                            <% } %>
+                                        </div>
                                         <% } %>
 
                                     </div>
                                     <% if (locals.data.creator == loginUser) {%>
 
                                     <% if (ARItem.reply) {%>
-                                    <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>">
-                                        <span class="badge badge-success"><%= data.creator%></span>
-                                        <span
-                                            id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
-                                        <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>">
-                                            <img onclick="reviseAR(this)" href="#"
-                                                itemID="<%= item.ID %><%= ARItem.index %>" src="../../lib/pic/pen1.png"
-                                                style="width: 12px; margin-left: 5px;">
-                                        </span>
-                                    </P>
+                                    <div style="margin-bottom: 5px;">
+                                        <P class="card-text " id="ARContentText<%= item.ID %><%= ARItem.index %>"
+                                            style="margin-bottom: 0px;">
+                                            <span class="badge badge-success"><%= data.creator%></span>
+                                            <span
+                                                id="ARContentTextSpan<%= item.ID %><%= ARItem.index %>"><%= ARItem.reply %></span>
+                                            <span id="ARContentTextSpan2<%= item.ID %><%= ARItem.index %>">
+                                                <img onclick="reviseAR(this)" href="#"
+                                                    itemID="<%= item.ID %><%= ARItem.index %>"
+                                                    src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">
+                                            </span>
+                                        </P>
 
-                                    <form method="POST" class="reviseAR">
-                                        <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
-                                            <div class="input-group input-group-sm mb-2"
-                                                style="width:85%; margin-left: 15px;">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text"><%= locals.data.creator %></span>
+
+                                        <form method="POST" class="reviseAR">
+                                            <div class='row reviseARP' id="reviseARP<%= item.ID %><%= ARItem.index %>">
+                                                <div class="input-group input-group-sm mb-2"
+                                                    style="width:85%; margin-left: 15px;">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><%= locals.data.creator %></span>
+                                                    </div>
+                                                    <input class="hideData" name="ARID" type='text'
+                                                        value="<%= item.ID %>">
+                                                    <textarea class="form-control ARTextarea" name="reply" rows="1"
+                                                        aria-label="With textarea"
+                                                        required><%= ARItem.reply %></textarea>
                                                 </div>
-                                                <input class="hideData" name="ARID" type='text' value="<%= item.ID %>">
-                                                <textarea class="form-control ARTextarea" name="reply" rows="1"
-                                                    aria-label="With textarea" required><%= ARItem.reply %></textarea>
+                                                <div style="margin-left: 15px;width:10%;">
+                                                    <input class="hideData" type="text" name="index"
+                                                        value='<%= ARItem.index %>'>
+
+                                                    <input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                                        class="btn btn-outline-secondary btn-sm" value='submit'>
+                                                </div>
+
                                             </div>
-                                            <div style="margin-left: 15px;width:10%;">
+                                        </form>
+
+                                        <!-- file -->
+                                        <% if (ARItem.replyARFile.length > 0) {%>
+                                        <form method="POST" class="addReplyFile">
+                                            <div>
+                                                <span class="badge badge-success">File</span>
+                                                <% for( let l = 0; l < ARItem.replyARFile.length; l++){ %>
+                                                <a href="../<%= ARItem.replyARFile[l] %>" class="badge badge-light"
+                                                    target="_blank"><%= l + 1%></a>
+                                                <% } %>
+                                                <span onclick="atattchReply(this)" attach-id="<%= i%><%= j%>"><img
+                                                        src="../lib/pic/attach.png"
+                                                        style="width:15px; margin:-1px 0px 0px 0px">
+                                                </span>
+                                                <span class="replyFileInfo" id="replyfileNUM<%= i%><%= j%>"
+                                                    style="font-size: 10px;margin:0px 0px 0px 5px"></span>
+                                                <input id="replyMoreFile<%= i%><%= j%>" name="comment" type="submit"
+                                                    style="border-color:#D3D3D3;"
+                                                    class="btn btn-outline-secondary btn-sm replyMoreFile"
+                                                    value='upload'>
+                                            </div>
+                                            <div class="input-group input-group-sm mb-2">
+
+                                                <input id="attachIconHide<%= i%><%= j%>" class="ARFile hideData"
+                                                    type="file" name="ARFile" onchange="fileNum2(this)" multiple
+                                                    style="margin-left:15px;" attach-id="<%= i%><%= j%>">
+                                                <input class="hideData" name="ARID" type='text' value="<%= item.ID %>">
                                                 <input class="hideData" type="text" name="index"
                                                     value='<%= ARItem.index %>'>
-                                                <input name="comment" type="submit" style="border-color:#D3D3D3;"
-                                                    class="btn btn-outline-secondary btn-sm" value='submit'>
+
                                             </div>
-                                        </div>
-                                    </form>
+                                            <% } %>
+                                        </form>
+                                    </div>
 
                                     <% } else { %>
                                     <form method="POST" class="replyAR">
@@ -293,11 +371,23 @@
                                                 <textarea class="form-control ARTextarea" name="reply" rows="1"
                                                     aria-label="With textarea" required></textarea>
                                             </div>
-                                            <div style="margin-left: 15px;width:10%;">
-                                                <input class="hideData" type="text" name="index"
-                                                    value='<%= ARItem.index %>'>
-                                                <input name="comment" type="submit" style="border-color:#D3D3D3;"
-                                                    class="btn btn-outline-secondary btn-sm" value='submit'>
+
+                                            <div style="margin-left: 15px;width:10%;" class="row">
+                                                <div><input class="hideData" type="text" name="index"
+                                                        value='<%= ARItem.index %>'></div>
+                                                <div onclick="atattchReply(this)" attach-id="<%= i%><%= j%>"><img
+                                                        src="../lib/pic/attach.png"
+                                                        style="width:20px; margin:-7px 10px 0px -10px"></div>
+                                                <div><input name="comment" type="submit" style="border-color:#D3D3D3;"
+                                                        class="btn btn-outline-secondary btn-sm" value='submit'></div>
+                                            </div>
+                                            <div class="input-group input-group-sm mb-2">
+                                                <span class="replyFileInfo" id="replyfileNUM<%= i%><%= j%>"
+                                                    style="font-size: 10px;margin:0px 0px 0px 15px"></span>
+                                                <input id="attachIconHide<%= i%><%= j%>"
+                                                    class="ARFile hideData addARReplyFile2" type="file" name="ARFile"
+                                                    onchange="fileNum1(this)" multiple style="margin-left:15px;"
+                                                    attach-id="<%= i%><%= j%>">
                                             </div>
                                         </div>
                                     </form>
@@ -334,16 +424,28 @@
                                     <% } %>
 
                                     <% } else { %>
+                                    <!--一般使用者 -->
 
-                                    <P class="card-text" class="ARStatusLogout">
+                                    <P class="card-text" class="ARStatusLogout" style="margin-bottom: 0px;">
 
                                         <span
                                             class="badge <%= (ARItem.reply)? 'badge-success': 'badge-warning' %>"><%= data.creator%></span>
                                         <span><%= ARItem.reply %></span>
                                     </P>
 
+                                    <% if (ARItem.reply) {%>
+                                    <% if (ARItem.replyARFile.length > 0) {%>
+                                    <div>
+                                        <span class="badge badge-success">File</span>
+                                        <% for( let l = 0; l < ARItem.replyARFile.length; l++){ %>
+                                        <a href="../<%= ARItem.replyARFile[l] %>" class="badge badge-light"
+                                            target="_blank"><%= l + 1%></a>
+                                        <% } %>
+                                    </div>
+                                    <% } %>
                                     <% } %>
 
+                                    <% } %>
                                 </div>
 
                                 <% } %>
@@ -576,6 +678,7 @@
 
     <%- include('parts/html_script') %>
     <script>
+
         $('.hideData').hide();
         //check the original value
         const statusVal = $('#statusVal').attr('val');
@@ -737,9 +840,8 @@
                                 <input class="ARFile" id="${assetQ + 1}ARFile" type="file" name="ARFile" onchange="fileNum(this)" multiple>\
                                 <input id="${assetQ + 1}ARFileNum" type="text" name="ARFileNum">\
                                 </div>`);
-
-
         });
+
         $('#deleteARStep').click(() => {
             console.log(assetQ)
             if (assetQ > 0) {
@@ -752,7 +854,6 @@
         const currentDate = (new Date().format('m/d'));
         $('#addARCard .card-header').text(currentDate);
         $('#ARDateinForm').val(currentDate);
-
 
         //add AR
 
@@ -813,7 +914,6 @@
                                 </P>`);
                 };
 
-
                 // $('#changePriority').modal('hide');
                 // $('#priorityVal span').text(data.priority);
                 // $('#priorityVal').attr('val', data.priority);
@@ -840,6 +940,37 @@
 
 
         //回覆AR
+
+        //夾帶附件
+        //計算AR上傳的數量
+        function atattchReply(which) {
+            // console.log($(which).attr('attach-id'));
+            attachID = $(which).attr('attach-id');
+            $(`#attachIconHide${attachID}`).click();
+        }
+
+        $('.replyFileInfo').hide();
+        function fileNum1(which) {
+            console.log($(which).get(0).files.length);
+            let fileNum = $(which).get(0).files.length;
+            // console.log($(which).attr('attach-id'));
+            attachID = $(which).attr('attach-id');
+            $(`#replyfileNUM${attachID}`).text(`已選取${fileNum}個檔案`);
+            $(`#replyfileNUM${attachID}`).show();
+        };
+        $('.replyMoreFile').hide();
+        function fileNum2(which) {
+            console.log($(which).get(0).files.length);
+            let fileNum = $(which).get(0).files.length;
+            // console.log($(which).attr('attach-id'));
+            attachID = $(which).attr('attach-id');
+            $(`#replyfileNUM${attachID}`).text(`已選取${fileNum}個檔案`);
+            $(`#replyfileNUM${attachID}`).show();
+            $(`#replyMoreFile${attachID}`).show();
+        };
+
+
+
         $('.hideData').hide();
         $('.afterReplay').hide();//把ajax之後要顯示的p 先隱藏
         $('.replyAR').on('submit', function (e) {
@@ -854,7 +985,7 @@
                 processData: false,//一定要加
                 dataType: "json"
             }).done(function (data) {
-                // console.log(data);
+                console.log(data);
                 const ARID = data.ARID;
                 const index = data.index;
                 // console.log(ARID + index);
@@ -902,8 +1033,43 @@
                 //                             src="../../lib/pic/pen1.png" style="width: 12px; margin-left: 5px;">\
                 // `);
             })
-        })
+        });
 
+        $('.addReplyFile').on('submit', function (e) { //新增新的備註
+            e.preventDefault();
+            let currentURL = location.pathname;
+
+            $.ajax({
+                url: `${currentURL}/addReplyFile`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                window.location = currentURL;
+            })
+        });
+
+        //追蹤issue
+        $('.trackIssue').on('submit', function (e) { //新增新的備註
+            e.preventDefault();
+            let currentURL = location.pathname;
+
+            $.ajax({
+                url: `${currentURL}/trackissue`,
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,//一定要加
+                cache: false,
+                processData: false,//一定要加
+                dataType: "json"
+            }).done(function (data) {
+                console.log(data);
+                $('#track').modal('hide')
+            })
+        });
     </script>
 
     <%- include('parts/html_foot') %>

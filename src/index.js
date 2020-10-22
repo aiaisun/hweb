@@ -1057,15 +1057,19 @@ app.get('/facility/booking', (req, res) => {
 })
 
 /////sighting
-app.get('/sighting', (req, res) => {
+app.get('/sighting', async(req, res) => {
     const data = req.userData;
-    // console.log(data);
+    const sightingCollection = mongodb.collection('sighting');
+    const issue = await sightingCollection.find().toArray();
+    // console.log(issue);
+   data.issue = issue;
     res.render('sightingHome', data)
 })
 
 app.get('/sighting/submit', (req, res) => {
     const data = req.userData;
-
+    
+    // console.log(data)
     res.render('sightingForm', data)
 });
 
@@ -1094,7 +1098,6 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
         fs.rename(req.files[i].path, newPath, () => {
         })
     };
-
 
     const issue = {
         'ALINo': req.body.ALIno,
@@ -1168,7 +1171,8 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
     const user = data.loginUser
     const queryCondition = { userAccount: user }
     // { $set: { 'priority': req.body.priority } },
-    userCollection.findOne(queryCondition, function (err, document) {
+
+    userCollection.findOneAndUpdate(queryCondition, { $push: { 'sightingSubmit': req.body.ALIno } }, function (err, document) {
         if (err) return res.json(err);
         console.log(document)
     });
@@ -1267,7 +1271,7 @@ app.get('/sighting/:alino', upload.single(), (req, res) => {
         }
 
         data.data.webPAth = webPAth;
-        // console.log(data);
+        console.log(data);
         res.render('sightingDetails', data)
     });
 })
@@ -1423,10 +1427,6 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
         // console.log(fileIdx);
         // console.log(parseInt(req.body.ARFileNum[i]));//幾個file
         for (let j = 0; j < parseInt(req.body.ARFileNum[i]); j++) {
-            // console.log("j",j);
-            // console.log("fileidx",fileIdx)
-            // let webPath = newPath.replace("public\\", "")
-            // filesPath.push(webPath);
             filePath.push(`${folderPath.replace("public\\", "")}\\${req.files[fileIdx].filename}`);
             fileIdx++;
         };
@@ -1449,7 +1449,6 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
                 "requestARFile": ARFilePath[i],
                 "reply": ""
             });
-    
         };
     } else {
         newAR.AR = [{
@@ -1467,23 +1466,43 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
     }
     await findARNum(queryCondition, newAR);
     res.json(newAR);
-})
+});
 //回覆AR 
-app.post('/sighting/:alino/replyAR', upload.single(), (req, res) => {
+app.post('/sighting/:alino/replyAR', uploadEngine1.array('ARFile'), (req, res) => {
 
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
 
+    console.log(req.files);
+    // 建資料夾
+    const folderName = req.params.alino;
+    const folderPath = `public\\sightingFile\\${folderName}\\ARFile`;
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+    };
+    //建立圖片路徑array 以及把所有上船的檔案放進ali的資料夾裡面
+    const filesPath = [];
+    for (let i = 0; i < req.files.length; i++) {
+        let newPath = `${folderPath}\\${req.files[i].filename}`;
+        let webPath = newPath.replace("public\\", "")
+        filesPath.push(webPath);
+        fs.rename(req.files[i].path, newPath, () => {
+        })
+    };
+
+
     sightingCollection.findOneAndUpdate(queryCondition,
-        { $set: { 'ARList.$[elem].AR.$[elem2].reply': req.body.reply } },
+        { $set: { 'ARList.$[elem].AR.$[elem2].reply': req.body.reply, 'ARList.$[elem].AR.$[elem2].replyARFile': filesPath } },
         { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) }, { "elem2.index": parseInt(req.body.index) }] },
         (err, document) => {
             if (err) return res.json(err);
         });
     res.json(req.body);
 });
+
+
 //使用者修改已回覆的AR
-app.post('/sighting/:alino/reviseAR', upload.single(), (req, res) => {
+app.post('/sighting/:alino/reviseAR', uploadEngine1.array('ARFile'), (req, res) => {
     const sightingCollection = mongodb.collection('sighting');
     const queryCondition = { "ALINo": req.params.alino };
 
@@ -1495,6 +1514,54 @@ app.post('/sighting/:alino/reviseAR', upload.single(), (req, res) => {
         });
     res.json(req.body);
 });
+
+//新增reply file
+app.post('/sighting/:alino/addReplyFile', uploadEngine1.array('ARFile'), async (req, res) => {
+    const sightingCollection = mongodb.collection('sighting');
+    const queryCondition = { "ALINo": req.params.alino };
+    const folderName = req.params.alino;
+    const folderPath = `public\\sightingFile\\${folderName}\\ARFile`;
+
+    console.log(req.files);
+    //建立圖片路徑array 以及把所有上船的檔案放進ali的資料夾裡面
+    const filesPath = [];
+    for (let i = 0; i < req.files.length; i++) {
+        let newPath = `${folderPath}\\${req.files[i].filename}`;
+        let webPath = newPath.replace("public\\", "")
+        filesPath.push(webPath);
+        fs.rename(req.files[i].path, newPath, () => {
+        });
+        sightingCollection.findOneAndUpdate(queryCondition,
+            { $push: { 'ARList.$[elem].AR.$[elem2].replyARFile': webPath } },
+            { arrayFilters: [{ "elem.ID": parseInt(req.body.ARID) }, { "elem2.index": parseInt(req.body.index) }] },
+            (err, document) => {
+                if (err) return res.json(err);
+            });
+    };
+    res.json(req.files);
+});
+
+//track issue
+app.post('/sighting/:alino/trackissue', upload.single(), async (req, res) => {
+    const data = req.userData;
+    const userCollection = mongodb.collection('users');
+    const user = { 'userAccount': data.loginUser };
+
+    //先確認有沒有track過
+    let result = await userCollection.findOne({ 'userAccount': data.loginUser, "sightingTrack": { $in: [req.body.ALINo] } })
+    // console.log(result)
+    //如果不存在 就把他加入tracking list
+    if (!result) {
+        userCollection.findOneAndUpdate(user, { $push: { 'sightingTrack': req.body.ALINo } }, function (err, document) {
+            if (err) return res.json(err);
+        });
+    } else{
+        console.log('already tracked')
+    }
+    res.json(req.body)
+});
+
+
 
 //個人issue頁面
 
@@ -1658,9 +1725,73 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
 
 app.get('/sightingpersonaldashboard', async (req, res) => {
     const data = req.userData;
-    console.log(data)
+    const sightingCollection = mongodb.collection('sighting');
+    const userCollection = mongodb.collection('users');
+    const user = { 'userAccount': data.loginUser };
+    const submitList = await userCollection.findOne(user, { 'projection': { "sightingSubmit": 1, "_id": 0 } });
+    const trackList = await userCollection.findOne(user, { 'projection': { "sightingTrack": 1, "_id": 0 } })
+    console.log(trackList);
+
+    async function querySubmitInfo(ALINO) {
+        const issueInfo = sightingCollection.findOne(ALINO, { 'projection': { "ALINo": 1, "title": 1, "status": 1, "priority": 1, "_id": 0 } })
+        return issueInfo
+    };
+
+
+    if (submitList) {
+        data.sNUM = submitList.sightingSubmit.length;
+        data.spageNum = Math.ceil(submitList.sightingSubmit.length / 10);
+        // console.log(data.sNUM)
+        data.submitList = []
+        for (i in submitList.sightingSubmit) {
+            let querySelector = { "ALINo": submitList.sightingSubmit[i] }
+            let issueInfo = await querySubmitInfo(querySelector);
+            // console.log(issueInfo);
+            data.submitList.push(issueInfo);
+        }
+    };
+
+
+    if (trackList) {
+        data.tNUM = trackList.sightingTrack.length;
+        data.tpageNum = Math.ceil(trackList.sightingTrack.length / 10);
+        console.log(data.tNUM)
+        data.trackList = []
+        for (i in trackList.sightingTrack) {
+            let querySelector = { "ALINo": trackList.sightingTrack[i] }
+            let issueInfo = await querySubmitInfo(querySelector);
+            console.log(issueInfo)
+            data.trackList.push(issueInfo);
+        }
+    };
+
+
+    console.log(data);
     res.render('sightingPersonalDashboard', data)
-})
+});
+
+
+//cnacle track issue
+app.post('/sightingpersonaldashboard/canceltrack', upload.single(), async (req, res) => {
+    const data = req.userData;
+    const userCollection = mongodb.collection('users');
+    const user = { 'userAccount': data.loginUser };
+
+    // //先確認有沒有track過
+    // let result = await userCollection.findOne({ 'userAccount': data.loginUser, "sightingTrack": { $in: [req.body.ALINo] } })
+    // // console.log(result)
+    // //如果不存在 就把他加入tracking list
+    // if (!result) {
+        userCollection.findOneAndUpdate(user, { $pull: { 'sightingTrack': req.body.ALINo } }, function (err, document) {
+            if (err) return res.json(err);
+        });
+    // } else{
+    //     console.log('already tracked')
+    // }
+
+
+    res.json(req.body)
+});
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');

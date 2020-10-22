@@ -6,13 +6,210 @@
     </div>
     <div class="aliDashboard row">
         <div id="left">
+            <div id="issueStatus">
+                <header>
+                    <h3>My Submission</h3>
+
+                </header>
+
+                <section>
+                    <div class="">
+                        <!-- <div id="result"></div>ali201012
+                         -->
+                        <table class="aliListTable table table-hover" style="border-spacing: 10px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 12%;">Number</th>
+                                    <th style="width: 20%;">status</th>
+                                    <th style="width: 20%;">priority</th>
+                                    <th style="width: 30%;">Title</th>
+                                </tr>
+                            </thead>
+                            <% for (let p=0; p < locals.spageNum; p++) {%>
+
+                            <tbody class="wqueryResult" id="wqueryResult<%= p+1 %>">
+                                <% for (let i=0 + p*10 ; i < (p+1)*10 ; i++) {%>
+                                <% if (submitList[i]) {%>
+                                <tr>
+
+                                    <td style="width: 12%;">
+                                        <a href="/sighting/<%=submitList[i].ALINo %>"
+                                            target="_blank"><%= submitList[i].ALINo %></a>
+                                    </td>
+                                    <td style="width: 20%;"><%= submitList[i].status %></td>
+                                    <td style="width: 20%;"><%= submitList[i].priority %></td>
+                                    <td style="width: 30%;"><%= submitList[i].title %></td>
+
+                                </tr>
+                                <% } %>
+                                <% } %>
+                            </tbody>
+                            <% } %>
+                        </table>
+
+
+
+                        <div id="wpagenum">
+                            <nav aria-label="...">
+                                <ul class="pagination pagination-sm justify-content-center">
+                                    <% if (locals.spageNum > 0) {%>
+                                    <li class="page-item active" aria-current="page"><a onclick="WswitchPage(this)"
+                                            class="page-link" href="#" page="1">1</a></li>
+                                    <% } %>
+                                    <% for (let i = 1; i < locals.spageNum; i++) {%>
+                                    <li class="page-item "><a onclick="WswitchPage(this)" class="page-link" href="#"
+                                            page="<%= i+1%>"><%= i+1 %></a></li>
+                                    <% } %>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
 
         </div>
 
         <div id="right">
+            <div id="issueStatus">
+                <header>
+                    <h3>My Tracking List</h3>
+                </header>
+
+                <section>
+                    <div class="">
+                        <!-- <div id="result"></div>ali201012
+                         -->
+                        <table class="aliListTable table table-hover" style="border-spacing: 10px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 12%;"></th>
+                                    <th style="width: 12%;">Number</th>
+                                    <th style="width: 20%;">status</th>
+                                    <th style="width: 20%;">priority</th>
+                                    <th style="width: 30%;">Title</th>
+                                </tr>
+                            </thead>
+                            <% for (let p=0; p < locals.tpageNum; p++) {%>
+
+                            <tbody class="cqueryResult" id="cqueryResult<%= p+1 %>">
+                                <% for (let i=0 + p*10 ; i < (p+1)*10 ; i++) {%>
+                                <% if (trackList[i]) {%>
+                                <tr id="<%= trackList[i].ALINo %>">
+                                    <td> <img href="#" onclick="deleteTrack(this)" itemid="<%= trackList[i].ALINo %>"
+                                            src="../../lib/pic/delete.png" style="width: 12px; margin-left: 5px;"></td>
+                                    <td style="width: 12%;">
+                                        <a href="/sighting/<%=trackList[i].ALINo %>"
+                                            target="_blank"><%= trackList[i].ALINo %></a>
+                                    </td>
+                                    <td style="width: 20%;"><%= trackList[i].status %></td>
+                                    <td style="width: 20%;"><%= trackList[i].priority %></td>
+                                    <td style="width: 30%;"><%= trackList[i].title %></td>
+
+                                </tr>
+                                <% } %>
+                                <% } %>
+                            </tbody>
+                            <% } %>
+                        </table>
+
+
+
+                        <div id="cpagenum">
+                            <nav aria-label="...">
+                                <ul class="pagination pagination-sm justify-content-center">
+                                    <% if (locals.tpageNum > 0) {%>
+                                    <li class="page-item active" aria-current="page"><a onclick="CswitchPage(this)"
+                                            class="page-link" href="#" page="1">1</a></li>
+                                    <% } %>
+                                    <% for (let i = 1; i < locals.tpageNum; i++) {%>
+                                    <li class="page-item "><a onclick="CswitchPage(this)" class="page-link" href="#"
+                                            page="<%= i+1%>"><%= i+1 %></a></li>
+                                    <% } %>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="cancelTrack" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                確認取消追蹤？
+            </div>
+            <form method="post" class="cancelTrack">
+                <input class="form-check-input form-control-sm hideData" type="text" value="" name="ALINo"
+                    id="cancelTrackAli">
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                    <input value="Yes" type="submit" class="btn btn-sm btn-danger">
+
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <%- include('parts/html_script') %>
+<script>
+    $('.hideData').hide();
+    $('.wqueryResult').hide();
+    $('#wqueryResult1').show();
+    $('.cqueryResult').hide();
+    $('#cqueryResult1').show();
+    function WswitchPage(which) {
+        const page = $(which).attr('page');
+        // console.log(page);
+        $('.wqueryResult').hide();
+        $(`#wqueryResult${page}`).show();
+    };
+    function CswitchPage(which) {
+        const page = $(which).attr('page');
+        // console.log(page);
+        $('.cqueryResult').hide();
+        $(`#cqueryResult${page}`).show();
+    };
+
+
+    // 取消追蹤issue
+    function deleteTrack(which) {
+        let alino = $(which).attr('itemid');
+        console.log(alino);
+        $('#cancelTrackAli').val(alino);
+        $('#cancelTrack').modal('show');
+    };
+    // 取消追蹤issue
+    $('.cancelTrack').on('submit', function (e) { //新增新的備註
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}/canceltrack`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: false,//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+            console.log(data);
+            $('#cancelTrack').modal('hide');
+            $(`tr #${}`)
+        })
+    });
+</script>
 <%- include('parts/html_foot') %>

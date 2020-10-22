@@ -35,11 +35,14 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
           <a class="dropdown-item" href="/sighting">Sighting </a>
           <a class="dropdown-item" href="/sighting">Issue Database </a>
-          <% if (locals.sightingrole == "CPU" |  locals.sightingrole == "USBC" | locals.sightingrole == "GPU") { %>
-          <a class="dropdown-item" href="/sightingdashboard">Dashboard</a>
-          <% } else if (locals.loginUser) {%>
-            <a class="dropdown-item" href="/sightingpersonaldashboard">Dashboard</a>
+          
+          <% if (locals.loginUser) {%>
+            <a class="dropdown-item" href="/sightingpersonaldashboard">My Issue List</a>
           <% }%>
+
+          <% if (locals.sightingrole == "CPU" |  locals.sightingrole == "USBC" | locals.sightingrole == "GPU") { %>
+            <a class="dropdown-item" href="/sightingdashboard">Manager Dashboard</a>
+            <% }  %>
         </div>
       </li>
 

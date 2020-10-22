@@ -6,8 +6,8 @@
 
     <a href="/sighting/submit"><button type="button" class="btn btn-danger ">Submit</button></a>
     <% } %>
-    <a href="#"><button type="button" class="btn btn-danger " id="searchbtn"
-            onclick="return queryOption()">Search</button></a>
+    <!-- <a href="#"><button type="button" class="btn btn-danger " id="searchbtn"
+            onclick="return queryOption()">Search</button></a> -->
 
 
 
@@ -131,17 +131,33 @@
     <table class="aliListTable">
         <thead>
             <tr>
-                <th style="width: 8%;">Priority</th>
-                <th style="width: 12%;">Number</th>
-                <th style="width: 30%;">Title</th>
-                <th style="width: 10%;">State</th>
-                <th style="width: 8%;">Category</th>
-                <th style="width: 10%;">Project</th>
-                <th style="width: 12%;">Created</th>
-                <th style="width: 10%;">Engineer Owner</th>
+                <th style="width: 8%;padding:0px">Priority</th>
+                <th style="width: 12%;padding:0px">Number</th>
+                <th style="width: 30%;padding:0px">Title</th>
+                <th style="width: 10%;padding:0px">State</th>
+                <th style="width: 8%;padding:0px">Category</th>
+                <th style="width: 10%;padding:0px">Project</th>
+                <th style="width: 12%;padding:0px">Created</th>
+                <th style="width: 10%;padding:0px">Engineer Owner</th>
             </tr>
         </thead>
         <tbody id="queryResult">
+        </tbody>
+        <tbody id="allResult">
+            <%  for (let i = 0; i< locals.issue.length; i++) {%>
+            <tr>
+                <td style="width: 8%;"><%= issue[i].priority %></td>
+    
+                <td style="width: 12%;"><a href="/sighting"><%= issue[i].ALINo %></a></td>
+    
+                <td style="width: 30%;"><%= issue[i].title %></td>
+                <td style="width: 10%;"><%= issue[i].status %></td>
+                <td style="width: 8%;"><%= issue[i].category %></td>
+                <td style="width: 10%;"><%= issue[i].project %></td>
+                <td style="width: 12%;"><%= issue[i].created %></td>
+                <td style="width: 10%;"><%= issue[i].owner %></td>
+            </tr>
+            <% } %>
         </tbody>
     </table>
 
@@ -202,8 +218,9 @@
 
     $('#close').hide();
     $('#advanceSearch').hide();
-    $('.aliListTable').hide();
-    $('.sightingQuery').hide();
+    // $('.aliListTable').hide();
+
+    // $('.sightingQuery').hide();
 
     //開關模糊搜尋
     let search = '';
@@ -227,18 +244,20 @@
         $('#ALIno').val(search)
 
     });
+// 原本按按鍵可以顯示query的功能
+    // let i = 0;
+    // function queryOption() {
+    //     if (i == 0) {
+    //         $('.sightingQuery').show();
+    //         i++;
 
-    let i = 0;
-    function queryOption() {
-        if (i == 0) {
-            $('.sightingQuery').show();
-            i++;
+    //     } else {
+    //         i--;
+    //         $('.sightingQuery').hide();
+    //     }
+    // };
 
-        } else {
-            i--;
-            $('.sightingQuery').hide();
-        }
-    };
+
     //滑到issue 變色的功能
     function overIssue() {
         $("tbody tr").mouseover(function () {
@@ -266,7 +285,7 @@
             // console.log(Boolean(data.length));
             // console.log(data.length);
             $('#queryResult').text('')
-
+$('#allResult').hide();
             if (data.length) {
                 $("#result").text("");
                 $('.aliListTable').show();
