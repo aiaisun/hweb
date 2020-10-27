@@ -2,7 +2,7 @@
 <%- include('parts/navbar') %>
 
 <div class="aliList">
-    <% if (locals.role == 'admin') { %>
+    <% if (locals.role == 'admin' || locals.sightingrole == 'DL') { %>
 
     <a href="/sighting/submit"><button type="button" class="btn btn-danger ">Submit</button></a>
     <% } %>

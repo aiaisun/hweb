@@ -210,6 +210,7 @@
                                 <div class="card-body-content">
                                     <input id="ARDateinForm" name="ARDate">
                                     <div class='row iconSet'>
+                                        <input class="hideData" name="issueCreator" value="<%= locals.data.creator %>">
                                         <div class="ARIcon" id="AddARStep">
                                             <img src="../../lib/pic/plus.png" style="width: 20px">
                                         </div>
@@ -913,10 +914,6 @@
                                     <span></span>
                                 </P>`);
                 };
-
-                // $('#changePriority').modal('hide');
-                // $('#priorityVal span').text(data.priority);
-                // $('#priorityVal').attr('val', data.priority);
 
             });
         })

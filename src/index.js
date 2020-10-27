@@ -1050,25 +1050,29 @@ app.post('/software/:ID/revise/:setID', (req, res) => {
     res.redirect(`/software/${req.params.ID}`)
 });
 
+
 ///儀器預約系統
 app.get('/facility/booking', (req, res) => {
     // console.log("booking system")
     res.render('bookingsystem')
 })
 
+
+
 /////sighting
-app.get('/sighting', async(req, res) => {
+app.get('/sighting', async (req, res) => {
     const data = req.userData;
     const sightingCollection = mongodb.collection('sighting');
     const issue = await sightingCollection.find().toArray();
-    // console.log(issue);
-   data.issue = issue;
+    // console.log(data);
+    data.issue = issue;
     res.render('sightingHome', data)
 })
 
+
 app.get('/sighting/submit', (req, res) => {
     const data = req.userData;
-    
+
     // console.log(data)
     res.render('sightingForm', data)
 });
@@ -1271,7 +1275,7 @@ app.get('/sighting/:alino', upload.single(), (req, res) => {
         }
 
         data.data.webPAth = webPAth;
-        console.log(data);
+        // console.log(data);
         res.render('sightingDetails', data)
     });
 })
@@ -1304,26 +1308,17 @@ app.post('/sighting/:alino', upload.single(), async (req, res) => {
     };
 
     //send mail 
-    // function sendMail(mailOptions, consoleMSG) {
-    //     transporter.sendMail(mailOptions, function (error, info) {
-    //         if (error) {
-    //             console.log(error);
-    //         } else {
-    //             console.log(consoleMSG);
-    //         }
-    //     })
-    // };
-    // const mailOptions = {
-    //     from: 'alisunlcfc@gmail.com',
-    //     to: `${ownerEmail}`,
-    //     subject: `[Sighting Inform] Issue ${queryCondition.ALINo} transfer request is rejected.`,
-    //     html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
-    //     <h2 style='font-style: Calibri;'>Result     :  Reject</h2>\
-    //     <h2 style='font-style: Calibri;'>Comment    : ${req.body.transferTempComment}</h2>\ 
-    //                 <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
-    //                 `
-    // };
-    // const consoleMSG = `${queryCondition.ALINo} transfering, already informed ${req.body.CAT} owner ${ownerEmail}`;
+    function sendMail(mailOptions, consoleMSG) {
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log(consoleMSG);
+            }
+        })
+    };
+
+
 
     //找出owner email
     async function findOwnerEmail(queryCondition) {
@@ -1331,21 +1326,34 @@ app.post('/sighting/:alino', upload.single(), async (req, res) => {
         //     { 'projection': { "category": 1, "_id": 0 } });
 
         const Owner = await userCollection.findOne({ 'sightingrole': req.body.CAT });
-        const OwnerEmail = Owner.userEmail;
-        await console.log(OwnerEmail);
-        return OwnerEmail
+        const ownerEmail = Owner.userEmail;
+        await console.log(ownerEmail);
+        return ownerEmail
     };
     const transferToCAT = { "sightingrole": req.body.CAT };
-    console.log(req.body);
+    // console.log(req.body);
     if (req.body.CAT) {
-        // insertTransferHis(sightingCollection, queryCondition, req.body.CAT);
-        await findOwnerEmail(transferToCAT);
+
+        const ownerEmail = await findOwnerEmail(transferToCAT);
+
+        const mailOptions = {
+            from: 'alisunlcfc@gmail.com',
+            to: `${ownerEmail}`,
+            subject: `[Sighting Inform] Issue ${queryCondition.ALINo} transfer request.`,
+            html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\ 
+            <h2 style='font-style: Calibri;'>Comment    : ${req.body.transferTempComment}</h2>\ 
+                        <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
+                        `
+        };
+        const consoleMSG = `${queryCondition.ALINo} transfering, already informed ${req.body.CAT} owner ${ownerEmail}`;
+
 
         sightingCollection.findOneAndUpdate(queryCondition,
             { $set: { 'transfer': true, 'transferTemp': req.body.CAT, "transferTempComment": req.body.transferTempComment } },
             function (err, document) {
                 if (err) return res.json(err);
                 // console.log(document);
+                sendMail(mailOptions, consoleMSG);
                 res.json(req.body);
             });
 
@@ -1398,9 +1406,10 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
     const queryCondition = { "ALINo": req.params.alino };
     const data = req.userData;
     const commenter = data.loginUser;
+    const issueCreator = req.body.issueCreator;
 
     // console.log(req.body);
-    console.log(req.files);
+    // console.log(req.files);
 
     // 建資料夾
     const folderName = req.params.alino;
@@ -1433,13 +1442,12 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
         ARFilePath.push(filePath);
     };
 
-    console.log(ARFilePath)
-    const
-        newAR = {
-            "ID": 1,
-            "date": req.body.ARDate,
-            "commenter": commenter
-        };
+    // console.log(ARFilePath)
+    const newAR = {
+        "ID": 1,
+        "date": req.body.ARDate,
+        "commenter": commenter
+    };
     if (typeof req.body.ar == 'object') {
         newAR.AR = [];
         for (let i = 0; i < req.body.ar.length; i++) {
@@ -1463,9 +1471,31 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
         const num = ARNum.ARList.length;
         newAR.ID = num + 1;
         await sightingCollection.findOneAndUpdate(queryCondition, { $push: { 'ARList': newAR } });
-    }
+    };
     await findARNum(queryCondition, newAR);
+
+    //send mail 
+    function sendMail(mailOptions, consoleMSG) {
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log(consoleMSG);
+            }
+        })
+    };
+    const mailOptions = {
+        from: 'alisunlcfc@gmail.com',
+        to: `${issueCreator}@lcfuturecenter.com`,
+        subject: `[Sighting Inform] Issue ${queryCondition.ALINo} add new AR, please kindly check.`,
+        html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
+                    <h2 style='font-style: 微軟正黑體;'>http://10.158.150.65:3000/sighting/${queryCondition.ALINo}</h2>\
+                    `
+    };
+    const consoleMSG = `${queryCondition.ALINo} add AR, already informed issue creator ${issueCreator}`;
+    sendMail(mailOptions, consoleMSG)
     res.json(newAR);
+
 });
 //回覆AR 
 app.post('/sighting/:alino/replyAR', uploadEngine1.array('ARFile'), (req, res) => {
@@ -1555,7 +1585,7 @@ app.post('/sighting/:alino/trackissue', upload.single(), async (req, res) => {
         userCollection.findOneAndUpdate(user, { $push: { 'sightingTrack': req.body.ALINo } }, function (err, document) {
             if (err) return res.json(err);
         });
-    } else{
+    } else {
         console.log('already tracked')
     }
     res.json(req.body)
@@ -1782,9 +1812,9 @@ app.post('/sightingpersonaldashboard/canceltrack', upload.single(), async (req, 
     // // console.log(result)
     // //如果不存在 就把他加入tracking list
     // if (!result) {
-        userCollection.findOneAndUpdate(user, { $pull: { 'sightingTrack': req.body.ALINo } }, function (err, document) {
-            if (err) return res.json(err);
-        });
+    userCollection.findOneAndUpdate(user, { $pull: { 'sightingTrack': req.body.ALINo } }, function (err, document) {
+        if (err) return res.json(err);
+    });
     // } else{
     //     console.log('already tracked')
     // }
