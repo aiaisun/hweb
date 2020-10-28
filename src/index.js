@@ -1484,6 +1484,7 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
             }
         })
     };
+
     const mailOptions = {
         from: 'alisunlcfc@gmail.com',
         to: `${issueCreator}@lcfuturecenter.com`,
@@ -1493,6 +1494,9 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
                     `
     };
     const consoleMSG = `${queryCondition.ALINo} add AR, already informed issue creator ${issueCreator}`;
+
+    //get 本地IP
+    
     sendMail(mailOptions, consoleMSG)
     res.json(newAR);
 
