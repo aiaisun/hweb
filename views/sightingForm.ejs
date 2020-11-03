@@ -5,7 +5,7 @@
         <a href="/sighting"><img src="../lib/pic/reload.png" style="width:30px"></a>
     </div>
     <div class="consumablesTable">
-        <form method="POST"  enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data">
             <!-- <form method="POST" enctype="multipart/form-data"></form> -->
             <div class="form-group row hideData">
                 <label for="ALINo" class="col-sm-2 col-form-label">ALI No.</label>
@@ -60,20 +60,31 @@
                 </div>
             </div>
             <div class="form-group row">
+                <label for="category" class="col-sm-2 col-form-label">Symptom</label>
+                <div class="col-sm-2">
+                    <select id="symptom" class="form-control" name="symptom" required>
+                        <option value='' style="display:none"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
                 <label for="BIOSV" class="col-sm-2 col-form-label">Environment Variables</label>
                 <div class=" col-sm-4">
                     <div class="row EV">
                         <div class="col-sm-6 ">
-                            <input type="text" class="form-control" id="BIOSV" name="BIOSV" placeholder="BIOS Version" required>
+                            <input type="text" class="form-control" id="BIOSV" name="BIOSV" placeholder="BIOS Version"
+                                required>
                         </div>
 
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="ECV" name="ECV" placeholder="EC Version" required>
+                            <input type="text" class="form-control" id="ECV" name="ECV" placeholder="EC Version"
+                                required>
                         </div>
                     </div>
                     <div class="row EV">
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="BOXSKU" name="BOXSKU" placeholder="BOX SKU" required>
+                            <input type="text" class="form-control" id="BOXSKU" name="BOXSKU" placeholder="BOX SKU"
+                                required>
                         </div>
 
                         <div class="col-sm-6">
@@ -120,9 +131,9 @@
             </div>
             <div class="form-group row">
                 <label for="reproduce" class="col-sm-2 col-form-label">Attachment</label>
-                
+
                 <div class="col-sm-4 ">
-                    <form method="post" >
+                    <form method="post">
                         <div class="mb-4 input-group">
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="issueFile" name="issueFile"
@@ -202,20 +213,42 @@
     }
 
     $(".usbc").hide();
-    function EVinput(which) {
 
+    //選了cat 之後 變數跟現象都要因應修正
+    function EVinput(which) {
         const category = $(which).val();
         if (category == "USBC") {
             $('input.usbc').val();
             $(".usbc").show();
-            $('input.usbc').val("");
+            $('input.usbc').val("");            
+            $('select#symptom').html("<option value='' style='display:none'></option>")
+            for (let i in USBCSymptions) {
+                $('select#symptom').append(`<option>${USBCSymptions[i]}</option>`)
+            };
         } else {
             $(".usbc").hide();
             $('input.usbc').val("NA");
-        }
-    };
+
+            if (category == "CPU") {
+                $('select#symptom').html("<option value='' style='display:none'></option>")
+                for (let i in CPUSymptoms) {                    
+                    $('select#symptom').append(`<option>${CPUSymptoms[i]}</option>`)
+                };
+            } else if (category == "GPU") {
+                $('select#symptom').html("<option value='' style='display:none'></option>")
+                for (let i in GPUSymptoms) {                    
+                    $('select#symptom').append(`<option>${GPUSymptoms[i]}</option>`)
+                }
+
+            }
 
 
+
+        };
+    }
+    const CPUSymptoms = ["Can't Power", "Black Screen", "Memory Fail", "Blue Screen", "MSC Fail", "Device YB", "System Hang", "Auto Shutdown", "Other"]
+    const GPUSymptoms = ["NV MODS Fail", "AMD Unbundle Fail", "Decice Lost", "Other"];
+    const USBCSymptions = ["No Function", "No Charge", "No External Display", "Device Lost", "LNV VDM Fail", "Certification Fail", "Other"]
     function informALINo() {
         const currentDate = (new Date().format('YmdHis'));
         const ALINo = "ALI" + currentDate.substring(2,);
@@ -223,7 +256,17 @@
 
     };
 
+        // if (category == "CPU") {
+        //         for (let i in CPUSymptoms) {
+        //             $('select#symptom').append(`<option>${CPUSymptoms[i]}</option>`)
+        //         }
 
+        //     } else if (category == "GPU") {
+        //         for (let i in GPUSymptoms) {
+        //             $('select#symptom').append(`<option>${GPUSymptoms[i]}</option>`)
+        //         }
+
+        //     }
 
 </script>
 <%- include('parts/html_foot') %>

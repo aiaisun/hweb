@@ -23,9 +23,7 @@
           <% } else { %>
           <a class="dropdown-item" href="/user/login">Login</a>
           <% } %>
-          <a class="dropdown-item" href="/user/trysession">session</a>
-
-        </div>
+                  </div>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
@@ -62,9 +60,16 @@
           <a class="dropdown-item" href="/software">Software</a>
         </div>
       </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          Admin Check
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="/user/trysession">session</a>
+          <a class="dropdown-item" href="/getip">current IP</a>
       </li>
+      
     </ul>
   </div>
 </nav>

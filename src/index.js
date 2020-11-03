@@ -1079,7 +1079,7 @@ app.get('/sighting/submit', (req, res) => {
 
 
 //submit issue
-app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
+app.post('/sighting/submit', uploadEngine1.array('issueFile'), async(req, res) => {
     const data = req.userData;
     const userCollection = mongodb.collection('users');
     const sightingCollection = mongodb.collection('sighting');
@@ -1113,6 +1113,7 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
         'priority': req.body.priority,
         'project': req.body.project,
         'category': req.body.category,
+        'symptom': req.body.symptom,
         'BIOSV': req.body.BIOSV,
         'ECV': req.body.ECV,
         'BOXSKU': req.body.BOXSKU,
@@ -1128,6 +1129,20 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
         'ARList': [],
         'transfer': false
     };
+    // get IP address
+    function getIPAddress() {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    }
+    const IPAddress = getIPAddress();
     const mailOptions = {
         from: 'alisunlcfc@gmail.com',
         to: '',
@@ -1139,22 +1154,15 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
                     <h2 style='font-style: Calibri;'>Project     : ${issue.project}</h2>\
                     <h2 style='font-style: Calibri;'>Title       : ${issue.title}</h2>\                   
                     <h2 style='font-style: 微軟正黑體;'>Description : ${issue.description}</h2>\
-                    <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${issue.ALINo}</h2>\
+                    <h2 style='font-style: 微軟正黑體;'>http://${IPAddress}:3000/sighting/${issue.ALINo}</h2>\
                     `
     };
-
-    if (req.body.category == "CPU") {
-        issue.owner = "alii.sun"
-        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
-    } else if ((req.body.category == "GPU")) {
-        issue.owner = "mark.lai";
-        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
-    } else if ((req.body.category == "USBC")) {
-        issue.owner = "anthony.ye";
-        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
+    const issueCat = { sightingrole: req.body.category };
+    const issueOwner = await userCollection.findOne(issueCat);
+    if (issueOwner){
+        mailOptions.to = issueOwner.userEmail;
     } else {
-        issue.owner = "alii.sun";
-        mailOptions.to = `${issue.owner}@lcfuturecenter.com`;
+        mailOptions.to = `alii.sun@lcfuturecenter.com`;
     }
 
     sightingCollection.insertOne(issue, function (err, document) {
@@ -1171,14 +1179,14 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), (req, res) => {
         })
     })
     // 把issue加到creator 的issue list 裡面
-    console.log(data);
+    // console.log(data);
     const user = data.loginUser
     const queryCondition = { userAccount: user }
     // { $set: { 'priority': req.body.priority } },
 
     userCollection.findOneAndUpdate(queryCondition, { $push: { 'sightingSubmit': req.body.ALIno } }, function (err, document) {
         if (err) return res.json(err);
-        console.log(document)
+        console.log("adding to subnit list")
     });
     res.redirect('/sighting')
 })
@@ -1332,6 +1340,21 @@ app.post('/sighting/:alino', upload.single(), async (req, res) => {
     };
     const transferToCAT = { "sightingrole": req.body.CAT };
     // console.log(req.body);
+
+    // get IP address
+    function getIPAddress() {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    }
+    const IPAddress = getIPAddress();
     if (req.body.CAT) {
 
         const ownerEmail = await findOwnerEmail(transferToCAT);
@@ -1342,7 +1365,7 @@ app.post('/sighting/:alino', upload.single(), async (req, res) => {
             subject: `[Sighting Inform] Issue ${queryCondition.ALINo} transfer request.`,
             html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\ 
             <h2 style='font-style: Calibri;'>Comment    : ${req.body.transferTempComment}</h2>\ 
-                        <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
+                        <h2 style='font-style: 微軟正黑體;'>http://${IPAddress}:3000/sighting/${queryCondition.ALINo}</h2>\
                         `
         };
         const consoleMSG = `${queryCondition.ALINo} transfering, already informed ${req.body.CAT} owner ${ownerEmail}`;
@@ -1484,19 +1507,31 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
             }
         })
     };
+    //get 本地IP
+    function getIPAddress() {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    }
+    const IPAddress = getIPAddress();
+    // console.log(IPAddress) // 本地ip
 
     const mailOptions = {
         from: 'alisunlcfc@gmail.com',
         to: `${issueCreator}@lcfuturecenter.com`,
         subject: `[Sighting Inform] Issue ${queryCondition.ALINo} add new AR, please kindly check.`,
         html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
-                    <h2 style='font-style: 微軟正黑體;'>http://10.158.150.65:3000/sighting/${queryCondition.ALINo}</h2>\
+                    <h2 style='font-style: 微軟正黑體;'>http://${IPAddress}:3000/sighting/${queryCondition.ALINo}</h2>\
                     `
     };
     const consoleMSG = `${queryCondition.ALINo} add AR, already informed issue creator ${issueCreator}`;
-
-    //get 本地IP
-    
     sendMail(mailOptions, consoleMSG)
     res.json(newAR);
 
@@ -1713,6 +1748,21 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
     const newOwner = await findNewOwner(req.body.toCAT);
     const newOwnerAccount = newOwner.userAccount;
 
+    // get IP address
+    function getIPAddress() {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    }
+    const IPAddress = getIPAddress();
+
     if (req.body.reject) {
 
         const mailOptions = {
@@ -1722,7 +1772,7 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
             html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
             <h2 style='font-style: Calibri;'>Result     :  Reject</h2>\
             <h2 style='font-style: Calibri;'>Comment    : ${req.body.comment}</h2>\ 
-                        <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
+                        <h2 style='font-style: 微軟正黑體;'>http://${IPAddress}:3000/sighting/${queryCondition.ALINo}</h2>\
                         `
         };
         const consoleMSG = `${queryCondition.ALINo} transfer was rejected, already informed ${req.body.CAT} owner ${oldOwnerAccount}`;
@@ -1747,7 +1797,7 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
             html: `<h1 style='font-style: Calibri; background-color: #df1014;color :white;'> ALI No. ${queryCondition.ALINo}</h1>\                     
             <h2 style='font-style: Calibri;'>Result     :  Accept</h2>\
             <h2 style='font-style: Calibri;'>Comment    : ${req.body.comment}</h2>\ 
-                        <h2 style='font-style: 微軟正黑體;'>http://10.158.150.248:3000/sighting/${queryCondition.ALINo}</h2>\
+                        <h2 style='font-style: 微軟正黑體;'>http://${IPAddress}:3000/sighting/${queryCondition.ALINo}</h2>\
                         `
         };
         const consoleMSG = `${queryCondition.ALINo} transfer success, already informed original ${req.body.CAT} owner ${oldOwnerAccount}`;
@@ -1798,8 +1848,6 @@ app.get('/sightingpersonaldashboard', async (req, res) => {
             data.trackList.push(issueInfo);
         }
     };
-
-
     console.log(data);
     res.render('sightingPersonalDashboard', data)
 });
@@ -1826,6 +1874,27 @@ app.post('/sightingpersonaldashboard/canceltrack', upload.single(), async (req, 
 
     res.json(req.body)
 });
+
+
+app.get('/getip', (req, res) => {
+    // get IP address
+    function getIPAddress() {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    }
+    const IPAddress = getIPAddress();
+    res.json(IPAddress);
+
+
+})
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');
