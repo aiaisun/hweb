@@ -1297,8 +1297,9 @@ app.post('/sighting/:alino', upload.single(), async (req, res) => {
 
     //change status and priority  
     if (req.body.status) {
+        // console.log(req.body)
         sightingCollection.findOneAndUpdate(queryCondition,
-            { $set: { 'status': req.body.status } },
+            { $set: { 'status': req.body.status , 'symptom':req.body.symptom} },
             function (err, document) {
                 if (err) return res.json(err);
                 // console.log(document);

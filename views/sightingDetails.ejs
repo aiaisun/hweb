@@ -24,13 +24,13 @@
                 確認加入我的追蹤清單？
             </div>
             <form method="post" class="trackIssue">
-                <input class="form-check-input form-control-sm hideData" type="text" 
-                                        value="<%= locals.data.ALINo%>" name="ALINo">
+                <input class="form-check-input form-control-sm hideData" type="text" value="<%= locals.data.ALINo%>"
+                    name="ALINo">
                 <div class="modal-footer">
-                    
+
                     <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
                     <input value="Yes" type="submit" class="btn btn-sm btn-danger">
-                    
+
                 </div>
             </form>
         </div>
@@ -537,6 +537,19 @@
                                 </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-sm-2">Symptom</div>
+                        <div class="col-sm-6">
+                            <select id="symptom" class="form-control" name="symptom" required>
+                                <option id="originalSymptom"><%= locals.data.symptom %></option>
+                                <optgroup label="--Other Symptoms--">
+
+                                </optgroup>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
@@ -704,6 +717,41 @@
         }
 
         //更改issue狀態
+
+        // close 前把symptom修正
+        // console.log($('#tansferStatus span').text());
+        console.log($('#originalSymptom').text())
+        const CPUSymptoms = ["Can't Power", "Black Screen", "Memory Fail", "Blue Screen", "MSC Fail", "Device YB", "System Hang", "Auto Shutdown", "Other"]
+        const GPUSymptoms = ["NV MODS Fail", "AMD Unbundle Fail", "Decice Lost", "Other"];
+        const USBCSymptions = ["No Function", "No Charge", "No External Display", "Device Lost", "LNV VDM Fail", "Certification Fail", "Other"]
+        const issueCAT = $('#tansferStatus span').text();
+        const originalSymptom = $('#originalSymptom').text();
+        if (issueCAT == "CPU") {
+            for (let i in CPUSymptoms) {
+                let symptom = CPUSymptoms[i];
+                if (symptom != originalSymptom) {
+                    $('select#symptom optgroup').append(`<option>${symptom}</option>`)
+                };
+            };
+
+        } else if (issueCAT == "GPU") {
+            for (let i in GPUSymptoms) {
+                let symptom = GPUSymptoms[i];
+                if (symptom != originalSymptom) {
+                    $('select#symptom optgroup').append(`<option>${symptom}</option>`)
+                };
+            };
+        } else if (issueCAT == "USBC"){
+            for (let i in USBCSymptions) {
+                let symptom = USBCSymptions[i];
+                if (symptom != originalSymptom) {
+                    $('select#symptom optgroup').append(`<option>${symptom}</option>`)
+                };
+            };
+        }
+
+
+
         $('.changeStatusForm').on('submit', function (e) {
             e.preventDefault();
             let currentURL = location.pathname;
