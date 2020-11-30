@@ -9,6 +9,7 @@ const session = require('express-session');
 const tz = require('moment-timezone');
 const moment = require('moment');
 const rimraf = require("rimraf");
+const jsonexport = require('jsonexport');
 
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectId;
@@ -1079,7 +1080,7 @@ app.get('/sighting/submit', (req, res) => {
 
 
 //submit issue
-app.post('/sighting/submit', uploadEngine1.array('issueFile'), async(req, res) => {
+app.post('/sighting/submit', uploadEngine1.array('issueFile'), async (req, res) => {
     const data = req.userData;
     const userCollection = mongodb.collection('users');
     const sightingCollection = mongodb.collection('sighting');
@@ -1129,6 +1130,7 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), async(req, res) =
         'ARList': [],
         'transfer': false
     };
+
     // get IP address
     function getIPAddress() {
         var interfaces = require('os').networkInterfaces();
@@ -1159,10 +1161,12 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), async(req, res) =
     };
     const issueCat = { sightingrole: req.body.category };
     const issueOwner = await userCollection.findOne(issueCat);
-    if (issueOwner){
+    if (issueOwner) {
         mailOptions.to = issueOwner.userEmail;
+        issue.owner = issueOwner.userAccount;
     } else {
         mailOptions.to = `alii.sun@lcfuturecenter.com`;
+        issue.owner = "";
     }
 
     sightingCollection.insertOne(issue, function (err, document) {
@@ -1186,7 +1190,7 @@ app.post('/sighting/submit', uploadEngine1.array('issueFile'), async(req, res) =
 
     userCollection.findOneAndUpdate(queryCondition, { $push: { 'sightingSubmit': req.body.ALIno } }, function (err, document) {
         if (err) return res.json(err);
-        console.log("adding to subnit list")
+        console.log("adding to submit list")
     });
     res.redirect('/sighting')
 })
@@ -1299,7 +1303,7 @@ app.post('/sighting/:alino', upload.single(), async (req, res) => {
     if (req.body.status) {
         // console.log(req.body)
         sightingCollection.findOneAndUpdate(queryCondition,
-            { $set: { 'status': req.body.status , 'symptom':req.body.symptom} },
+            { $set: { 'status': req.body.status, 'symptom': req.body.symptom } },
             function (err, document) {
                 if (err) return res.json(err);
                 // console.log(document);
@@ -1432,7 +1436,7 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
     const commenter = data.loginUser;
     const issueCreator = req.body.issueCreator;
 
-    // console.log(req.body);
+    console.log(req.body);
     // console.log(req.files);
 
     // 建資料夾
@@ -1466,7 +1470,7 @@ app.post('/sighting/:alino/addAR', uploadEngine1.array('ARFile'), async (req, re
         ARFilePath.push(filePath);
     };
 
-    // console.log(ARFilePath)
+    console.log(ARFilePath)
     const newAR = {
         "ID": 1,
         "date": req.body.ARDate,
@@ -1807,6 +1811,33 @@ app.post('/sightingdashboard', upload.single(), async (req, res) => {
         res.json(req.body);
     }
 })
+app.post('/sightingdashboard/generatereport', upload.single(), async(req, res) => {
+    const data = req.userData;
+    const timeFormat = "YYYYMMDDHHmmss";
+    const mo1 = moment(new Date());
+    const fileName = mo1.format(timeFormat);
+    console.log(mo1.format(timeFormat));
+// res.json("success");
+
+    const sightingCollection = mongodb.collection('sighting');
+console.log(req.body.CAT)
+    const report = await sightingCollection.find({ "category": req.body.CAT },
+        { 'projection': { "ALINo": 1, "title": 1, "priority": 1, "project": 1, "category": 1, "description": 1, "createDate": 1, "_id": 0 } })
+        .toArray();
+    console.log(report);
+
+    jsonexport(report, function (err, csv) {
+        if (err) return console.log(err);
+        console.log(csv);
+        fs.writeFile(`public/sightingFile/genReport/${fileName}.csv`, csv, function (err) {
+            if (err) throw err;
+            console.log('file saved');
+            res.json(fileName);
+        });
+        
+    });
+    
+});
 
 app.get('/sightingpersonaldashboard', async (req, res) => {
     const data = req.userData;
@@ -1815,7 +1846,9 @@ app.get('/sightingpersonaldashboard', async (req, res) => {
     const user = { 'userAccount': data.loginUser };
     const submitList = await userCollection.findOne(user, { 'projection': { "sightingSubmit": 1, "_id": 0 } });
     const trackList = await userCollection.findOne(user, { 'projection': { "sightingTrack": 1, "_id": 0 } })
-    console.log(trackList);
+    // console.log(Boolean(submitList));
+    // console.log(submitList.length);
+    // console.log(Boolean(trackList));
 
     async function querySubmitInfo(ALINO) {
         const issueInfo = sightingCollection.findOne(ALINO, { 'projection': { "ALINo": 1, "title": 1, "status": 1, "priority": 1, "_id": 0 } })
@@ -1823,7 +1856,8 @@ app.get('/sightingpersonaldashboard', async (req, res) => {
     };
 
 
-    if (submitList) {
+    if (submitList.length) {
+        console.log("1 t")
         data.sNUM = submitList.sightingSubmit.length;
         data.spageNum = Math.ceil(submitList.sightingSubmit.length / 10);
         // console.log(data.sNUM)
@@ -1837,7 +1871,8 @@ app.get('/sightingpersonaldashboard', async (req, res) => {
     };
 
 
-    if (trackList) {
+    if (trackList.length) {
+        console.log("2 t")
         data.tNUM = trackList.sightingTrack.length;
         data.tpageNum = Math.ceil(trackList.sightingTrack.length / 10);
         console.log(data.tNUM)
@@ -1849,7 +1884,7 @@ app.get('/sightingpersonaldashboard', async (req, res) => {
             data.trackList.push(issueInfo);
         }
     };
-    console.log(data);
+    // console.log(data);
     res.render('sightingPersonalDashboard', data)
 });
 
@@ -1877,7 +1912,7 @@ app.post('/sightingpersonaldashboard/canceltrack', upload.single(), async (req, 
 });
 
 
-app.get('/getip', (req, res) => {
+app.get('/getip', async (req, res) => {
     // get IP address
     function getIPAddress() {
         var interfaces = require('os').networkInterfaces();
@@ -1895,7 +1930,41 @@ app.get('/getip', (req, res) => {
     res.json(IPAddress);
 
 
+    const timeFormat = "YYYYMMDDHHss";
+    const mo1 = moment(new Date());
+    const fileName = mo1.format(timeFormat);
+    console.log(mo1.format(timeFormat));
+
+
+    const sightingCollection = mongodb.collection('sighting');
+
+    const report = await sightingCollection.find({ "category": "GPU" },
+        { 'projection': { "ALINo": 1, "title": 1, "priority": 1, "project": 1, "category": 1, "description": 1, "createDate": 1, "_id": 0 } })
+        .toArray();
+    console.log(report);
+
+    jsonexport(report, function (err, csv) {
+        if (err) return console.log(err);
+        console.log(csv);
+        fs.writeFile(`${fileName}.csv`, csv, function (err) {
+            if (err) throw err;
+            console.log('file saved');
+        });
+    });
+
+
+
+
+
+
+
 })
+
+
+//try save CSV
+
+
+
 // 自定404 page
 app.use((req, res) => {
     res.type('text/plain');

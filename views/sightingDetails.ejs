@@ -185,10 +185,12 @@
     </ul>
 
     <div class="tab-content" id="myTabContent" style="height:1000px;">
-
+        <!-- AR tab -->
         <div class="tab-pane fade show active" id="AR" role="tabpanel" aria-labelledby="AR-tab">
+            <!-- 新增AR -->
             <div>
                 <form method="POST" id="addARForm">
+                    <!-- 新增AR 的 btn -->
                     <div>
                         <div style='margin-bottom: 10px;'>
                             <% if (locals.data.owner == loginUser) {%>
@@ -213,6 +215,8 @@
 
                                 <div class="card-body-content">
                                     <input id="ARDateinForm" name="ARDate">
+
+                                    <!-- 增減 AR 的icon  -->
                                     <div class='row iconSet'>
                                         <input class="hideData" name="issueCreator" value="<%= locals.data.creator %>">
                                         <div class="ARIcon" id="AddARStep">
@@ -223,22 +227,30 @@
                                         </div>
                                     </div>
 
+                                    <!-- 第一個 AR step -->
                                     <div id="ARSteps">
                                         <div class="eachARStep">
                                             <div class="input-group input-group-sm mb-2">
+
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">AR #1</span>
                                                 </div>
+                                                <!-- AR的內容 -->
                                                 <textarea class="form-control ARTextarea" name="ar" rows="2"
                                                     aria-label="With textarea" required></textarea>
 
                                             </div>
-                                            <input class="ARFile" id="1ARFile" type="file" name="ARFile"
-                                                onchange="fileNum(this)" multiple>
-                                            <input id="1ARFileNum" type="text" name="ARFileNum" value="0">
+                                            <!-- 要上傳的file input -->
+                                            <input class="ARFile" id="0ARFile" type="file" name="ARFile"
+                                                onchange="fileNum(this)" itemid="0" multiple>
+                                            <!-- 自動帶入夾帶了幾個檔案 -->
+                                            <input id="0ARFileNum" class="hideData" type="text" name="ARFileNum"
+                                                value="0">
                                         </div>
 
                                     </div>
+
+
                                 </div>
 
                             </div>
@@ -249,7 +261,7 @@
                 </form>
             </div>
 
-
+            <!-- 已存在的AR -->
             <div id="ARContent">
                 <!-- database 的 AR  -->
                 <% for( let i = locals.data.ARList.length - 1; i >= 0 ; i--){  
@@ -266,7 +278,7 @@
                         <div class="card-body text-secondary" style="padding: 8px  0px 0px;">
 
                             <div class="card-body-content">
-
+                                <!-- id="ARPDiv"> -->
                                 <% for( let j = 0; j < item.AR.length; j++){  
                                 let ARItem = item.AR[j] %>
 
@@ -397,7 +409,6 @@
                                         </div>
                                     </form>
 
-
                                     <!-- 新增AR 之後切換成 rivseAR form  -->
                                     <P id="ARContentText<%= item.ID %><%= ARItem.index %>"
                                         class="card-text afterReplay">
@@ -468,7 +479,7 @@
             </div>
 
         </div>
-
+        <!--  Remark Rab -->
         <div class="tab-pane fade " id="remark" role="tabpanel" aria-labelledby="remark-tab">
             <% if (loginUser) { %>
             <div style="margin-top: 10px;">
@@ -720,7 +731,7 @@
 
         // close 前把symptom修正
         // console.log($('#tansferStatus span').text());
-        console.log($('#originalSymptom').text())
+        // console.log($('#originalSymptom').text())
         const CPUSymptoms = ["Can't Power", "Black Screen", "Memory Fail", "Blue Screen", "MSC Fail", "Device YB", "System Hang", "Auto Shutdown", "Other"]
         const GPUSymptoms = ["NV MODS Fail", "AMD Unbundle Fail", "Decice Lost", "Other"];
         const USBCSymptions = ["No Function", "No Charge", "No External Display", "Device Lost", "LNV VDM Fail", "Certification Fail", "Other"]
@@ -741,7 +752,7 @@
                     $('select#symptom optgroup').append(`<option>${symptom}</option>`)
                 };
             };
-        } else if (issueCAT == "USBC"){
+        } else if (issueCAT == "USBC") {
             for (let i in USBCSymptions) {
                 let symptom = USBCSymptions[i];
                 if (symptom != originalSymptom) {
@@ -870,10 +881,12 @@
 
         //計算AR上傳的數量
         function fileNum(which) {
-            console.log(assetQ)
-            console.log($(`#${assetQ + 1}ARFile`).get(0).files);
-            let fileNum = $(`#${assetQ + 1}ARFile`).get(0).files.length;
-            $(`#${assetQ + 1}ARFileNum`).val(fileNum);
+            // console.log($(which).attr('itemid'));
+            let itemid = parseInt($(which).attr('itemid'));
+            // console.log(itemid);
+            console.log($(`#${itemid}ARFile`).get(0).files);
+            let fileNum = $(`#${itemid}ARFile`).get(0).files.length;
+            $(`#${itemid}ARFileNum`).val(fileNum);
         };
 
         let assetQ = 0;
@@ -883,16 +896,17 @@
             assetQ++;
             // console.log(assetQ);
 
-            $('#ARSteps').append(`  <div class="eachARStep refreshARCol" id="col${assetQ}" style="border-top: #D3D3D3 2px dotted;padding-top:10px">\
+            $('#ARSteps').append(`<div class="eachARStep refreshARCol" id="col${assetQ}" style="border-top: #D3D3D3 2px dotted;padding-top:10px">\
                                 <div class="input-group input-group-sm mb-2 newARTextarea">\
                                 <div class="input-group-prepend">\
                                 <span class="input-group-text">AR #${assetQ + 1}</span>\
                                 </div>\
                                 <textarea class="form-control ARTextarea" name="ar" rows="2" aria-label="With textarea" required></textarea>\
                                 </div>\
-                                <input class="ARFile" id="${assetQ + 1}ARFile" type="file" name="ARFile" onchange="fileNum(this)" multiple>\
-                                <input id="${assetQ + 1}ARFileNum" type="text" name="ARFileNum">\
+                                <input class="ARFile" id="${assetQ}ARFile" itemid="${assetQ}" type="file" name="ARFile" onchange="fileNum(this)" multiple>\
+                                <input id="${assetQ}ARFileNum" class="hideData" type="text" name="ARFileNum" value="0">\
                                 </div>`);
+            $('.hideData').hide();
         });
 
         $('#deleteARStep').click(() => {
@@ -926,10 +940,10 @@
                 //要把格子清成一個 不然畫面會一直保存上次 AR input的數量
                 $('.refreshARCol').remove();
                 //清除step1的資料
-                $('#1ARFileNum').val("0")
-                $('#1ARFile').val('')
+                $('#0ARFileNum').val("0")
+                $('#0ARFile').val('')
 
-                // console.log(data);
+
                 const creator = $('#aliCreator').text();
                 $('.ARTextarea').val('');
                 $('.newARTextarea').hide();
@@ -944,27 +958,60 @@
                 $('#ARContent').prepend(`
             <div class="card border-secondary mb-3 ">\
                 <div class="row no-gutters" style="width: 100%;">\
-                        <div class="card-header " style=" text-align: center;">${data.date}</div>\
+                        <div class="card-header " style=" text-align: center;">${data.date} </div>\
                         <div class="card-body text-secondary" style="padding: 8px 0px;">\
-                            <div class="card-body-content" id="ARPDiv">\
+                            <div class="card-body-content" id="ARPDiv"> \
+                                
                             </div>\
                         </div>\
                 </div>\
             </div>\  
                 `);
+
                 for (let i = 0; i < data.AR.length; i++) {
-                    // console.log(data.AR[i])
-                    $("#ARPDiv").append(`<P class="card-text">\
-                                    <span class="badge badge-secondary">AR #${i + 1}</span>\
-                                    <span>${data.AR[i].request}</span>\
-                                </P>\
-                                `);
-                    $("#ARPDiv").append(`
-                                <P class="card-text">
-                                    <span
-                                        class="badge badge-warning">${creator}</span>
-                                    <span></span>
-                                </P>`);
+                    // for(let i in data.AR){
+
+                    // 先把每一個小AR架構架起來
+                    if (i == 0) {
+                        $("#ARPDiv").append(`<div style="margin-bottom:8px">\
+                                         <div id="uploadingAR${i}" style="margin-bottom: 5px;">\
+                                         <P class="card-text" style="margin-bottom: 0px;">\
+                                         <span class="badge badge-secondary">AR #${i + 1}</span>\
+                                         <span>${data.AR[i].request}</span>\
+                                         </P>\
+                                         </div>`);
+                    } else {
+                        $("#ARPDiv").append(`<div style="border-top: #D3D3D3 2px dotted;padding-top:8px;margin-bottom:8px">\
+                                         <div id="uploadingAR${i}" style="margin-bottom: 5px;">\
+                                         <P class="card-text" style="margin-bottom: 0px;">\
+                                         <span class="badge badge-secondary">AR #${i + 1}</span>\
+                                         <span>${data.AR[i].request}</span>\
+                                         </P>\
+                                         </div>`);
+                    }
+                    // 再看有沒有夾帶檔案
+                    console.log(data.AR[i].requestARFile);
+                    if (Boolean(data.AR[i].requestARFile.length)) {
+                        $(`#uploadingAR${i}`).append(`<div id="uploadingARFile${i}">\
+                            <span class="badge badge-secondary">File</span>\
+                        </div>\
+                            `);
+                        for (let j in data.AR[i].requestARFile) {
+                            $(`#uploadingARFile${i}`).append(`
+                            <a href="../${data.AR[i].requestARFile[j]}" class="badge badge-light" target="_blank">${parseInt(j) + 1}</a>
+                         `);
+                        }
+                    };
+
+                    // 再加入creator
+                    $("#ARPDiv").append(`<div style="margin-bottom: 5px;">\
+                                         <P class="card-text" style="margin-bottom: 0px;">\
+                                         <span class="badge badge-warning">${creator}</span>\
+                                         <span></span>\
+                                         </P>\
+                                        </div>`);
+                    // 再補上final 的div
+                    $("#ARPDiv").append(`</div>`);
                 };
 
             });
@@ -1020,7 +1067,7 @@
 
 
 
-        $('.hideData').hide();
+        // $('.hideData').hide();
         $('.afterReplay').hide();//把ajax之後要顯示的p 先隱藏
         $('.replyAR').on('submit', function (e) {
             e.preventDefault();

@@ -136,15 +136,15 @@
                 <th style="width: 30%;padding:0px">Title</th>
                 <th style="width: 10%;padding:0px">State</th>
                 <th style="width: 8%;padding:0px">Category</th>
-                <th style="width: 10%;padding:0px">Project</th>
-                <th style="width: 12%;padding:0px">Created</th>
+                <th style="width: 12%;padding:0px">Project</th>
+                <th style="width: 10%;padding:0px">Creator</th>
                 <th style="width: 10%;padding:0px">Engineer Owner</th>
             </tr>
         </thead>
         <tbody id="queryResult">
         </tbody>
         <tbody id="allResult">
-            <%  for (let i = 0; i< locals.issue.length; i++) {%>
+            <%  for (let i = locals.issue.length -1; i>=0 ; i--) {%>
             <tr>
                 <td style="width: 8%;"><%= issue[i].priority %></td>
     
@@ -154,7 +154,7 @@
                 <td style="width: 10%;"><%= issue[i].status %></td>
                 <td style="width: 8%;"><%= issue[i].category %></td>
                 <td style="width: 10%;"><%= issue[i].project %></td>
-                <td style="width: 12%;"><%= issue[i].created %></td>
+                <td style="width: 12%;"><%= issue[i].creator %></td>
                 <td style="width: 10%;"><%= issue[i].owner %></td>
             </tr>
             <% } %>

@@ -109,6 +109,10 @@
             <div id="issueStatus">
                 <header>
                     <h3>Issue List</h3>
+                    <form id="generaterpt">
+                        <input class="hideData" name="CAT" value="<%= locals.sightingrole %>">
+                        <input id="generatebtn" type="submit" class="btn btn-outline-secondary btn-sm" value="Generate Report">
+                      </form>
                 </header>
 
                 <section>
@@ -347,11 +351,7 @@
     function morrir(which) {
         const comment = $(which).val();
         $('#getMirror').val(comment);
-
-    }
-
-
-
+    };
 
     $('.hideData').hide()
     var myChart = echarts.init($('#main').get(0));
@@ -513,6 +513,27 @@
         }).done(function (data) {
             // console.log(data);
             window.location = 'http://localhost:3000/sightingdashboard';
+        })
+    });
+
+    //generate report 
+    $('#generaterpt').on('submit', function (e) { //新增新的備註
+        e.preventDefault();
+        let currentURL = location.pathname;
+
+        $.ajax({
+            url: `${currentURL}/generatereport`,
+            type: 'POST',
+            data: new FormData(this),
+            contentType: 'text/csv',//一定要加
+            cache: false,
+            processData: false,//一定要加
+            dataType: "json"
+        }).done(function (data) {
+
+            console.log(data);
+            top.location.href = `sightingFile/genReport/${data}.csv`;
+            // window.location = 'http://localhost:3000/sightingdashboard';
         })
     })
 

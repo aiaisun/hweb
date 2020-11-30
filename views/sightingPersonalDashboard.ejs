@@ -25,6 +25,7 @@
                                     <th style="width: 30%;">Title</th>
                                 </tr>
                             </thead>
+                            <% if (locals.spageNum) {%>
                             <% for (let p=0; p < locals.spageNum; p++) {%>
 
                             <tbody class="wqueryResult" id="wqueryResult<%= p+1 %>">
@@ -44,6 +45,7 @@
                                 <% } %>
                                 <% } %>
                             </tbody>
+                            <% } %>
                             <% } %>
                         </table>
 
@@ -90,6 +92,7 @@
                                     <th style="width: 30%;">Title</th>
                                 </tr>
                             </thead>
+                            <% if (locals.tpageNum) {%>
                             <% for (let p=0; p < locals.tpageNum; p++) {%>
 
                             <tbody class="cqueryResult" id="cqueryResult<%= p+1 %>">
@@ -110,6 +113,7 @@
                                 <% } %>
                                 <% } %>
                             </tbody>
+                            <% } %>
                             <% } %>
                         </table>
 
@@ -188,10 +192,11 @@
     // 取消追蹤issue
     function deleteTrack(which) {
         let alino = $(which).attr('itemid');
-        console.log(alino);
+        // console.log(alino);
         $('#cancelTrackAli').val(alino);
         $('#cancelTrack').modal('show');
     };
+
     // 取消追蹤issue
     $('.cancelTrack').on('submit', function (e) { //新增新的備註
         e.preventDefault();
@@ -207,8 +212,9 @@
             dataType: "json"
         }).done(function (data) {
             console.log(data);
+            let alino = data.ALINo;
             $('#cancelTrack').modal('hide');
-            $(`tr #${}`)
+            $(`tr#${alino}`).remove();
         })
     });
 </script>
