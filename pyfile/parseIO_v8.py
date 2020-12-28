@@ -98,7 +98,7 @@ for i in rawData:
         netName = i[0]
         
         netNameList.append(netName) #建立netnamelist
-    elif i[-1] == "0.000" or i[-1] == "0.0000": #找到location
+    elif i[-1] == "0.000" or i[-1] == "0.0000" or i[-1] == "0.00": #找到location
 
         data = {} #清空 
 

@@ -64,27 +64,32 @@
                 <td style="width: 113px;">Status</td>
                 <td class="col2" style="width: 500px;" id="statusVal" val="<%= locals.data.status %>">
                     <span><%= locals.data.status %></span>
-                    <% if (locals.data.owner == loginUser) { %>
+                    <% (locals.data.owner).forEach((name) => { %> 
+                    <% if (loginUser == name) { %>
                     <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
                         data-toggle="modal" data-target="#changeStatus" value='Change'>
                     <% } %>
+                    <% }) %>
                 </td>
             </tr>
             <tr>
                 <td style="width: 113px;">Priority</td>
                 <td class="col2" style="width: 500px;" id="priorityVal" val="<%= locals.data.priority %>">
                     <span><%= locals.data.priority %></span>
-                    <% if (locals.data.owner == loginUser) { %>
+                    <% (locals.data.owner).forEach((name) => { %> 
+                    <% if (loginUser == name) { %>
                     <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
                         data-toggle="modal" data-target="#changePriority" value='Change'>
                     <% } %>
+                    <% }) %>
                 </td>
             </tr>
             <tr>
                 <td style="width: 113px;">Category</td>
                 <td class="col2" style="width: 500px;" id="tansferStatus">
                     <span><%= locals.data.category %></span>
-                    <% if (locals.data.owner == loginUser) { %>
+                    <% (locals.data.owner).forEach((name) => { %> 
+                    <% if (loginUser == name) { %>
                     <% if (locals.data.transfer == true) { %>
                     <input type="button" class="btn btn-outline-danger btn-sm" style="margin-left: 10px;"
                         data-toggle="modal" data-target="#cancelTransferCAT" value='Transferring'>
@@ -93,6 +98,7 @@
                         data-toggle="modal" data-target="#changeCAT" value='Change'>
                     <% } %>
                     <% } %>
+                    <% }) %>
                 </td>
             </tr>
             <tr>
@@ -193,7 +199,9 @@
                     <!-- 新增AR 的 btn -->
                     <div>
                         <div style='margin-bottom: 10px;'>
-                            <% if (locals.data.owner == loginUser) {%>
+                            <% locals.data.owner.forEach((name) => { %>                           
+
+                            <% if (loginUser == name ) {%>
                             <input type="button" style="border-color:#D3D3D3;" id="showARForm"
                                 class="btn btn-outline-secondary btn-sm" value='Add New'>
                             <input type="button" style="border-color:#D3D3D3;" id="hideARForm"
@@ -202,7 +210,7 @@
                                 class="btn btn-outline-danger btn-sm" value='Submit AR'>
 
                             <% } %>
-
+                            <% }) %>
                         </div>
                     </div>
 

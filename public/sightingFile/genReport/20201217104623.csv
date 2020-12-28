@@ -1,0 +1,17 @@
+ALINo,createDate,title,priority,project,category,description
+ALI201202153514,2020-12-02 15:35,[CS18 Pro Dock] Deveices can not be recognized,High,Drift3 / Ironhide3,USBC,[CS18 Pro Dock] Deveices can not be recognized
+ALI201202153655,2020-12-02 15:36,[TBT4 Dock] The TBT4 dock can not be recognized,Emergency,Drift3 / Ironhide3,USBC,[TBT4 Dock] The TBT4 dock can not be recognized
+ALI201202153854,2020-12-02 15:38,[USB-C to DisplayPort Adapter] Monitor can not be recognized,Emergency,Tiger / Serval,USBC,[USB-C to DisplayPort Adapter] Monitor can not be recognized
+ALI201202154033,2020-12-02 15:40,[USB-C to DisplayPort Adapter] monitor can not be recognized,High,Drift3 / Ironhide3,USBC,[USB-C to DisplayPort Adapter] monitor can not be recognized
+ALI201202154200,2020-12-02 15:42,[USB-C to DP dongle] External monitor lost after change PC screen only,High,Tiger / Serval,USBC,[USB-C to DP dongle] xternal monitor lost after change PC screen only
+ALI201202164246,2020-12-02 16:42,No POST logo show in external monitor,High,Drift3 / Ironhide3,USBC,POST logo show in external monitor and beep code don't occurs when resume from S4/S5 with Hub attached.
+ALI201202165013,2020-12-02 16:50,No Post Logo cannot display on VGA monitor DP/HDMI can not duplicate,High,Drift3 / Ironhide3,USBC,Post interface cannot display on VGA monitor and has beep sound when close lid then power on with VGA monitor connected to Dock
+ALI201202165719,2020-12-02 16:57,"[DI3][SIT2.0][Option][USBC G2 dock]:4K external HDMI/DP monitor cannot set 60Hz when attach dock to system.(F/R:2/2Units, 4/4 each unit)",High,Drift3 / Ironhide3,USBC,4K external HDMI/DP monitor cannot set 60Hz when attach dock to system.
+ALI201202170417,2020-12-02 17:04,Devices recognized again once adaptor in behaviors change,Medium,Drift3 / Ironhide3,USBC,"Devices on hub will redentification when first plug out system AC then plug out hub AC.
+"
+ALI201202171039,2020-12-02 17:10,system cannot be charged,High,Drift3 / Ironhide3,USBC,It’s system cannot be charged when attach Lenovo USB-C to VGA Plus power Adapter to unit first then plug 45/65W typec adapter in dongle
+ALI201202171500,2020-12-02 17:15,System show discharge when connect Dock to system at AC mode.,High,Drift3 / Ironhide3,USBC,"Using DI3 W0 FVT2.0 Win10P64 EN-UK with N34ET03W BIOS and N34HT03W EC,System show discharge when connect Dock to system at AC mode."
+ALI201209154139,2020-12-09 15:41,[Monitor test][Tiger/Serval][SIT2.02][19042.630]: External monitor lost after change PC screen only to clone/extend/second only mode when connect monitor DP port via USB-C to DP dongle.(FR: 2/2units; FR: 4/4trials) Title,Medium,Tiger / Serval,USBC,[Monitor test][Tiger/Serval][SIT2.02][19042.630]: External monitor lost after change PC screen only to clone/extend/second only mode when connect monitor DP port via USB-C to DP dongle.(FR: 2/2units; FR: 4/4trials) Title
+ALI201209204952,2020-12-09 20:49,"[DI3][SIT2.0][Option][Lenovo USB-C 7-in-1 hub]Devices on hub will redentification when first plug out system AC then plug out hub AC.(F/R: 2/2Units, 4/5 Total Trials)",Medium,Drift3 / Ironhide3,USBC,"DI3][SIT2.0][Option][Lenovo USB-C 7-in-1 hub]Devices on hub will redentification when first plug out system AC then plug out hub AC.(F/R: 2/2Units, 4/5 Total Trials)"
+ALI201211160204,2020-12-11 16:02,[L Gen2 AMD] AC can't charge and charge LED would flash,Emergency,Odin2 / Thor2_AMD,USBC,"DC-IN LED Flash
+When Phenomenon happen, system can not  be charged."

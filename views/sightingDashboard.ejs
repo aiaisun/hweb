@@ -107,11 +107,10 @@
         </div>
         <div id="right">
             <div id="issueStatus">
-                <header>
-                    <h3>Issue List</h3>
+                <header class="row">
+                    <h3 style="margin: 0px 15px ">Issue List</h3>
                     <form id="generaterpt">
-                        <input class="hideData" name="CAT" value="<%= locals.sightingrole %>">
-                        <input id="generatebtn" type="submit" class="btn btn-outline-secondary btn-sm" value="Generate Report">
+                        <input id="generatebtn" type="submit" class="btn btn-outline-secondary btn-sm" value="Generate Report" >
                       </form>
                 </header>
 
@@ -331,7 +330,7 @@
                     <input class="hideData" type="text" name='alino' value='<%= requestTansfer[i].ALINo %>'>
                     <input class="hideData" type="text" name='toCAT' value='<%= requestTansfer[i].transferTemp %>'>
                     <input class="hideData" type="text" name='remark' value='<%= requestTansfer[i].transferTempComment %>'>
-                    <input class="hideData1" id="getMirror" type="text" name='comment' value=''>
+                    <input class="hideData" id="getMirror" type="text" name='comment' value=''>
                     <input type="submit" class="btn btn-danger btn-sm" value="Accept">
                 </form>
 
