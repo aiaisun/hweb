@@ -1,43 +1,18 @@
 <%- include('parts/html_head') %>
-<%- include('parts/navbar') %>
 
-<!-- 
-<div id="projectName">
-    <h3 for="exampleFormControlFile1">上傳txt file</h3>
 
-    <form method="POST" class="form-group" id="tlcForm1" enctype="multipart/form-data">
 
-        <div>
-            Project Name: &nbsp;
-            <input name="project" type="text" required>
-        </div>
-        <div>
-            TXT File: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input name="tlcfile" type="file" id="tlcfile" accept=".txt" required>
-            
-            <input type="submit" id="tlcUploadBTN" class="btn btn-outline-secondary btn-sm" value="Upload">
-            
-        </div>
-    </form>
-</div> -->
-
-<form method="POST" class="form-group" id="tlcForm" enctype="multipart/form-data">
+<form method="POST" class="form-group" id="NREForm" enctype="multipart/form-data">
     <div id="tlcUpload">
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="project">Project</span>
-            </div>
-            <input type="text" class="form-control" name="project" aria-label="Sizing example input"
-                aria-describedby="project" value="誰?"required>
-        </div>
+        
         <div class="input-group">
             <div class="custom-file">
-                <input type="file" name="tlcfile" class="custom-file-input" id="tlcfile" accept=".txt"
+                <input type="file" name="NREFile" class="custom-file-input" accept=".xlsx"
                     aria-describedby="inputGroupFileAddon04">
                 <label id="fileName" class="custom-file-label" for="inputGroupFile04">選擇檔案</label>
             </div>
             <div class="input-group-append">
-                <input type="submit" id="tlcUploadBTN" class="btn btn-outline-secondary btn-sm" value="Upload">
+                <input type="submit" id="tlcUploadBTN" class="btn btn-outline-secondary btn-sm" value="Import">
             </div>
         </div>
 
@@ -49,7 +24,7 @@
                     <input name="#" type="hidden">
                 </div>
                 <div id="parseIcon">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="parseTLCIO">Paese IO</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="parseSTDNRE">Upload Stardard NRE</button>
                     <button type="button" class="btn btn-outline-secondary btn-sm" id="parseTLCVram">Parse VRAM</button>
                 </div>
                 </span>
@@ -66,16 +41,11 @@
         <div>            
             <a id="downloadPath" href="#" download>Download SQS Data</a>
         </div>
-        <div style="margin-top:10px;">
-            <a id="downloadPath1" href="database/TLC_IO_v1.0.xlsm" download>TLC SQS 表格下載</a>
-        </div>
+
     </div>
 
 </form>
-<!-- project name -->
-<!-- <h3 id="projectName"></h3> -->
-<!-- file name -->
-<!-- <div id="uploadedTLCFileName"></div> -->
+
 
 
 
@@ -90,10 +60,10 @@
     var project = "";
     var uploadedTLCFileName = "";
 
-    $('#tlcForm').on('submit', function (e) {
+    $('#NREForm').on('submit', function (e) {
         e.preventDefault();//prevent default post
         $.ajax({
-            url: '/tlc',
+            url: '/uploaddata',
             type: 'POST',
             data: new FormData(this),//the request data that send to route res.json(req.files)
             contentType: false,
@@ -103,9 +73,9 @@
         }).done(function (data) {
 
             console.log(data);
-            project = data.project;
             uploadedTLCFilePath = data.data.path;
             uploadedTLCFileName = data.data.originalname;
+            console.log(uploadedTLCFileName)
 
             // $('#tlcForm').hide();
             // $('#projectName').html("Project Name: &nbsp;&nbsp;  " + project);
@@ -116,22 +86,21 @@
     });
 
     $("#spinner").hide();
-    $('#parseTLCIO').click(function () {
+    $('#parseSTDNRE').click(function () {
         //按了parse會顯示project和path 資訊在網頁的console log
         // console.log("Project: ", project);
         // console.log("file path: ", uploadedTLCFilePath);
         // console.log("Sending file path to backend.");
 
-        $('#parseTLCIO').hide();
+        $('#parseSTDNRE').hide();
         $('#parseTLCVram').hide();
         $("#spinner").show();
-        // alert("parsing...")lo
 
-        $.get('/tlc/parsetlc', { "project": project, "TLCFilePath": uploadedTLCFilePath }, function (data) {
+        $.get('/uploaddata/parsestandardnre', { "FilePath": uploadedTLCFilePath }, function (data) {
             // console.log("DONE");
             console.log(data);
             $("#spinner").hide();
-            if (data.downloadPath) {
+            if (data) {
                 const downloadPath = data.downloadPath;
                 $("#downloadPath").attr("href", downloadPath);
                 $('#downloadPath').show();
@@ -143,32 +112,7 @@
                 $('#parseresult').show();
                 $('#parseresult').text("Parse 失敗");
             }
-            // var downloadPath = data.downloadPath;
-            // $("#downloadPath").attr("href", downloadPath);
-            // // $('#uploadcomplete').text("Process Complete.")
-            // $('#downloadPath').show();
-            // $('#downloadPath1').show();
-            // // // $('#categorizedPhoto').show();
-            // // console.log(photoPathList)
-            // var categorizedNum = data.detectorNum;
-            // var spots = data.place
-
-            // // console.log(spots);
-
-            // for (var i in spots){
-            //     // var categorized = ""
-            //     // categorized += 
-            //     console.log(spots[i]["id"]);
-            //     console.log(spots[i]["path"]);
-            //     $('#categorizedPhoto').append(`<div id="${spots[i]['id']}"> ${spots[i]["id"]}</div>`);
-            //     $(`#${spots[i]["id"]}`).append(`<div id="${spots[i]["id"]}Path"></div>`)
-            //     for (var j in spots[i]["path"]){
-
-            //         $(`#${spots[i]["id"]}Path`).append(`<img src="${spots[i]["path"][j].substr(6)}" width="300px">`)
-
-            //     }
-            // }
-            // $('categorizedPhoto')          
+                 
         })
     })
 
@@ -178,9 +122,9 @@
         // console.log("file path: ", uploadedTLCFilePath);
         // console.log("Sending file path to backend.");
 
-        $('#parseTLCIO').hide();
+        $('#parseSTDNRE').hide();
         $('#parseTLCVram').hide();
-        // alert("parsing...")
+        alert("parsing...")
 
         $.get('/tlc/parsevram', { "project": project, "TLCFilePath": uploadedTLCFilePath }, function (data) {
             // console.log("DONE");

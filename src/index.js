@@ -335,7 +335,7 @@ function pythonProcess(req, res) {
 app.get('/tlc/parsetlc', pythonParseTLC)
 function pythonParseTLC(req, res) {
     console.log("Running python file.");
-    // console.log(req.query.TLCFilePath);
+    console.log(req.query.TLCFilePath);
     // console.log(req.query.project);
     path = ".\\" + req.query.TLCFilePath;
 
@@ -350,13 +350,15 @@ function pythonParseTLC(req, res) {
     PythonShell.run('./pyfile/parseIO_v8.py', options, (err, data) => {
         if (err) res.send(err)
         const parsedString = JSON.parse(data)
-        // console.log(data);
-        // console.log(parsedString);
+        console.log(data);
+        console.log(parsedString);
         console.log("Program run done.");
         console.log("Result: ", parsedString);
         res.json(parsedString)
 
     })
+
+
 
 };
 
@@ -482,6 +484,22 @@ app.post('/consumables/reviseitem', upload.single('tlcfile'), (req, res) => {
     }
     consumablesCollection.findOneAndUpdate(itemID, { $set: reviseConsumable }, (err, document) => {
         if (err) return res.json(err);
+    })
+    res.json(req.body)
+})
+
+
+//刪除耗材項目
+app.post('/consumables/deleteitem', upload.single('tlcfile'), (req, res) => {
+    const consumablesCollection = mongodb.collection('consumables');
+    let itemID = {
+        '_id': mongoObjectID(req.body.itemId),
+    }
+    console.log(itemID);
+   
+    consumablesCollection.deleteOne(itemID, (err, document) => {
+        if (err) return res.json(err);
+        console.log("刪除成功")
     })
     res.json(req.body)
 })
@@ -1984,8 +2002,21 @@ app.get('/getip', async (req, res) => {
 
 })
 
+app.get('/uploaddata', (req, res) => {
+    // const data = req.userData;
 
-//try save CSV
+    res.render('uploaddata');
+});
+
+app.post('/uploaddata', upload.single('NREFile'), (req, res) => {
+    const data = req.userData;
+    console.log(req.file);//req.files 報錯
+    const files = {
+        "data": req.file
+    }
+    res.json(files);
+});
+
 
 
 

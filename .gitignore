@@ -1,6 +1,8 @@
 # 忽略所有附檔名是 .tmp 的檔案
 *.xlsx
 *.txt
+*.csv
+*.rpt
 
 #忽略這些資料夾裡面的東西
 /node_modules/*
